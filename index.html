@@ -1,4 +1,13 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="生活記録">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
 <title>生活記録ツール</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,7 +37,8 @@
 :root:root[data-mode="dark"]{
   --bg:#0f121a; --surface-solid:#181c27; --surface-2:#20263a; --ink:#e6e9f2; --muted:#949db2; --line:#2c3347;
   --accent:#8f9cf2; --accent-ink:#11142a; --dawn:#f0a85a; --danger:#e8786e; color-scheme:dark}
-:root.has-bg{--surface:color-mix(in srgb,var(--surface-solid) 84%,transparent)}
+:root{--card-a:84%;--card-blur:14px}
+:root.has-bg{--surface:color-mix(in srgb,var(--surface-solid) var(--card-a),transparent)}
 
 *{box-sizing:border-box}
 html,body{min-height:100%}
@@ -46,14 +56,15 @@ button{cursor:pointer}
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;justify-content:space-between;
   padding-block:12px;margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));
   background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.has-bg header.top{background:color-mix(in srgb,var(--surface-solid) 70%,transparent)}
+.has-bg header.top{background:color-mix(in srgb,var(--surface-solid) var(--card-a),transparent)}
+.has-bg .card,.has-bg header.top{text-shadow:0 0 6px color-mix(in srgb,var(--surface-solid) calc(100% - var(--card-a)),transparent)}
 .brand{font-family:var(--display);font-size:1.45rem;letter-spacing:.04em;margin:0;display:flex;align-items:baseline;gap:8px}
 .brand small{font-family:var(--body);font-size:.72rem;color:var(--muted);letter-spacing:.08em}
 .iconbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
 .iconbtn svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:1.7}
 
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  backdrop-filter:blur(var(--card-blur));-webkit-backdrop-filter:blur(var(--card-blur))}
 .card h2{font-size:.78rem;letter-spacing:.12em;color:var(--muted);margin:0 0 10px;font-weight:700}
 
 /* quick record */
@@ -416,6 +427,12 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
         <input type="file" id="bgFile" accept="image/*">
         <span class="hint">選んだ画像は画面の縦横比に合わせて切り抜けます。</span>
       </div>
+      <div id="bgLookRow" hidden style="margin-top:10px;display:grid;gap:8px">
+        <div class="slider" style="grid-template-columns:6.5em 1fr 3.4em"><label for="cardAlpha">カードの濃さ</label><input type="range" id="cardAlpha" min="0" max="100" step="5"><output id="cardAlphaOut"></output></div>
+        <div class="slider" style="grid-template-columns:6.5em 1fr 3.4em"><label for="cardBlur">ぼかし</label><input type="range" id="cardBlur" min="0" max="24" step="1"><output id="cardBlurOut"></output></div>
+        <span class="hint">濃さを下げるほど背景がよく見えます。文字が読みにくいときは、ぼかしを強めにすると見やすくなります。</span>
+        <div><button class="btn ghost" id="resetLook">初期値に戻す（濃さ84%・ぼかし14）</button></div>
+      </div>
     </div>
     <div><h4>通勤スロット</h4>
       <div id="slotList"></div>
@@ -459,7 +476,7 @@ const WD=['日','月','火','水','木','金','土'];
 const clone=o=>JSON.parse(JSON.stringify(o));
 const md=k=>{const d=parse(k);return (d.getMonth()+1)+'/'+d.getDate()+'('+WD[d.getDay()]+')'};
 
-const DEF={mode:'system',colors:{note:'#d9822b',prep:'#2f8f80',commute:'#a3519a',mood:'#b8941f',work:'#8a63c9',sleep:'#5b6fd6'},marks:{note:true,prep:false,commute:false,mood:false,work:false},slots:[],bg:{type:'none',color:'#c9d3e6'}};
+const DEF={mode:'system',colors:{note:'#d9822b',prep:'#2f8f80',commute:'#a3519a',mood:'#b8941f',work:'#8a63c9',sleep:'#5b6fd6'},marks:{note:true,prep:false,commute:false,mood:false,work:false},slots:[],bg:{type:'none',color:'#c9d3e6',alpha:84,blur:14}};
 const MARKS=[['note','特記事項'],['prep','朝支度の時間'],['commute','通勤'],['mood','気力・体力'],['work','勤務']];
 /* 特記事項の見出し（例「入浴：」）ごとのマーク */
 const NOTE_ITEMS=[...document.querySelectorAll('#noteChips [data-t]')].map(b=>({t:b.dataset.t.replace(/：$/,''),name:b.textContent}));
@@ -520,6 +537,7 @@ function applyLook(){
   if(st.mode==='system')delete root.dataset.mode;else root.dataset.mode=st.mode;
   root.style.setProperty('--c-note',st.colors.note);root.style.setProperty('--c-prep',st.colors.prep);root.style.setProperty('--c-sleep',st.colors.sleep);root.style.setProperty('--c-commute',st.colors.commute);root.style.setProperty('--c-mood',st.colors.mood);root.style.setProperty('--c-work',st.colors.work);
   const L=$('#bgLayer');
+  root.style.setProperty('--card-a',(st.bg.alpha??84)+'%');root.style.setProperty('--card-blur',(st.bg.blur??14)+'px');
   if(st.bg.type==='color'){L.hidden=false;L.style.backgroundImage='none';L.style.backgroundColor=st.bg.color;root.classList.add('has-bg')}
   else if(st.bg.type==='image'&&S.bgImage){L.hidden=false;L.style.backgroundColor='#000';L.style.backgroundImage='url("'+S.bgImage+'")';root.classList.add('has-bg')}
   else{L.hidden=true;root.classList.remove('has-bg')}
@@ -903,7 +921,8 @@ function renderSettings(){
   $('#colSleep').value=st.colors.sleep;
   $('#noteMarkList').innerHTML=NOTE_ITEMS.map(it=>{const m=st.noteMarks[it.t];return '<label class="markrow sub"><input type="checkbox" data-nmark="'+esc(it.t)+'"'+(m.on?' checked':'')+'><span>'+esc(it.name)+'</span><input type="color" data-nmcolor="'+esc(it.t)+'" value="'+m.color+'" aria-label="'+esc(it.name)+'のマークの色"></label>'}).join('');
   $('#markList').innerHTML=MARKS.map(([k,n])=>'<label class="markrow"><input type="checkbox" data-mark="'+k+'"'+(st.marks[k]?' checked':'')+'><span>'+n+'</span><input type="color" data-mcolor="'+k+'" value="'+st.colors[k]+'" aria-label="'+n+'のマークの色"></label>').join('');
-  $('#bgColorRow').hidden=st.bg.type!=='color';$('#bgImageRow').hidden=st.bg.type!=='image';$('#bgColor').value=st.bg.color;
+  $('#bgColorRow').hidden=st.bg.type!=='color';$('#bgImageRow').hidden=st.bg.type!=='image';$('#bgLookRow').hidden=st.bg.type==='none';
+  $('#cardAlpha').value=st.bg.alpha;$('#cardAlphaOut').textContent=st.bg.alpha+'%';$('#cardBlur').value=st.bg.blur;$('#cardBlurOut').textContent=st.bg.blur;$('#bgColor').value=st.bg.color;
   $('#slotList').innerHTML=st.slots.length?st.slots.map(s=>'<div class="slot" data-id="'+s.id+'"><input type="text" data-f="name" value="'+esc(s.name)+'" aria-label="行き先"><input type="time" data-f="dep" value="'+(s.dep||'')+'" aria-label="出発"><input type="time" data-f="arr" value="'+(s.arr||'')+'" aria-label="到着"><button class="xbtn" data-del aria-label="削除">×</button></div>').join(''):'<p class="hint">まだ行き先がありません。</p>';
 }
 $('#modeOpts').onclick=e=>{const b=e.target.closest('[data-mode]');if(!b)return;S.settings.mode=b.dataset.mode;applyLook();renderSettings();saveSettings()};
@@ -917,6 +936,8 @@ $('#resetColors').onclick=()=>{S.settings.colors=clone(DEF.colors);applyLook();r
 $('#bgOpts').onclick=e=>{const b=e.target.closest('[data-bg]');if(!b)return;
   S.settings.bg.type=b.dataset.bg;applyLook();renderSettings();saveSettings();
   if(b.dataset.bg==='image'&&!S.bgImage)$('#bgFile').click();};
+[['#cardAlpha','alpha','%'],['#cardBlur','blur','']].forEach(([id,k,u])=>$(id).addEventListener('input',e=>{S.settings.bg[k]=+e.target.value;$(id+'Out').textContent=e.target.value+u;applyLook();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)}));
+$('#resetLook').onclick=()=>{S.settings.bg.alpha=84;S.settings.bg.blur=14;applyLook();renderSettings();saveSettings()};
 $('#bgColor').addEventListener('input',e=>{S.settings.bg.color=e.target.value;applyLook();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
 $('#addSlot').onclick=()=>{S.settings.slots.push({id:'s'+Date.now().toString(36),name:'新しい行き先',dep:'08:00',arr:'08:45'});renderSettings();saveSettings();fillSlots(F.slot.value)};
 let slotTimer;
@@ -1042,4 +1063,5 @@ setTimeout(initStore,0);
 })();
 </script>
 
-</body></html>
+</body>
+</html>
