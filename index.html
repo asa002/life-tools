@@ -1,0 +1,975 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>生活記録ツール</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Shippori+Mincho+B1:wght@700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one narrow column for the phone; sticky header, calendar → sleep chart → day form. Night indigo + dawn amber. */
+:root{
+  --bg:#eceff5; --surface-solid:#ffffff; --surface-2:#f3f5f9; --ink:#1b2233; --muted:#5f6a82; --line:#d6dbe6;
+  --accent:#3d4fa8; --accent-ink:#ffffff; --dawn:#d9822b; --danger:#b8423a;
+  --c-note:#d9822b; --c-prep:#2f8f80; --c-sleep:#5b6fd6;
+  --display:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
+  --body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --surface:var(--surface-solid);
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f121a; --surface-solid:#181c27; --surface-2:#20263a; --ink:#e6e9f2; --muted:#949db2; --line:#2c3347;
+  --accent:#8f9cf2; --accent-ink:#11142a; --dawn:#f0a85a; --danger:#e8786e; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f121a; --surface-solid:#181c27; --surface-2:#20263a; --ink:#e6e9f2; --muted:#949db2; --line:#2c3347;
+  --accent:#8f9cf2; --accent-ink:#11142a; --dawn:#f0a85a; --danger:#e8786e; color-scheme:dark}
+/* the app's own mode switch wins over the viewer theme */
+:root:root[data-mode="light"]{
+  --bg:#eceff5; --surface-solid:#ffffff; --surface-2:#f3f5f9; --ink:#1b2233; --muted:#5f6a82; --line:#d6dbe6;
+  --accent:#3d4fa8; --accent-ink:#ffffff; --dawn:#d9822b; --danger:#b8423a; color-scheme:light}
+:root:root[data-mode="dark"]{
+  --bg:#0f121a; --surface-solid:#181c27; --surface-2:#20263a; --ink:#e6e9f2; --muted:#949db2; --line:#2c3347;
+  --accent:#8f9cf2; --accent-ink:#11142a; --dawn:#f0a85a; --danger:#e8786e; color-scheme:dark}
+:root.has-bg{--surface:color-mix(in srgb,var(--surface-solid) 84%,transparent)}
+
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 40px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.has-bg body::before{background:transparent}
+#bgLayer{position:fixed;inset:0;z-index:-1;background-size:cover;background-position:center}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;justify-content:space-between;
+  padding-block:12px;margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));
+  background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.has-bg header.top{background:color-mix(in srgb,var(--surface-solid) 70%,transparent)}
+.brand{font-family:var(--display);font-size:1.45rem;letter-spacing:.04em;margin:0;display:flex;align-items:baseline;gap:8px}
+.brand small{font-family:var(--body);font-size:.72rem;color:var(--muted);letter-spacing:.08em}
+.iconbtn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center}
+.iconbtn svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:1.7}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.card h2{font-size:.78rem;letter-spacing:.12em;color:var(--muted);margin:0 0 10px;font-weight:700}
+
+/* quick record */
+.quick{display:grid;gap:10px}
+.qrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;align-items:center}
+.qrow .qlabel{grid-column:1/-1;flex-direction:row;align-items:baseline;gap:8px;flex-wrap:wrap}
+.qlabel{display:flex;flex-direction:column;line-height:1.25;min-width:5.5em}
+.qlabel b{font-size:.98rem}
+.qlabel span{font-size:.72rem;color:var(--muted)}
+.tag{display:inline-block;font-size:.66rem;border:1px dashed var(--dawn);color:var(--dawn);border-radius:6px;padding:0 5px;margin-left:4px;vertical-align:1px}
+.tag.ok{border-style:solid;border-color:var(--c-prep);color:var(--c-prep)}
+input[type=time],input[type=number],input[type=text],select,textarea{background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-width:0;width:100%}
+input.tentative{border-style:dashed;border-color:var(--dawn)}
+.btn{border:0;border-radius:10px;padding:9px 14px;background:var(--accent);color:var(--accent-ink);font-weight:700;white-space:nowrap}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid color-mix(in srgb,var(--danger) 45%,transparent);font-weight:500}
+
+/* view switch + nav */
+.seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface-2);border-radius:10px;padding:3px;gap:3px}
+.seg button{border:0;background:transparent;border-radius:8px;padding:7px 0;color:var(--muted);font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--surface-solid);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.nav{display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px}
+.nav b{font-size:1.05rem}
+.nav .arrows{display:flex;gap:6px}
+.nav .arrows button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent}
+.todaybtn{font-size:.78rem;border:1px solid var(--line);background:transparent;border-radius:16px;padding:4px 10px;margin-right:4px}
+
+.grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.wd{text-align:center;font-size:.7rem;color:var(--muted);padding-bottom:2px}
+.wd.sun{color:var(--danger)} .wd.sat{color:var(--accent)}
+.cell{border:1px solid transparent;background:transparent;border-radius:9px;min-height:54px;padding:4px 2px 3px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.cell .n{font-size:.88rem;line-height:1.2;font-variant-numeric:tabular-nums}
+.cell.out .n{opacity:.35}
+.cell.today .n{background:var(--dawn);color:#fff;border-radius:50%;width:1.6em;height:1.6em;display:grid;place-items:center}
+.cell.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.cell .hrs{font-size:.62rem;color:var(--muted);font-family:var(--mono)}
+.dots{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 3px;min-height:7px;max-width:100%}
+.dot.ring{background:transparent!important;box-shadow:inset 0 0 0 1.5px var(--rc)}
+.markrow.sub{padding-left:14px}
+.marksub{font-size:.74rem;color:var(--muted);margin:10px 0 2px}
+.dot{width:7px;height:7px;border-radius:50%}
+.dot.note{background:var(--c-note)} .dot.prep{background:var(--c-prep)} .dot.commute{background:var(--c-commute)} .dot.mood{background:var(--c-mood)}
+.markrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.markrow input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+.week .cell{min-height:70px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.72rem;color:var(--muted);margin-top:8px}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+
+/* sleep chart */
+.chart{display:grid;gap:4px}
+.axis,.srow{display:grid;grid-template-columns:3.6em minmax(0,1fr) 3.2em;gap:8px;align-items:center}
+.axis .ticks{position:relative;height:16px;font-size:.62rem;color:var(--muted);font-family:var(--mono)}
+.axis .ticks span{position:absolute;transform:translateX(-50%)}
+.axis .ticks span:first-child{transform:none}.axis .ticks span:last-child{transform:translateX(-100%)}
+.srow .lab{font-size:.74rem;color:var(--muted);white-space:nowrap}
+.srow .lab.sel{color:var(--ink);font-weight:700}
+.track{position:relative;height:12px;border-radius:6px;background:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px calc(100%/6));background-color:var(--surface-2)}
+.month .track{height:8px}
+.bar{position:absolute;top:0;bottom:0;border-radius:6px;background:var(--c-sleep)}
+.pin{position:absolute;top:-2px;bottom:-2px;width:4px;border-radius:2px;background:var(--c-sleep);opacity:.6}
+.srow .dur{font-size:.74rem;text-align:right;font-family:var(--mono)}
+.big{display:flex;gap:18px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}
+.big div{display:flex;flex-direction:column}
+.big span{font-size:.7rem;color:var(--muted)}
+.big b{font-family:var(--mono);font-size:1.35rem;font-weight:500}
+.empty{color:var(--muted);font-size:.85rem;padding:6px 0}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px;margin-top:12px}
+.stats div{background:var(--surface-2);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column}
+.stats span{font-size:.68rem;color:var(--muted)} .stats b{font-family:var(--mono);font-weight:500}
+.meters{display:grid;gap:6px;margin-top:6px}
+.meter{display:grid;grid-template-columns:3em 1fr 3em;gap:8px;align-items:center;font-size:.78rem}
+.meter i{display:block;height:8px;border-radius:4px;background:var(--surface-2);position:relative;overflow:hidden}
+.meter i u{position:absolute;inset:0 auto 0 0;background:var(--dawn);border-radius:4px}
+.meter i.tai u{background:var(--c-prep)}
+
+/* form */
+.form{display:grid;gap:14px}
+.fhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.fhead b{font-size:1.05rem}
+.field{display:grid;gap:5px}
+.field>label,.field>.lbl{font-size:.78rem;color:var(--muted);font-weight:500}
+.hint.warn{color:var(--danger)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dt{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) auto;gap:8px;align-items:center}
+.dt .btn{padding:8px 12px}
+.slider{display:grid;grid-template-columns:3em 1fr 3.4em;gap:10px;align-items:center}
+.slider output{font-family:var(--mono);text-align:right}
+.slider.unset output{color:var(--muted)}
+.slider.unset input{opacity:.45}
+input[type=range]{width:100%;accent-color:var(--dawn)}
+#tai{accent-color:var(--c-prep)}
+.hint{font-size:.72rem;color:var(--muted)}
+.inline{display:flex;gap:8px;align-items:center}
+textarea{min-height:84px;resize:vertical}
+.actions{display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap}
+
+/* sheets */
+.sheet{position:fixed;inset:0;z-index:30;display:flex;align-items:flex-end;justify-content:center;background:rgba(10,12,20,.45)}
+.sheet .panel{background:var(--surface-solid);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;
+  padding:16px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:grid;gap:18px}
+.panel h3{margin:0;font-size:1.05rem}
+.panel h4{margin:0 0 8px;font-size:.78rem;letter-spacing:.12em;color:var(--muted)}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opts button{border:1px solid var(--line);background:transparent;border-radius:18px;padding:6px 14px}
+.opts button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.colorrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
+.colorrow:last-child{border:0}
+input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-radius:8px;padding:2px;background:var(--surface-2)}
+.slot{display:grid;grid-template-columns:minmax(0,1fr) 6.2em 6.2em auto;gap:6px;align-items:center;margin-bottom:6px}
+.slot input{padding:6px 7px}
+.xbtn{border:1px solid var(--line);background:transparent;border-radius:8px;width:34px;height:34px;color:var(--danger)}
+
+/* cropper */
+.crop .panel{border-radius:18px;max-height:96vh;align-self:center}
+.cropbox{position:relative;overflow:hidden;margin:0 auto;border-radius:12px;background:#000;touch-action:none;cursor:grab}
+.cropbox img{position:absolute;left:0;top:0;transform-origin:0 0;user-select:none;-webkit-user-drag:none;max-width:none}
+
+.share{margin-top:14px;display:grid;gap:8px}
+.share h3{margin:0;font-size:.78rem;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.stack{display:flex;height:22px;border-radius:8px;overflow:hidden;background:var(--surface-2)}
+.stack i{display:block;height:100%}
+.s-sleep{background:var(--c-sleep)} .s-prep{background:var(--c-prep)} .s-move{background:var(--dawn)} .s-rest{background:var(--surface-2)}
+.shareleg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px}
+.shareleg div{display:grid;grid-template-columns:10px 1fr auto;gap:6px;align-items:center;font-size:.78rem}
+.shareleg div>i{width:10px;height:10px;border-radius:3px}
+.shareleg div>i.s-rest{border:1px solid var(--line)}
+.shareleg b{font-family:var(--mono);font-weight:500}
+.shareleg small{color:var(--muted);font-family:var(--mono);font-size:.68rem;grid-column:2/4}
+.hbtns{display:flex;gap:8px}
+.allsave{display:grid;gap:8px;padding-top:14px;border-top:1px solid var(--line)}
+.btn.big{width:100%;padding:13px 14px;font-size:1rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:var(--surface-2);border-radius:16px;padding:4px 11px;font-size:.8rem}
+.opts2{padding:8px;border-radius:10px;background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.opts2 button{background:var(--surface-solid)}
+.opts2 span{font-size:.75rem;color:var(--muted);align-self:center;margin-right:2px}
+.chips button:active{background:color-mix(in srgb,var(--accent) 15%,transparent)}
+#fNote{min-height:150px}
+.pagewrap{display:flex;flex-direction:column;gap:14px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line);margin-top:-6px}
+.tabs button{border:0;background:transparent;padding:10px 0;color:var(--muted);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:700}
+.has-bg .tabs{background:var(--surface);border-radius:12px 12px 0 0}
+.seg-sm{margin-bottom:12px}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.tiles div{background:var(--surface-2);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.tiles span{font-size:.7rem;color:var(--muted)}
+.tiles b{font-family:var(--mono);font-weight:500;font-size:1.15rem}
+.tiles small{font-size:.72rem;color:var(--muted)}
+.cover{height:10px;border-radius:5px;background:var(--surface-2);overflow:hidden;margin-top:12px}
+.cover i{display:block;height:100%;background:var(--c-prep)}
+.strip{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:12px}
+.strip i{width:12px;height:12px;border-radius:3px;background:var(--c-prep)}
+.strip i.miss{background:transparent;border:1.5px solid var(--danger)}
+.strip i.today{background:transparent;border:1.5px dashed var(--line)}
+.gap{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;padding:10px 0}
+.gap:last-child{border-bottom:0}
+.gap b{font-size:.9rem;font-weight:500}
+.gap span{font-family:var(--mono);font-size:.8rem;color:var(--danger);white-space:nowrap}
+.sec{display:grid;gap:10px;padding-top:14px;border-top:1px solid var(--line)}
+.sechead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.sechead h3{margin:0;font-size:.95rem}
+.secstate{font-size:.72rem;color:var(--muted)}
+.secstate.dirty{color:var(--dawn);font-weight:700}
+.secstate.saved{color:var(--c-prep)}
+.secfoot{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+.warnbox{border:1px solid color-mix(in srgb,var(--dawn) 55%,transparent);background:color-mix(in srgb,var(--dawn) 10%,transparent);border-radius:10px;padding:10px 12px;font-size:.84rem}
+.warnbox ul{margin:4px 0 0;padding-left:1.2em}
+.hitem{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.hitem:last-child{border:0}
+.hitem b{font-size:.9rem}
+.hitem small{grid-column:1;color:var(--muted);font-size:.74rem}
+.hitem .btn{grid-row:1/3;grid-column:2;padding:7px 10px;font-size:.8rem}
+#toast{display:flex;align-items:center;gap:12px}
+#toast[hidden]{display:none}
+#toastBtn{border:0;background:transparent;color:var(--dawn);font-weight:700;padding:2px 0;white-space:nowrap}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:40;
+  background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:20px;font-size:.85rem;max-width:90vw}
+@media (prefers-reduced-motion: no-preference){.bar{transition:left .25s,width .25s}}
+</style>
+
+<div id="bgLayer" hidden></div>
+<div class="wrap">
+  <header class="top">
+    <h1 class="brand">生活記録ツール <small>睡眠・支度・移動</small></h1>
+    <div class="hbtns"><button class="iconbtn" id="openHist" aria-label="変更履歴"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></svg></button>
+    <button class="iconbtn" id="openSettings" aria-label="設定"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
+  </header>
+  <nav class="tabs" role="tablist" aria-label="画面">
+    <button role="tab" data-page="main" aria-selected="true">記録</button>
+    <button role="tab" data-page="status" aria-selected="false">記録状況</button>
+  </nav>
+  <div id="pageMain" class="pagewrap">
+
+  <section class="card">
+    <h2 id="quickTitle">いまの時刻で記録</h2>
+    <div class="quick">
+      <div class="qrow">
+        <div class="qlabel"><b>寝支度</b><span id="qBedFor"></span></div>
+        <input type="time" id="qBed" class="tentative" aria-label="寝支度を始めた時刻">
+        <button class="btn" id="qBedBtn">今の時刻で記録</button>
+      </div>
+      <div class="qrow">
+        <div class="qlabel"><b>起床</b><span id="qWakeFor"></span></div>
+        <input type="time" id="qWake" class="tentative" aria-label="起床時刻">
+        <button class="btn" id="qWakeBtn">今の時刻で記録</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="seg" role="group" aria-label="表示">
+      <button data-view="day">日</button><button data-view="week">週</button><button data-view="month">月</button>
+    </div>
+    <div class="nav">
+      <b id="navLabel"></b>
+      <div class="arrows"><button class="todaybtn" id="goToday">今日</button><button id="prev" aria-label="前へ">‹</button><button id="next" aria-label="次へ">›</button></div>
+    </div>
+    <div id="cal"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <section class="card">
+    <h2 id="chartTitle">睡眠スケジュール</h2>
+    <div id="chart"></div>
+  </section>
+
+  <section class="card form" id="form">
+    <div class="fhead"><b id="fDate"></b><span class="hint" id="fState"></span></div>
+
+    <div class="sec" data-sec="sleep">
+      <div class="sechead"><h3>睡眠</h3><span class="secstate" id="st-sleep"></span></div>
+      <div class="field"><span class="lbl">寝支度を始めた日時</span><div class="dt"><select id="fBedDay" aria-label="寝支度の日付"></select><input type="time" id="fBed" aria-label="寝支度の時刻"><button class="btn ghost" id="fBedNow">今</button></div></div>
+      <div class="field"><span class="lbl">起きた日時</span><div class="dt"><select id="fWakeDay" aria-label="起床の日付"></select><input type="time" id="fWake" aria-label="起床の時刻"><button class="btn ghost" id="fWakeNow">今</button></div>
+        <div class="hint" id="sleepHint"></div></div>
+      <div class="warnbox" id="w-sleep" hidden></div>
+      <div class="secfoot"><button class="btn" data-save="sleep">睡眠を記録</button></div>
+    </div>
+
+    <div class="sec" data-sec="mood">
+      <div class="sechead"><h3>気力・体力</h3><span class="secstate" id="st-mood"></span></div>
+      <div class="slider" id="kiWrap"><label for="ki">気力</label><input type="range" id="ki" min="0" max="100" step="5" value="50"><output id="kiOut">50%</output></div>
+      <div class="slider" id="taiWrap"><label for="tai">体力</label><input type="range" id="tai" min="0" max="100" step="5" value="50"><output id="taiOut">50%</output></div>
+      <div class="warnbox" id="w-mood" hidden></div>
+      <div class="secfoot"><button class="btn ghost" data-unset="mood">50%に戻す</button><button class="btn" data-save="mood">気力・体力を記録</button></div>
+    </div>
+
+    <div class="sec" data-sec="commute">
+      <div class="sechead"><h3>通勤</h3><span class="secstate" id="st-commute"></span></div>
+      <select id="fSlot" aria-label="通勤先"></select>
+      <input type="text" id="fSlotName" placeholder="行き先の名前（例：本社、現場A）" hidden>
+      <div class="two" id="commuteTimes">
+        <div class="field"><label for="fDep">出発</label><input type="time" id="fDep"></div>
+        <div class="field"><label for="fArr">到着</label><input type="time" id="fArr"></div>
+      </div>
+      <div class="hint" id="commuteHint"></div>
+      <div class="warnbox" id="w-commute" hidden></div>
+      <div class="secfoot"><button class="btn" data-save="commute">通勤を記録</button></div>
+    </div>
+
+    <div class="sec" data-sec="prep">
+      <div class="sechead"><h3>朝の支度にかかった時間</h3><span class="secstate" id="st-prep"></span></div>
+      <div class="inline"><input type="number" id="fPrep" min="0" max="300" step="5" inputmode="numeric" placeholder="例 30" style="max-width:8em" aria-label="朝支度の時間（分）"><span>分</span></div>
+      <div class="warnbox" id="w-prep" hidden></div>
+      <div class="secfoot"><button class="btn" data-save="prep">朝支度を記録</button></div>
+    </div>
+
+    <div class="sec" data-sec="note">
+      <div class="sechead"><h3>特記事項</h3><span class="secstate" id="st-note"></span></div>
+      <div class="chips" id="noteChips" aria-label="項目を追加">
+        <button type="button" data-t="入浴：" data-o="湯船につかれた|シャワーのみ|できなかった">入浴</button><button type="button" data-t="食事：" data-o="3食とれた|朝食抜き|夕食が遅め（21時以降）|食欲がない">食事</button><button type="button" data-t="歯みがき・身支度：" data-o="できた|できなかった">身支度</button><button type="button" data-t="家事：" data-o="洗濯|掃除|料理|買い物|できなかった">家事</button><button type="button" data-t="外出：" data-o="出勤|買い物|散歩|一日家にいた">外出</button><button type="button" data-t="服薬：" data-o="飲めた|飲み忘れた">服薬</button><button type="button" data-t="運動：" data-o="散歩|筋トレ|ストレッチ|していない">運動</button><button type="button" data-t="カフェイン：" data-o="午前のみ|15時以降も飲んだ|なし">カフェイン</button><button type="button" data-t="飲酒：" data-o="なし|少し|多め">飲酒</button><button type="button" data-t="昼寝：" data-o="なし|30分以内|1時間以上">昼寝</button><button type="button" data-t="就寝前のスマホ：" data-o="30分以内|1時間くらい|それ以上">スマホ</button><button type="button" data-t="体調：" data-o="良い|ふつう|だるい|頭痛|眠気が強い">体調</button><button type="button" data-t="天気：" data-o="晴れ|くもり|雨|暑い|寒い">天気</button><button type="button" data-t="予定・出来事：">出来事</button><button type="button" data-t="気づいたこと：">気づき</button><button type="button" data-t="気になったこと：">気になったこと</button><button type="button" data-t="予定休：" data-o="有給休暇|代休|公休|半休（午前）|半休（午後）|夏季・年末年始休暇">予定休</button><button type="button" data-t="遅刻・欠勤：" data-o="遅刻|早退|欠勤（体調不良）|欠勤（その他）|遅延で遅れた">遅刻・欠勤</button>
+      </div>
+      <div class="chips opts2" id="noteOpts" hidden></div>
+      <textarea id="fNote" rows="7" placeholder="例）
+入浴：湯船につかれた（21:30）
+食事：夕食が遅め（21時以降）
+家事：洗濯、買い物
+外出：出勤 / 運動：帰りに一駅歩いた
+カフェイン：15時以降も飲んだ
+体調：少しだるい / 天気：雨で寒い
+気づいたこと：寝つきが良かった" aria-label="特記事項"></textarea>
+      <div class="hint">特に何もなければ空欄のままで大丈夫です（記録漏れにはなりません）。項目を押すと見出しが入り、よく使う答えが下に出ます。答えを押すとそのまま書き込まれます。自由に書き足しても大丈夫です。</div>
+      <div class="warnbox" id="w-note" hidden></div>
+      <div class="secfoot"><button class="btn" data-save="note">特記事項を記録</button></div>
+    </div>
+
+    <div class="hint">空欄にして記録すると、その項目の記録を消せます。</div>
+    <div class="allsave">
+      <div class="warnbox" id="w-all" hidden></div>
+      <button class="btn big" id="fSaveAll">まとめて記録する</button>
+      <p class="hint">睡眠（寝支度と起床）と気力・体力が必須です。通勤・朝支度・特記事項は空欄でも記録できます。</p>
+    </div>
+    <div class="actions">
+      <button class="btn danger" id="fClear">この日の記録をすべて消す</button>
+    </div>
+  </section>
+  </div>
+  <div id="pageStatus" class="pagewrap" hidden>
+    <section class="card">
+      <h2>記録のはじまり</h2>
+      <div id="stSummary"></div>
+    </section>
+    <section class="card">
+      <h2>記録漏れ</h2>
+      <div class="seg seg-sm" role="group" aria-label="記録漏れの対象" id="gapKind">
+        <button data-kind="any">何も記録なし</button><button data-kind="sleep">睡眠</button><button data-kind="mood">気力・体力</button>
+      </div>
+      <div id="gapStrip"></div>
+      <div id="gapList"></div>
+      <p class="hint">記録を始めた日から昨日までを数えています。今日はまだ途中なので含めません。期間を押すと、その日の記録画面を開きます。</p>
+    </section>
+  </div>
+</div>
+
+<div class="sheet" id="settings" hidden>
+  <div class="panel" role="dialog" aria-label="設定">
+    <div class="fhead"><h3>設定</h3><button class="btn ghost" id="closeSettings">閉じる</button></div>
+    <div><h4>表示モード</h4><div class="opts" id="modeOpts">
+      <button data-mode="system">端末に合わせる</button><button data-mode="light">ライト</button><button data-mode="dark">ダーク</button></div></div>
+    <div><h4>カレンダーに付けるマーク</h4>
+      <div id="markList"></div>
+      <div class="marksub">特記事項の項目ごと（ボタンで入れた見出しを見分けます。「できなかった」などは白抜きの点になります）</div>
+      <div id="noteMarkList"></div>
+      <p class="hint">チェックした項目を記録した日に、その色の点が付きます。</p>
+    </div>
+    <div><h4>グラフの色</h4>
+      <div class="colorrow"><span>睡眠グラフ</span><input type="color" id="colSleep"></div>
+      <div style="margin-top:8px"><button class="btn ghost" id="resetColors">色を初期値に戻す</button></div>
+    </div>
+    <div><h4>背景</h4>
+      <div class="opts" id="bgOpts"><button data-bg="none">標準</button><button data-bg="color">好きな色</button><button data-bg="image">画像</button></div>
+      <div class="colorrow" id="bgColorRow" hidden><span>背景色</span><input type="color" id="bgColor"></div>
+      <div id="bgImageRow" hidden style="margin-top:8px;display:grid;gap:6px">
+        <input type="file" id="bgFile" accept="image/*">
+        <span class="hint">選んだ画像は画面の縦横比に合わせて切り抜けます。</span>
+      </div>
+    </div>
+    <div><h4>通勤スロット</h4>
+      <div id="slotList"></div>
+      <button class="btn ghost" id="addSlot">＋ 行き先を追加</button>
+      <p class="hint">記録で行き先を選ぶと、ここの出発・到着時刻が仮入力されます。</p>
+    </div>
+  </div>
+</div>
+
+<div class="sheet crop" id="crop" hidden>
+  <div class="panel" role="dialog" aria-label="背景画像の切り抜き">
+    <div class="fhead"><h3>背景を切り抜く</h3><span class="hint">ドラッグで位置、スライダーで拡大</span></div>
+    <div class="cropbox" id="cropBox"><img id="cropImg" alt="切り抜く画像"></div>
+    <div class="slider" style="grid-template-columns:3em 1fr"><label for="cropZoom">拡大</label><input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1"></div>
+    <div class="actions"><button class="btn ghost" id="cropCancel">やめる</button><button class="btn" id="cropOk">この範囲で設定</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="hist" hidden>
+  <div class="panel" role="dialog" aria-label="変更履歴">
+    <div class="fhead"><h3>変更履歴</h3><button class="btn ghost" id="closeHist">閉じる</button></div>
+    <p class="hint" style="margin:0">最近の30件の変更です。「この変更を取り消す」で、その変更をする前の内容に戻せます。取り消しも履歴に残るので、やり直しもできます。</p>
+    <div id="histList"></div>
+  </div>
+</div>
+
+<div id="toast" hidden><span id="toastMsg"></span><button id="toastBtn" hidden></button></div>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const parse=k=>{const[a,b,c]=k.split('-').map(Number);return new Date(a,b-1,c)};
+const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
+const toMin=t=>{if(!t)return null;const[h,m]=t.split(':').map(Number);return h*60+m};
+const hm=m=>pad(Math.floor(((m%1440)+1440)%1440/60))+':'+pad(((m%60)+60)%60);
+const nowHM=()=>{const d=new Date();return pad(d.getHours())+':'+pad(d.getMinutes())};
+const dur=m=>Math.floor(m/60)+'h'+pad(m%60);
+const WD=['日','月','火','水','木','金','土'];
+const clone=o=>JSON.parse(JSON.stringify(o));
+const md=k=>{const d=parse(k);return (d.getMonth()+1)+'/'+d.getDate()+'('+WD[d.getDay()]+')'};
+
+const DEF={mode:'system',colors:{note:'#d9822b',prep:'#2f8f80',commute:'#a3519a',mood:'#b8941f',sleep:'#5b6fd6'},marks:{note:true,prep:false,commute:false,mood:false},slots:[],bg:{type:'none',color:'#c9d3e6'}};
+const MARKS=[['note','特記事項'],['prep','朝支度の時間'],['commute','通勤'],['mood','気力・体力']];
+/* 特記事項の見出し（例「入浴：」）ごとのマーク */
+const NOTE_ITEMS=[...document.querySelectorAll('#noteChips [data-t]')].map(b=>({t:b.dataset.t.replace(/：$/,''),name:b.textContent}));
+const NOTE_NEG={'入浴':/できなかった/,'歯みがき・身支度':/できなかった/,'家事':/できなかった/,'服薬':/飲み忘れ/,'運動':/していない/,'食事':/抜き|食欲がない/};
+const NOTE_COLORS=['#2b8fd6','#d9822b','#2f8f80','#8a63c9','#c74f6f','#4f9a3a','#b8941f','#5b6fd6','#a3519a','#3f7f9f','#c0672e','#7a7f2a','#6b5bd6','#888f9e','#9a6a4f','#d0443a','#2e9e6a','#c23b5a'];
+const DEF_NM=Object.fromEntries(NOTE_ITEMS.map((it,i)=>[it.t,{on:it.t==='気になったこと',color:NOTE_COLORS[i%NOTE_COLORS.length]}]));
+function noteItems(note){const out={};if(!note)return out;
+  note.split('\n').forEach(line=>{const m=line.match(/^\s*([^：:]+)[：:](.*)$/);if(!m)return;const t=m[1].trim();
+    if(!DEF_NM[t])return;const neg=NOTE_NEG[t]&&NOTE_NEG[t].test(m[2]);out[t]=out[t]===true||!neg;});
+  return out;}
+const merge=s=>{s=s||{};const nm={};Object.keys(DEF_NM).forEach(k=>nm[k]={...DEF_NM[k],...((s.noteMarks||{})[k]||{})});
+  if(s.nmv!==2){nm['入浴'].on=false;nm['気になったこと'].on=true} /* 既定のマークを「気になったこと」に置き換え */
+  return{...clone(DEF),...s,nmv:2,noteMarks:nm,colors:{...DEF.colors,...(s.colors||{})},marks:{...DEF.marks,...(s.marks||{})},bg:{...DEF.bg,...(s.bg||{})},slots:Array.isArray(s.slots)?clone(s.slots):[]}};
+let S={days:{},settings:merge(),bgImage:null};
+let view='month', sel=ymd(new Date()), dirty=false, store=null;
+
+/* ---------- storage ---------- */
+const LS='nemuri-v1';
+try{const r=localStorage.getItem(LS);if(r){const o=JSON.parse(r);S.days=o.days||{};S.settings=merge(o.settings);S.bgImage=o.bgImage||null}}catch(e){}
+function lsSave(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){toast('この端末に保存できませんでした（容量不足の可能性）')}}
+const queue={};
+function put(id,data){
+  if(!store){lsSave();return Promise.resolve()}
+  const ref=store.col.doc(id);
+  const p=(queue[id]||Promise.resolve()).then(()=>data==null?ref.delete():ref.set(data))
+    .catch(e=>toast(e&&e.code==='quota_exceeded'?'保存容量の上限に達しました':'保存できませんでした。通信を確認してもう一度お試しください'));
+  queue[id]=p;return p;
+}
+const saveDay=k=>put('d-'+k,S.days[k]&&Object.keys(S.days[k]).length?S.days[k]:null);
+const saveSettings=()=>put('settings',S.settings);
+const saveBg=()=>put('bg',S.bgImage?{img:S.bgImage}:null);
+
+async function initStore(){
+  const c=window.claude;if(!c||typeof c.use!=='function')return;
+  try{
+    const [db,user]=await Promise.all([c.use('db'),c.use('user')]);
+    if(!db||!user)return;
+    const uid=await user.id();if(!uid)return;
+    const local=clone(S);let first=true;
+    store={col:db.collection('data/users/'+uid)};
+    store.col.onSnapshot(snap=>{
+      if(first){first=false;
+        if(snap.empty&&(Object.keys(local.days).length||local.bgImage)){ // carry over what this browser had
+          Object.keys(local.days).forEach(saveDay);saveSettings();if(local.bgImage)saveBg();return;}
+      }
+      const days={};let st=null,bg=null,hs=[];
+      snap.docs.forEach(d=>{const v=d.data();if(!v)return;
+        if(d.id==='hist')hs=clone(v.list||[]);else if(d.id==='settings')st=v;else if(d.id==='bg')bg=v.img||null;else if(d.id.startsWith('d-'))days[d.id.slice(2)]=clone(v);});
+      S.days=days;if(st)S.settings=merge(st);S.bgImage=bg;S.hist=hs;
+      applyLook();render(false);refreshClean();
+    },()=>toast('同期が止まりました。ページを開き直してください'));
+  }catch(e){store=null}
+}
+
+/* ---------- look ---------- */
+function applyLook(){
+  const st=S.settings,root=document.documentElement;
+  if(st.mode==='system')delete root.dataset.mode;else root.dataset.mode=st.mode;
+  root.style.setProperty('--c-note',st.colors.note);root.style.setProperty('--c-prep',st.colors.prep);root.style.setProperty('--c-sleep',st.colors.sleep);root.style.setProperty('--c-commute',st.colors.commute);root.style.setProperty('--c-mood',st.colors.mood);
+  const L=$('#bgLayer');
+  if(st.bg.type==='color'){L.hidden=false;L.style.backgroundImage='none';L.style.backgroundColor=st.bg.color;root.classList.add('has-bg')}
+  else if(st.bg.type==='image'&&S.bgImage){L.hidden=false;L.style.backgroundColor='#000';L.style.backgroundImage='url("'+S.bgImage+'")';root.classList.add('has-bg')}
+  else{L.hidden=true;root.classList.remove('has-bg')}
+}
+
+/* ---------- quick record ---------- */
+function quickTargets(){const n=new Date();return{bed:ymd(n.getHours()>=12?addDays(n,1):n),wake:ymd(n)}}
+function renderQuick(){
+  const t=quickTargets(),now=nowHM();
+  const db=S.days[t.bed]||{},dw=S.days[t.wake]||{};
+  const today=ymd(new Date());
+  $('#qBedFor').innerHTML=md(today)+'に開始 → '+md(t.bed)+'の睡眠'+(db.bed?'<i class="tag ok">記録済 '+dayTime(t.bed,bedOff(db),db.bed)+'</i>':'<i class="tag">仮</i>');
+  $('#qWakeFor').innerHTML=md(today)+'に起床'+(dw.wake?'<i class="tag ok">記録済 '+dayTime(t.wake,wakeOff(dw),dw.wake)+'</i>':'<i class="tag">仮</i>');
+  const qb=$('#qBed'),qw=$('#qWake');
+  if(document.activeElement!==qb&&!qb.dataset.edited){qb.value=now;qb.classList.add('tentative')}
+  if(document.activeElement!==qw&&!qw.dataset.edited){qw.value=now;qw.classList.add('tentative')}
+  $('#qBedBtn').textContent=qb.dataset.edited?'この時刻で記録':'今の時刻で記録';
+  $('#qWakeBtn').textContent=qw.dataset.edited?'この時刻で記録':'今の時刻で記録';
+}
+['#qBed','#qWake'].forEach(id=>$(id).addEventListener('input',e=>{e.target.dataset.edited='1';e.target.classList.remove('tentative');renderQuick()}));
+setInterval(()=>{if(!document.hidden)renderQuick()},30000);
+function quickSave(field,input,target){
+  const el=$(input);if(!el.dataset.edited)el.value=nowHM();
+  const v=el.value;if(!v){toast('時刻を入れてください');return}
+  delete el.dataset.edited;
+  const dayOff=ymd(addDays(parse(target),-1))===ymd(new Date())?-1:0;
+  const before=S.days[target]?clone(S.days[target]):null,name=field==='bed'?'寝支度':'起床';
+  const prev=before&&before[field];
+  S.days[target]={...(S.days[target]||{}),[field]:v,[field+'Day']:dayOff};saveDay(target);
+  changed(target,before,name+'を'+(prev?prev+'→'+v+'に上書き':v+'で記録'),
+    prev?name+'を '+prev+' → '+v+' に上書きしました':name+' '+v+' を'+md(target)+'に記録しました');
+  render(false);if(target===sel&&!dirtySecs.has('sleep')){fillSec('sleep');headState()}
+}
+$('#qBedBtn').onclick=()=>quickSave('bed','#qBed',quickTargets().bed);
+$('#qWakeBtn').onclick=()=>quickSave('wake','#qWake',quickTargets().wake);
+
+/* ---------- calendar ---------- */
+function rangeDays(){
+  const d=parse(sel);
+  if(view==='day')return[sel];
+  if(view==='week'){const st=addDays(d,-d.getDay());return[...Array(7)].map((_,i)=>ymd(addDays(st,i)))}
+  const n=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
+  return[...Array(n)].map((_,i)=>ymd(new Date(d.getFullYear(),d.getMonth(),i+1)));
+}
+/* 日付のずれ：記録日(起床日)を0として -1=前日 / 0=当日 / +1=翌日。古い記録は時刻から推定 */
+const bedOff=r=>r.bedDay!=null?+r.bedDay:(toMin(r.bed)>=720?-1:0);
+const wakeOff=r=>r.wakeDay!=null?+r.wakeDay:0;
+function sleepOf(k){const r=S.days[k];if(!r)return null;const b=toMin(r.bed),w=toMin(r.wake);
+  const ba=b!=null?bedOff(r)*1440+b:null,wa=w!=null?wakeOff(r)*1440+w:null;
+  return{b,w,ba,wa,len:(ba!=null&&wa!=null&&wa>ba&&wa-ba<2880)?wa-ba:null}}
+const dayTime=(k,o,t)=>t?md(ymd(addDays(parse(k),o)))+' '+t:'—';
+function cellHTML(k,cls){
+  const d=parse(k),r=S.days[k]||{},s=sleepOf(k);
+  const mk=S.settings.marks,has={note:!!(r.note&&r.note.trim()),prep:r.prep!=null&&r.prep!=='',commute:!!(r.commute&&(r.commute.dep||r.commute.arr)),mood:r.ki!=null||r.tai!=null};
+  const ni=noteItems(r.note),nm=S.settings.noteMarks;
+  const dots=MARKS.filter(([k])=>mk[k]&&has[k]).map(([k])=>'<i class="dot '+k+'"></i>').join('')+
+    NOTE_ITEMS.filter(it=>nm[it.t]&&nm[it.t].on&&ni[it.t]!==undefined).map(it=>'<i class="dot'+(ni[it.t]?'':' ring')+'" style="background:'+nm[it.t].color+';--rc:'+nm[it.t].color+'"></i>').join('');
+  const c=['cell',cls||'',k===ymd(new Date())?'today':'',k===sel?'sel':''].join(' ');
+  return '<button class="'+c+'" data-k="'+k+'" aria-label="'+md(k)+'"><span class="n">'+d.getDate()+'</span><span class="dots">'+dots+'</span><span class="hrs">'+(s&&s.len!=null?dur(s.len):'')+'</span></button>';
+}
+function renderCal(){
+  const d=parse(sel);let h='';
+  document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===view));
+  const head='<div class="grid">'+['日','月','火','水','木','金','土'].map((w,i)=>'<div class="wd'+(i===0?' sun':i===6?' sat':'')+'">'+w+'</div>').join('');
+  if(view==='month'){
+    $('#navLabel').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月';
+    const first=new Date(d.getFullYear(),d.getMonth(),1),st=addDays(first,-first.getDay());
+    const last=new Date(d.getFullYear(),d.getMonth()+1,0),cells=Math.ceil((first.getDay()+last.getDate())/7)*7;
+    h=head;for(let i=0;i<cells;i++){const x=addDays(st,i);h+=cellHTML(ymd(x),x.getMonth()!==d.getMonth()?'out':'')}h+='</div>';
+  }else if(view==='week'){
+    const ks=rangeDays();$('#navLabel').textContent=md(ks[0])+' – '+md(ks[6]);
+    h=head.replace('class="grid"','class="grid week"')+ks.map(k=>cellHTML(k)).join('')+'</div>';
+  }else{
+    $('#navLabel').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日('+WD[d.getDay()]+')';
+    const ks=[...Array(7)].map((_,i)=>ymd(addDays(d,i-3)));
+    h='<div class="grid">'+ks.map(k=>'<div class="wd">'+WD[parse(k).getDay()]+'</div>').join('')+ks.map(k=>cellHTML(k)).join('')+'</div>';
+  }
+  $('#cal').innerHTML=h;
+  const on=MARKS.filter(([k])=>S.settings.marks[k]);
+  const onN=NOTE_ITEMS.filter(it=>S.settings.noteMarks[it.t]&&S.settings.noteMarks[it.t].on);
+  const lg=on.map(([k,n])=>'<span><i class="dot '+k+'"></i>'+n+'あり</span>').concat(onN.map(it=>'<span><i class="dot" style="background:'+S.settings.noteMarks[it.t].color+'"></i>'+esc(it.name)+'</span>'));
+  if(onN.some(it=>NOTE_NEG[it.t]))lg.push('<span><i class="dot ring" style="--rc:var(--muted)"></i>できなかった等</span>');
+  $('#legend').innerHTML=lg.length?lg.join(''):'<span>マークは非表示です（設定で選べます）</span>';
+}
+$('#cal').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;selectDate(b.dataset.k)});
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{view=b.dataset.view;render(false)});
+function shift(n){const d=parse(sel);
+  if(view==='month'){const x=new Date(d.getFullYear(),d.getMonth()+n,1);selectDate(ymd(x))}
+  else selectDate(ymd(addDays(d,view==='week'?7*n:n)));}
+$('#prev').onclick=()=>shift(-1);$('#next').onclick=()=>shift(1);
+$('#goToday').onclick=()=>selectDate(ymd(new Date()));
+function selectDate(k){if(dirty&&k!==sel)toast('保存していない変更は破棄しました');sel=k;dirty=false;render(true)}
+
+/* ---------- sleep chart (timeline 18:00 → 12:00) ---------- */
+const off=a=>a==null?null:a+360; /* 記録日の前日18:00を0とする */
+const clampO=o=>Math.max(0,Math.min(1080,o));
+const pct=o=>(o/1080*100).toFixed(2)+'%';
+function rowHTML(k,label){
+  const s=sleepOf(k);let inner='',len='';
+  if(s){const bo=off(s.ba),wo=off(s.wa);
+    if(s.len!=null){const l=clampO(bo),rr=clampO(wo);if(rr>l)inner='<i class="bar" style="left:'+pct(l)+';width:'+pct(rr-l)+'" title="'+hm(s.b)+'–'+hm(s.w)+'"></i>'}
+    else{if(bo!=null&&bo>=0&&bo<=1080)inner+='<i class="pin" style="left:'+pct(bo)+'"></i>';if(wo!=null&&wo>=0&&wo<=1080)inner+='<i class="pin" style="left:'+pct(wo)+'"></i>'}
+    if(s.len!=null)len=dur(s.len);}
+  return '<div class="srow"><span class="lab'+(k===sel?' sel':'')+'">'+label+'</span><div class="track">'+inner+'</div><span class="dur">'+len+'</span></div>';
+}
+const axis='<div class="axis"><span></span><div class="ticks">'+['18','21','0','3','6','9','12'].map((t,i)=>'<span style="left:'+(i/6*100)+'%">'+t+'</span>').join('')+'</div><span></span></div>';
+function avgTime(list){if(!list.length)return'—';const a=list.reduce((x,y)=>x+y,0)/list.length;return hm(Math.round(a)+18*60)}
+function renderChart(){
+  const ks=rangeDays();let h='';
+  $('#chartTitle').textContent={day:'睡眠スケジュール（この日）',week:'睡眠スケジュール（週）',month:'睡眠スケジュール（月）'}[view];
+  if(view==='day'){
+    const r=S.days[sel]||{},s=sleepOf(sel);
+    h='<div class="big"><div><span>寝支度</span><b>'+dayTime(sel,bedOff(r),r.bed)+'</b></div><div><span>起床</span><b>'+dayTime(sel,wakeOff(r),r.wake)+'</b></div><div><span>睡眠枠</span><b>'+(s&&s.len!=null?dur(s.len):'—')+'</b></div></div>';
+    h+='<div class="chart">'+axis+rowHTML(sel,md(sel).replace(/^\d+\//,''))+'</div>';
+    const m=v=>v==null?'—':v+'%';
+    h+='<div class="meters"><div class="meter"><span>気力</span><i><u style="width:'+(r.ki||0)+'%"></u></i><span class="mono">'+m(r.ki)+'</span></div><div class="meter"><span>体力</span><i class="tai"><u style="width:'+(r.tai||0)+'%"></u></i><span class="mono">'+m(r.tai)+'</span></div></div>';
+    if(!r.bed&&!r.wake)h+='<p class="empty">この日の睡眠はまだ記録がありません。上の「記録」か下のフォームから入れられます。</p>';
+  }else{
+    h='<div class="chart'+(view==='month'?' month':'')+'">'+axis+ks.map(k=>{const d=parse(k);return rowHTML(k,view==='week'?md(k):d.getDate()+' '+WD[d.getDay()])}).join('')+'</div>';
+    const ss=ks.map(sleepOf).filter(Boolean),lens=ss.map(s=>s.len).filter(v=>v!=null);
+    const bs=ss.map(s=>off(s.ba)).filter(v=>v!=null),ws=ss.map(s=>off(s.wa)).filter(v=>v!=null);
+    const rs=ks.map(k=>S.days[k]).filter(Boolean),avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
+    const ki=avg(rs.map(r=>r.ki).filter(v=>v!=null)),tai=avg(rs.map(r=>r.tai).filter(v=>v!=null));
+    const prep=avg(rs.map(r=>r.prep).filter(v=>v!=null&&v!==''));
+    h+='<div class="stats"><div><span>平均睡眠枠</span><b>'+(lens.length?dur(avg(lens)):'—')+'</b></div><div><span>平均寝支度</span><b>'+avgTime(bs)+'</b></div><div><span>平均起床</span><b>'+avgTime(ws)+'</b></div><div><span>平均 気力/体力</span><b>'+(ki??'—')+' / '+(tai??'—')+'</b></div><div><span>平均朝支度</span><b>'+(prep!=null?prep+'分':'—')+'</b></div></div>';
+  }
+  $('#chart').innerHTML=h+shareHTML(ks);
+}
+/* 1日(24h)のうち 睡眠・支度・移動(往復) の割合 */
+function dayParts(k){
+  const r=S.days[k];if(!r)return null;
+  const s=sleepOf(k),c=r.commute||{},a=toMin(c.dep),b=toMin(c.arr);
+  const p={sleep:s&&s.len!=null?s.len:null,prep:r.prep!=null&&r.prep!==''?+r.prep:null,move:a!=null&&b!=null?((b-a+1440)%1440)*2:null};
+  return p.sleep==null&&p.prep==null&&p.move==null?null:p;
+}
+function shareHTML(ks){
+  const ps=ks.map(dayParts).filter(Boolean);
+  const title=view==='day'?'1日の時間の割合':'1日あたりの時間の割合（記録した'+ps.length+'日の平均）';
+  if(!ps.length)return '<div class="share"><h3>'+title+'</h3><p class="empty">睡眠・朝支度・通勤のどれかを記録すると表示されます。</p></div>';
+  const avg=f=>{const v=ps.map(p=>p[f]).filter(x=>x!=null);return v.length?Math.round(v.reduce((x,y)=>x+y,0)/v.length):0};
+  const m={sleep:avg('sleep'),prep:avg('prep'),move:avg('move')};
+  let used=m.sleep+m.prep+m.move;if(used>1440){const f=1440/used;Object.keys(m).forEach(k=>m[k]=Math.round(m[k]*f));used=1440}
+  m.rest=1440-used;
+  const P=v=>(v/1440*100).toFixed(1);
+  const items=[['sleep','睡眠'],['prep','朝支度'],['move','移動（往復）'],['rest','その他']];
+  const fmt=v=>Math.floor(v/60)+'時間'+pad(v%60)+'分';
+  return '<div class="share"><h3>'+title+'</h3><div class="stack" role="img" aria-label="'+items.map(([k,n])=>n+P(m[k])+'%').join('、')+'">'+
+    items.map(([k])=>m[k]>0?'<i class="s-'+k+'" style="width:'+P(m[k])+'%"></i>':'').join('')+'</div><div class="shareleg">'+
+    items.map(([k,n])=>'<div><i class="s-'+k+'"></i><span>'+n+'</span><b>'+P(m[k])+'%</b><small>'+fmt(m[k])+'</small></div>').join('')+'</div>'+
+    '<p class="hint">移動は出発〜到着の片道×2で計算。'+(view==='day'?'':'各項目は記録がある日だけで平均しています。')+'</p></div>';
+}
+
+/* ---------- day form ---------- */
+const F={bed:$('#fBed'),wake:$('#fWake'),bedDay:$('#fBedDay'),wakeDay:$('#fWakeDay'),ki:$('#ki'),tai:$('#tai'),slot:$('#fSlot'),slotName:$('#fSlotName'),dep:$('#fDep'),arr:$('#fArr'),prep:$('#fPrep'),note:$('#fNote')};
+let kiSet=false,taiSet=false;
+const MOOD_DEFAULT=50;
+function setSlider(id,v){const val=v??MOOD_DEFAULT;F[id].value=val;$('#'+id+'Out').textContent=val+'%';if(id==='ki')kiSet=true;else taiSet=true}
+function fillSlots(cur){
+  F.slot.innerHTML='<option value="">記録しない</option>'+S.settings.slots.map(s=>'<option value="'+s.id+'">'+esc(s.name)+'へ通勤</option>').join('')+'<option value="__new">＋ 新しい行き先を追加</option>';
+  F.slot.value=cur&&(cur==='__new'||S.settings.slots.some(s=>s.id===cur))?cur:'';
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* 各項目は独立して記録する：sleep / mood / commute / prep / note */
+const SEC={sleep:[F.bed,F.bedDay,F.wake,F.wakeDay],mood:[F.ki,F.tai],commute:[F.slot,F.slotName,F.dep,F.arr],prep:[F.prep],note:[F.note]};
+const SEC_NAME={sleep:'睡眠',mood:'気力・体力',commute:'通勤',prep:'朝支度',note:'特記事項'};
+const SEC_KEYS={sleep:['bed','bedDay','wake','wakeDay'],mood:['ki','tai'],commute:['commute'],prep:['prep'],note:['note']};
+const dirtySecs=new Set(),warnKeys={};
+let bedDayTouched=false;
+const hasSec=(r,sec)=>{if(!r)return false;return sec==='sleep'?!!(r.bed||r.wake):sec==='mood'?(r.ki!=null||r.tai!=null):sec==='commute'?!!r.commute:sec==='prep'?r.prep!=null:!!r.note};
+function secState(sec){const el=$('#st-'+sec),r=S.days[sel];
+  el.className='secstate'+(dirtySecs.has(sec)?' dirty':hasSec(r,sec)?' saved':'');
+  el.textContent=dirtySecs.has(sec)?'未記録の変更あり':hasSec(r,sec)?'記録済み':sec==='note'?'なし（空欄でOK）':'未記録';}
+function headState(){$('#fState').textContent=S.days[sel]?'記録あり':'未記録'}
+function clearWarn(sec){if(warnKeys[sec]){warnKeys[sec]='';$('[data-save="'+sec+'"]').textContent=SEC_NAME[sec]+'を記録'}$('#w-'+sec).hidden=true}
+function markDirty(sec){dirtySecs.add(sec);dirty=true;clearWarn(sec);secState(sec)}
+function fillSec(sec){
+  const r=S.days[sel]||{},d=parse(sel);
+  if(sec==='sleep'){
+    const opts=['前日','当日','翌日'].map((n,i)=>'<option value="'+(i-1)+'">'+md(ymd(addDays(d,i-1)))+' '+n+'</option>').join('');
+    F.bedDay.innerHTML=opts;F.wakeDay.innerHTML=opts;
+    F.bed.value=r.bed||'';F.wake.value=r.wake||'';
+    F.bedDay.value=String(r.bed?bedOff(r):-1);F.wakeDay.value=String(r.wake?wakeOff(r):0);
+    bedDayTouched=!!r.bed;sleepHint();
+  }else if(sec==='mood'){setSlider('ki',r.ki??null);setSlider('tai',r.tai??null)}
+  else if(sec==='commute'){
+    const c=r.commute||{};fillSlots(c.slot||'');F.slotName.hidden=true;F.slotName.value='';
+    F.dep.value=c.dep||'';F.arr.value=c.arr||'';F.dep.classList.remove('tentative');F.arr.classList.remove('tentative');
+    $('#commuteTimes').hidden=!c.slot&&!c.dep;commuteHint();
+  }else if(sec==='prep')F.prep.value=r.prep??'';
+  else{F.note.value=r.note||'';$('#noteOpts').hidden=true}
+  dirtySecs.delete(sec);dirty=dirtySecs.size>0;clearWarn(sec);secState(sec);
+}
+function fillForm(){
+  const d=parse(sel);
+  $('#fDate').textContent=(d.getMonth()+1)+'月'+d.getDate()+'日('+WD[d.getDay()]+')の記録';
+  Object.keys(SEC).forEach(fillSec);headState();dirty=false;
+}
+function refreshClean(){Object.keys(SEC).forEach(s=>{if(!dirtySecs.has(s))fillSec(s);else secState(s)});headState()}
+Object.entries(SEC).forEach(([sec,els])=>els.forEach(el=>{el.addEventListener('input',()=>markDirty(sec));el.addEventListener('change',()=>markDirty(sec))}));
+
+function formSleep(){const b=toMin(F.bed.value),w=toMin(F.wake.value);if(b==null||w==null)return null;
+  return(+F.wakeDay.value*1440+w)-(+F.bedDay.value*1440+b)}
+function sleepHint(){const l=formSleep(),el=$('#sleepHint');
+  el.classList.toggle('warn',l!=null&&l<=0);
+  el.textContent=l==null?'':l<=0?'起床が寝支度より前になっています。日付を確認してください':'寝支度から起床まで '+dur(l);}
+F.bedDay.addEventListener('change',()=>{bedDayTouched=true;sleepHint()});
+F.wakeDay.addEventListener('change',sleepHint);
+F.bed.addEventListener('input',()=>{const b=toMin(F.bed.value);if(!bedDayTouched&&b!=null)F.bedDay.value=b>=720?'-1':'0';sleepHint()});
+F.wake.addEventListener('input',sleepHint);
+function setNow(timeEl,dayEl){
+  const diff=Math.round((parse(ymd(new Date()))-parse(sel))/86400000);
+  if(diff<-1||diff>1){toast('今日はこの記録日の±1日の範囲外です。カレンダーで日付を選び直してください');return}
+  timeEl.value=nowHM();dayEl.value=String(diff);timeEl.classList.remove('tentative');
+  if(dayEl===F.bedDay)bedDayTouched=true;sleepHint();markDirty('sleep');
+}
+$('#fBedNow').onclick=()=>setNow(F.bed,F.bedDay);
+$('#fWakeNow').onclick=()=>setNow(F.wake,F.wakeDay);
+function commuteHint(){const a=toMin(F.dep.value),b=toMin(F.arr.value);
+  $('#commuteHint').textContent=(a!=null&&b!=null)?'通勤時間 片道'+((b-a+1440)%1440)+'分'+(F.dep.classList.contains('tentative')?'（スロットの時刻を仮入力中）':''):''}
+['ki','tai'].forEach(id=>F[id].addEventListener('input',()=>{$('#'+id+'Wrap').classList.remove('unset');$('#'+id+'Out').textContent=F[id].value+'%';if(id==='ki')kiSet=true;else taiSet=true}));
+[F.dep,F.arr,F.bed,F.wake].forEach(el=>el.addEventListener('input',()=>{el.classList.remove('tentative');if(el===F.dep||el===F.arr)commuteHint()}));
+F.slot.addEventListener('change',()=>{
+  const v=F.slot.value;F.slotName.hidden=v!=='__new';$('#commuteTimes').hidden=!v;
+  const s=S.settings.slots.find(x=>x.id===v);
+  if(s){F.dep.value=s.dep||'';F.arr.value=s.arr||'';F.dep.classList.add('tentative');F.arr.classList.add('tentative')}
+  if(!v){F.dep.value='';F.arr.value=''}
+  if(v==='__new')F.slotName.focus();
+  commuteHint();
+});
+$('[data-unset="mood"]').onclick=()=>{setSlider('ki',null);setSlider('tai',null);markDirty('mood')};
+/* 記録済みの気力・体力を消すのは変更履歴から取り消すか、この日の記録をすべて消す */
+
+/* 入力チェック：明らかな誤りは止め、ありえなくはない値は確認してから記録 */
+function checkSec(sec){
+  const err=[],warn=[];
+  if(sec==='sleep'){const sl=formSleep();
+    if(sl!=null&&sl<=0)err.push('起床が寝支度より前になっています。日付か時刻を確認してください');
+    if(sl!=null&&sl>16*60)warn.push('寝支度から起床まで '+dur(sl)+' あります（日付の選び間違いの可能性）');
+    if(sl!=null&&sl>0&&sl<90)warn.push('寝支度から起床まで '+dur(sl)+' しかありません');
+    const now=Date.now(),abs=(dayEl,t)=>{const d=addDays(parse(sel),+dayEl.value);const m=toMin(t);d.setHours(Math.floor(m/60),m%60);return d.getTime()};
+    if(F.bed.value&&abs(F.bedDay,F.bed.value)>now+5*60000)warn.push('寝支度の日時が未来になっています');
+    if(F.wake.value&&abs(F.wakeDay,F.wake.value)>now+5*60000)warn.push('起床の日時が未来になっています');
+    if(!F.bed.value&&!F.wake.value&&hasSec(S.days[sel],'sleep'))warn.push('寝支度と起床が空なので、この日の睡眠の記録を消します');}
+  if(sec==='mood'&&!kiSet&&!taiSet&&hasSec(S.days[sel],'mood'))warn.push('未入力なので、この日の気力・体力の記録を消します');
+  if(sec==='commute'){const a=toMin(F.dep.value),b=toMin(F.arr.value);
+    if(F.slot.value==='__new'&&!F.slotName.value.trim())err.push('行き先の名前を入れてください');
+    if((a==null)!==(b==null))warn.push('出発か到着の片方が空です');
+    if(a!=null&&b!=null){const m=(b-a+1440)%1440;if(m===0)warn.push('出発と到着が同じ時刻です');else if(m>240)warn.push('片道 '+dur(m)+' になっています（出発と到着が逆かもしれません）');}
+    if(!F.slot.value&&a==null&&b==null&&hasSec(S.days[sel],'commute'))warn.push('空なので、この日の通勤の記録を消します');}
+  if(sec==='prep'){if(F.prep.value!==''){const p=+F.prep.value;if(!Number.isFinite(p)||p<0)err.push('0以上の数字で入れてください');else if(p>300)err.push('300分までで入れてください');else if(p>120)warn.push(p+'分 になっています');}
+    else if(hasSec(S.days[sel],'prep'))warn.push('空なので、この日の朝支度の記録を消します');}
+  if(sec==='note'&&!F.note.value.trim()&&hasSec(S.days[sel],'note'))warn.push('空なので、この日の特記事項を消します');
+  return{err,warn};
+}
+function showWarn(sec,list,title){const w=$('#w-'+sec);if(!list.length){w.hidden=true;return}
+  w.innerHTML='<b>'+title+'</b><ul>'+list.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>';w.hidden=false}
+function buildPatch(sec){
+  const patch={};
+  if(sec==='sleep'){if(F.bed.value){patch.bed=F.bed.value;patch.bedDay=+F.bedDay.value}if(F.wake.value){patch.wake=F.wake.value;patch.wakeDay=+F.wakeDay.value}}
+  if(sec==='mood'){if(kiSet)patch.ki=+F.ki.value;if(taiSet)patch.tai=+F.tai.value}
+  if(sec==='commute'){let slot=F.slot.value;
+    if(slot==='__new'){slot='s'+Date.now().toString(36);S.settings.slots.push({id:slot,name:F.slotName.value.trim(),dep:F.dep.value,arr:F.arr.value});saveSettings();}
+    if(slot||F.dep.value||F.arr.value){patch.commute={slot:slot||'',dep:F.dep.value,arr:F.arr.value};
+      const s=S.settings.slots.find(x=>x.id===slot);if(s&&!s.dep&&!s.arr){s.dep=F.dep.value;s.arr=F.arr.value;saveSettings()}}}
+  if(sec==='prep'&&F.prep.value!=='')patch.prep=Math.round(+F.prep.value);
+  if(sec==='note'&&F.note.value.trim())patch.note=F.note.value;
+  return patch;
+}
+function saveSec(sec){
+  const c=checkSec(sec),btn=$('[data-save="'+sec+'"]');
+  if(c.err.length){showWarn(sec,c.err,'記録できません');return}
+  const key=JSON.stringify(c.warn);
+  if(c.warn.length&&warnKeys[sec]!==key){warnKeys[sec]=key;showWarn(sec,c.warn,'確認してください。よければもう一度押すと記録します');btn.textContent='このまま記録';return}
+  const patch=buildPatch(sec);
+  if(sec==='note'&&!patch.note&&!hasSec(S.days[sel],'note')){dirtySecs.delete(sec);dirty=dirtySecs.size>0;fillSec('note');toast('特記事項なしとして扱います（記録は不要です）');return}
+  const before=S.days[sel]?clone(S.days[sel]):null,next={...(before||{})};
+  SEC_KEYS[sec].forEach(k=>delete next[k]);Object.assign(next,patch);
+  if(Object.keys(next).length)S.days[sel]=next;else delete S.days[sel];
+  saveDay(sel);
+  const removed=!Object.keys(patch).length;
+  changed(sel,before,SEC_NAME[sec]+(removed?'を消去':'を記録'),md(sel)+'の'+SEC_NAME[sec]+(removed?'を消しました':'を記録しました'));
+  dirtySecs.delete(sec);dirty=dirtySecs.size>0;
+  render(false);refreshClean();
+}
+$('#noteChips').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;
+  const ta=F.note,v=ta.value,ins=(v&&!v.endsWith('\n')?'\n':'')+b.dataset.t;
+  ta.value=v+ins;markDirty('note');
+  const o=$('#noteOpts');
+  if(b.dataset.o){o.innerHTML='<span>'+esc(b.textContent)+'：</span>'+b.dataset.o.split('|').map(x=>'<button type="button" data-a="'+esc(x)+'">'+esc(x)+'</button>').join('');o.hidden=false}
+  else{o.hidden=true;ta.focus();ta.setSelectionRange(ta.value.length,ta.value.length)}});
+$('#noteOpts').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;
+  const ta=F.note,v=ta.value,sep=/：$/.test(v)?'':'、';ta.value=v+sep+b.dataset.a;markDirty('note');$('#noteOpts').hidden=true});
+document.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>saveSec(b.dataset.save));
+/* まとめて記録：必須＝睡眠（寝支度・起床）と気力・体力。任意項目は空欄でよい */
+let allKey='';
+function saveAll(){
+  const btn=$('#fSaveAll'),secs=Object.keys(SEC);let errN=0,warnAll=[];
+  secs.forEach(sec=>{$('#w-'+sec).hidden=true});
+  const req=[];if(!F.bed.value)req.push('寝支度を始めた時刻');if(!F.wake.value)req.push('起きた時刻');
+  if(req.length){showWarn('sleep',[req.join('と')+'を入れてください'],'まとめて記録に必要です');errN++}
+  secs.forEach(sec=>{const c=checkSec(sec);
+    const w=c.warn;
+    if(c.err.length){showWarn(sec,c.err,'記録できません');errN++}
+    else if(w.length)warnAll.push(...w.map(x=>SEC_NAME[sec]+'：'+x));});
+  if(errN){showWarn('all',['赤い枠の欄を直してください'],'まだ記録できません');const f=secs.find(sec=>!$('#w-'+sec).hidden);if(f)document.querySelector('[data-sec="'+f+'"]').scrollIntoView({block:'center'});return}
+  const key=JSON.stringify(warnAll);
+  if(warnAll.length&&allKey!==key){allKey=key;showWarn('all',warnAll,'確認してください。よければもう一度押すとまとめて記録します');btn.textContent='このまままとめて記録';return}
+  allKey='';btn.textContent='まとめて記録する';$('#w-all').hidden=true;
+  const before=S.days[sel]?clone(S.days[sel]):null,next={...(before||{})};
+  secs.forEach(sec=>{const p=buildPatch(sec);SEC_KEYS[sec].forEach(k=>delete next[k]);Object.assign(next,p)});
+  S.days[sel]=next;saveDay(sel);
+  changed(sel,before,'まとめて記録',md(sel)+'をまとめて記録しました');
+  dirtySecs.clear();dirty=false;render(true);
+}
+$('#fSaveAll').onclick=saveAll;
+document.getElementById('form').addEventListener('input',()=>{if(allKey){allKey='';$('#fSaveAll').textContent='まとめて記録する';$('#w-all').hidden=true}});
+let clearArmed=null;
+$('#fClear').onclick=()=>{
+  const b=$('#fClear'),label='この日の記録をすべて消す';
+  if(!S.days[sel]){toast('この日はまだ記録がありません');return}
+  if(!clearArmed){b.textContent='もう一度押すとすべて消去';clearArmed=setTimeout(()=>{clearArmed=null;b.textContent=label},3000);return}
+  clearTimeout(clearArmed);clearArmed=null;b.textContent=label;
+  const before=clone(S.days[sel]);
+  delete S.days[sel];saveDay(sel);changed(sel,before,'すべて消去',md(sel)+'の記録をすべて消しました');render(true);
+};
+
+/* ---------- settings ---------- */
+function openSheet(id){$(id).hidden=false}
+function closeSheet(id){$(id).hidden=true}
+$('#openSettings').onclick=()=>{renderSettings();openSheet('#settings')};
+$('#closeSettings').onclick=()=>closeSheet('#settings');
+$('#settings').addEventListener('click',e=>{if(e.target.id==='settings')closeSheet('#settings')});
+function renderSettings(){
+  const st=S.settings;
+  document.querySelectorAll('#modeOpts button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===st.mode));
+  document.querySelectorAll('#bgOpts button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.bg===st.bg.type));
+  $('#colSleep').value=st.colors.sleep;
+  $('#noteMarkList').innerHTML=NOTE_ITEMS.map(it=>{const m=st.noteMarks[it.t];return '<label class="markrow sub"><input type="checkbox" data-nmark="'+esc(it.t)+'"'+(m.on?' checked':'')+'><span>'+esc(it.name)+'</span><input type="color" data-nmcolor="'+esc(it.t)+'" value="'+m.color+'" aria-label="'+esc(it.name)+'のマークの色"></label>'}).join('');
+  $('#markList').innerHTML=MARKS.map(([k,n])=>'<label class="markrow"><input type="checkbox" data-mark="'+k+'"'+(st.marks[k]?' checked':'')+'><span>'+n+'</span><input type="color" data-mcolor="'+k+'" value="'+st.colors[k]+'" aria-label="'+n+'のマークの色"></label>').join('');
+  $('#bgColorRow').hidden=st.bg.type!=='color';$('#bgImageRow').hidden=st.bg.type!=='image';$('#bgColor').value=st.bg.color;
+  $('#slotList').innerHTML=st.slots.length?st.slots.map(s=>'<div class="slot" data-id="'+s.id+'"><input type="text" data-f="name" value="'+esc(s.name)+'" aria-label="行き先"><input type="time" data-f="dep" value="'+(s.dep||'')+'" aria-label="出発"><input type="time" data-f="arr" value="'+(s.arr||'')+'" aria-label="到着"><button class="xbtn" data-del aria-label="削除">×</button></div>').join(''):'<p class="hint">まだ行き先がありません。</p>';
+}
+$('#modeOpts').onclick=e=>{const b=e.target.closest('[data-mode]');if(!b)return;S.settings.mode=b.dataset.mode;applyLook();renderSettings();saveSettings()};
+let colorTimer;
+[['#colSleep','sleep']].forEach(([id,k])=>$(id).addEventListener('input',e=>{S.settings.colors[k]=e.target.value;applyLook();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)}));
+$('#noteMarkList').addEventListener('change',e=>{const k=e.target.dataset.nmark;if(!k)return;S.settings.noteMarks[k].on=e.target.checked;saveSettings();render(false)});
+$('#noteMarkList').addEventListener('input',e=>{const k=e.target.dataset.nmcolor;if(!k)return;S.settings.noteMarks[k].color=e.target.value;render(false);clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
+$('#markList').addEventListener('change',e=>{const k=e.target.dataset.mark;if(!k)return;S.settings.marks[k]=e.target.checked;saveSettings();render(false)});
+$('#markList').addEventListener('input',e=>{const k=e.target.dataset.mcolor;if(!k)return;S.settings.colors[k]=e.target.value;applyLook();render(false);clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
+$('#resetColors').onclick=()=>{S.settings.colors=clone(DEF.colors);applyLook();renderSettings();saveSettings();render(false)};
+$('#bgOpts').onclick=e=>{const b=e.target.closest('[data-bg]');if(!b)return;
+  S.settings.bg.type=b.dataset.bg;applyLook();renderSettings();saveSettings();
+  if(b.dataset.bg==='image'&&!S.bgImage)$('#bgFile').click();};
+$('#bgColor').addEventListener('input',e=>{S.settings.bg.color=e.target.value;applyLook();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
+$('#addSlot').onclick=()=>{S.settings.slots.push({id:'s'+Date.now().toString(36),name:'新しい行き先',dep:'08:00',arr:'08:45'});renderSettings();saveSettings();fillSlots(F.slot.value)};
+let slotTimer;
+$('#slotList').addEventListener('input',e=>{const row=e.target.closest('.slot');if(!row)return;const s=S.settings.slots.find(x=>x.id===row.dataset.id);
+  s[e.target.dataset.f]=e.target.value;clearTimeout(slotTimer);slotTimer=setTimeout(()=>{saveSettings();fillSlots(F.slot.value)},600)});
+$('#slotList').addEventListener('click',e=>{if(!e.target.closest('[data-del]'))return;const id=e.target.closest('.slot').dataset.id;
+  S.settings.slots=S.settings.slots.filter(x=>x.id!==id);renderSettings();saveSettings();fillSlots(F.slot.value)});
+
+/* ---------- background crop ---------- */
+const CB=$('#cropBox'),CI=$('#cropImg');let cs=null;
+$('#bgFile').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  const rd=new FileReader();rd.onload=()=>{CI.onload=startCrop;CI.src=rd.result};rd.onerror=()=>toast('画像を読み込めませんでした');rd.readAsDataURL(f)});
+function startCrop(){
+  openSheet('#crop');
+  const ar=window.innerWidth/window.innerHeight;
+  const maxW=Math.min(window.innerWidth-48,480),maxH=window.innerHeight*0.58;
+  let fw=maxW,fh=fw/ar;if(fh>maxH){fh=maxH;fw=fh*ar}
+  CB.style.width=fw+'px';CB.style.height=fh+'px';
+  const base=Math.max(fw/CI.naturalWidth,fh/CI.naturalHeight);
+  cs={fw,fh,base,z:1,x:0,y:0};$('#cropZoom').value=1;
+  cs.x=(fw-CI.naturalWidth*base)/2;cs.y=(fh-CI.naturalHeight*base)/2;drawCrop();
+}
+function clampCrop(){const s=cs.base*cs.z,w=CI.naturalWidth*s,h=CI.naturalHeight*s;
+  cs.x=Math.min(0,Math.max(cs.fw-w,cs.x));cs.y=Math.min(0,Math.max(cs.fh-h,cs.y))}
+function drawCrop(){clampCrop();CI.style.transform='translate('+cs.x+'px,'+cs.y+'px) scale('+(cs.base*cs.z)+')'}
+$('#cropZoom').addEventListener('input',e=>{if(!cs)return;const old=cs.base*cs.z;cs.z=+e.target.value;const nw=cs.base*cs.z;
+  const cx=cs.fw/2,cy=cs.fh/2;cs.x=cx-(cx-cs.x)*nw/old;cs.y=cy-(cy-cs.y)*nw/old;drawCrop()});
+let drag=null;
+CB.addEventListener('pointerdown',e=>{if(!cs)return;drag={px:e.clientX,py:e.clientY,x:cs.x,y:cs.y};CB.setPointerCapture(e.pointerId)});
+CB.addEventListener('pointermove',e=>{if(!drag)return;cs.x=drag.x+e.clientX-drag.px;cs.y=drag.y+e.clientY-drag.py;drawCrop()});
+CB.addEventListener('pointerup',()=>drag=null);CB.addEventListener('pointercancel',()=>drag=null);
+$('#cropCancel').onclick=()=>{closeSheet('#crop');if(!S.bgImage){S.settings.bg.type='none';applyLook();renderSettings();saveSettings()}};
+$('#cropOk').onclick=()=>{
+  const s=cs.base*cs.z,sx=-cs.x/s,sy=-cs.y/s,sw=cs.fw/s,sh=cs.fh/s;
+  let W=Math.min(1080,Math.round(window.innerWidth*(window.devicePixelRatio||1)));
+  let url='';
+  for(let tries=0;tries<6;tries++){
+    const H=Math.round(W*cs.fh/cs.fw),cv=document.createElement('canvas');cv.width=W;cv.height=H;
+    cv.getContext('2d').drawImage(CI,sx,sy,sw,sh,0,0,W,H);
+    for(const q of [0.82,0.7,0.6]){url=cv.toDataURL('image/jpeg',q);if(url.length<230000)break}
+    if(url.length<230000)break;W=Math.round(W*0.8);
+  }
+  S.bgImage=url;S.settings.bg.type='image';closeSheet('#crop');applyLook();renderSettings();saveSettings();saveBg();
+  toast('背景を変更しました');
+};
+
+/* ---------- misc ---------- */
+let tt;function toast(m,act){const t=$('#toast'),b=$('#toastBtn');$('#toastMsg').textContent=m;
+  b.hidden=!act;if(act){b.textContent=act.label;b.onclick=()=>{t.hidden=true;act.fn()}}
+  t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,act?7000:2600)}
+
+/* ---------- 変更履歴と取り消し ---------- */
+const describe=r=>{if(!r)return'記録なし';const a=[];
+  if(r.bed)a.push('寝支度 '+r.bed);if(r.wake)a.push('起床 '+r.wake);if(r.ki!=null)a.push('気力'+r.ki+'%');if(r.tai!=null)a.push('体力'+r.tai+'%');
+  if(r.commute&&(r.commute.dep||r.commute.arr))a.push('通勤 '+(r.commute.dep||'?')+'→'+(r.commute.arr||'?'));if(r.prep!=null)a.push('支度'+r.prep+'分');if(r.note)a.push('メモあり');
+  return a.join('・')||'記録なし'};
+function logChange(k,before,what){
+  const after=S.days[k]?clone(S.days[k]):null;
+  if(JSON.stringify(before||null)===JSON.stringify(after))return null;
+  const e={id:Date.now().toString(36)+Math.random().toString(36).slice(2,6),k,before:before?clone(before):null,after,what,at:Date.now()};
+  S.hist=[e,...(S.hist||[])].slice(0,30);put('hist',{list:S.hist});return e;
+}
+function undo(e){
+  const cur=S.days[e.k]?clone(S.days[e.k]):null;
+  if(e.before)S.days[e.k]=clone(e.before);else delete S.days[e.k];
+  saveDay(e.k);const u=logChange(e.k,cur,'取り消し：'+e.what);
+  dirty=false;render(true);
+  toast(md(e.k)+'を変更前に戻しました',u?{label:'やり直す',fn:()=>undo(u)}:null);
+}
+function changed(k,before,what,msg){const e=logChange(k,before,what);toast(msg,e?{label:'元に戻す',fn:()=>undo(e)}:null)}
+const fmtAt=t=>{const d=new Date(t);return (d.getMonth()+1)+'/'+d.getDate()+' '+pad(d.getHours())+':'+pad(d.getMinutes())};
+function renderHist(){
+  const L=S.hist||[];
+  $('#histList').innerHTML=L.length?L.map(e=>'<div class="hitem"><b>'+md(e.k)+'の記録：'+esc(e.what)+'</b><small>'+fmtAt(e.at)+'　変更前：'+esc(describe(e.before))+'</small><small>変更後：'+esc(describe(e.after))+'</small><button class="btn ghost" data-undo="'+e.id+'">この変更を取り消す</button></div>').join(''):'<p class="empty">まだ変更はありません。</p>';
+}
+$('#openHist').onclick=()=>{renderHist();openSheet('#hist')};
+$('#closeHist').onclick=()=>closeSheet('#hist');
+$('#hist').addEventListener('click',e=>{if(e.target.id==='hist'){closeSheet('#hist');return}
+  const b=e.target.closest('[data-undo]');if(!b)return;const en=(S.hist||[]).find(x=>x.id===b.dataset.undo);if(!en)return;
+  const cur=S.days[en.k]||null;
+  if(JSON.stringify(cur)!==JSON.stringify(en.after)&&b.dataset.armed!=='1'){b.dataset.armed='1';b.textContent='その後の変更も戻ります。押して確定';return}
+  undo(en);renderHist();});
+function render(withForm){renderQuick();renderCal();renderChart();if(withForm)fillForm();if(page==='status')renderStatus()}
+
+/* ---------- 記録状況タブ ---------- */
+let page='main',gapKind='any';
+function showPage(p){page=p;
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.page===p));
+  $('#pageMain').hidden=p!=='main';$('#pageStatus').hidden=p!=='status';
+  if(p==='status')renderStatus();window.scrollTo(0,0);}
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+$('#gapKind').onclick=e=>{const b=e.target.closest('[data-kind]');if(!b)return;gapKind=b.dataset.kind;renderStatus()};
+const ymdJ=k=>{const d=parse(k);return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日('+WD[d.getDay()]+')'};
+function isMissing(k,kind){const r=S.days[k];if(kind==='any')return !r;return !hasSec(r,kind)}
+function renderStatus(){
+  document.querySelectorAll('#gapKind button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.kind===gapKind));
+  const keys=Object.keys(S.days).filter(k=>S.days[k]&&Object.keys(S.days[k]).length).sort();
+  if(!keys.length){$('#stSummary').innerHTML='<p class="empty">まだ記録がありません。最初に記録した日がここに表示されます。</p>';$('#gapStrip').innerHTML='';$('#gapList').innerHTML='';return}
+  const start=keys[0],today=ymd(new Date()),yest=ymd(addDays(new Date(),-1));
+  const days=[];for(let d=parse(start);ymd(d)<=today;d=addDays(d,1))days.push(ymd(d));
+  const past=days.filter(k=>k<today),elapsed=days.length;
+  const recorded=past.filter(k=>!isMissing(k,'any')).length;
+  const missAny=past.length-recorded,cov=past.length?Math.round(recorded/past.length*100):100;
+  $('#stSummary').innerHTML='<div class="tiles"><div><span>記録開始日</span><b>'+start.replace(/-/g,'/')+'</b><small>'+WD[parse(start).getDay()]+'曜日・今日で'+elapsed+'日目</small></div>'+
+    '<div><span>記録した日（昨日まで）</span><b>'+recorded+' / '+past.length+'日</b><small>記録率 '+cov+'%</small></div>'+
+    '<div><span>何も記録がない日</span><b>'+missAny+'日</b><small>'+(missAny?'下の一覧で確認できます':'漏れはありません')+'</small></div></div>'+
+    '<div class="cover" role="img" aria-label="記録率'+cov+'%"><i style="width:'+cov+'%"></i></div>';
+  // 期間ごとにまとめる
+  const gaps=[];let cur=null;
+  past.forEach(k=>{if(isMissing(k,gapKind)){if(cur&&ymd(addDays(parse(cur.to),1))===k)cur.to=k,cur.n++;else{cur={from:k,to:k,n:1};gaps.push(cur)}}else cur=null});
+  const recent=days.slice(-56);
+  $('#gapStrip').innerHTML='<div class="strip" role="img" aria-label="直近'+recent.length+'日の記録状況">'+recent.map(k=>'<i class="'+(k===today?'today':isMissing(k,gapKind)?'miss':'')+'" title="'+md(k)+'"></i>').join('')+'</div>'+
+    '<div class="legend" style="margin:-4px 0 10px"><span><i class="dot" style="background:var(--c-prep);border-radius:3px"></i>記録あり</span><span><i class="dot" style="border:1.5px solid var(--danger);border-radius:3px"></i>漏れ</span><span>直近'+recent.length+'日</span></div>';
+  const label={any:'何も記録がない',sleep:'睡眠の記録がない',mood:'気力・体力の記録がない'}[gapKind];
+  $('#gapList').innerHTML=gaps.length?'<p class="hint" style="margin:0 0 4px">'+label+'日：合計'+gaps.reduce((a,g)=>a+g.n,0)+'日・'+gaps.length+'期間（新しい順）</p>'+
+    gaps.slice().reverse().map(g=>'<button class="gap" data-go="'+g.from+'"><b>'+(g.n===1?ymdJ(g.from):ymdJ(g.from)+' 〜 '+md(g.to))+'</b><span>'+g.n+'日間</span></button>').join(''):
+    '<p class="empty">'+label+'日はありません。</p>';
+}
+$('#gapList').addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;view='day';showPage('main');selectDate(b.dataset.go);document.getElementById('form').scrollIntoView({block:'start'})});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderQuick()});
+applyLook();render(true);
+setTimeout(initStore,0);
+})();
+</script>
+
+</body></html>
