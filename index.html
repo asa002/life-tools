@@ -8,7 +8,7 @@
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
-<title>生活記録ツール</title>
+<title>生活記録</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Shippori+Mincho+B1:wght@700&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -198,6 +198,13 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .shareleg b{font-family:var(--mono);font-weight:500}
 .shareleg small{color:var(--muted);font-family:var(--mono);font-size:.68rem;grid-column:2/4}
 .hbtns{display:flex;gap:8px}
+.charthead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.charthead h2{margin:0}
+.btn.sm{padding:5px 10px;font-size:.78rem}
+.exchecks{display:flex;flex-wrap:wrap;gap:6px 14px}
+.exchecks label{display:flex;align-items:center;gap:5px;font-size:.88rem}
+.exchecks input{width:18px;height:18px;accent-color:var(--accent)}
+#exText{font-family:var(--mono);font-size:.8rem;line-height:1.55;min-height:220px}
 .allsave{display:grid;gap:8px;padding-top:14px;border-top:1px solid var(--line)}
 .btn.big{width:100%;padding:13px 14px;font-size:1rem}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -253,7 +260,7 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 <div id="bgLayer" hidden></div>
 <div class="wrap">
   <header class="top">
-    <h1 class="brand">生活記録ツール <small>睡眠・支度・移動</small></h1>
+    <h1 class="brand">生活記録 <small>睡眠・支度・移動</small></h1>
     <div class="hbtns"><button class="iconbtn" id="openHist" aria-label="変更履歴"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></svg></button>
     <button class="iconbtn" id="openSettings" aria-label="設定"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
   </header>
@@ -292,7 +299,7 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
   </section>
 
   <section class="card">
-    <h2 id="chartTitle">睡眠スケジュール</h2>
+    <div class="charthead"><h2 id="chartTitle">睡眠スケジュール</h2><button class="btn ghost sm" id="openExport">テキストでコピー</button></div>
     <div id="chart"></div>
   </section>
 
@@ -448,6 +455,18 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
     <div class="cropbox" id="cropBox"><img id="cropImg" alt="切り抜く画像"></div>
     <div class="slider" style="grid-template-columns:3em 1fr"><label for="cropZoom">拡大</label><input type="range" id="cropZoom" min="1" max="4" step="0.01" value="1"></div>
     <div class="actions"><button class="btn ghost" id="cropCancel">やめる</button><button class="btn" id="cropOk">この範囲で設定</button></div>
+  </div>
+</div>
+
+<div class="sheet" id="export" hidden>
+  <div class="panel" role="dialog" aria-label="テキストでコピー">
+    <div class="fhead"><h3>テキストでコピー</h3><button class="btn ghost" id="closeExport">閉じる</button></div>
+    <div><h4>期間</h4><div class="opts" id="exRange"><button data-r="day">この日</button><button data-r="week">この週</button><button data-r="month">この月</button></div></div>
+    <div><h4>入れる項目</h4><div class="exchecks" id="exItems"></div></div>
+    <div class="opts" id="exOpts"><button data-o="empty">記録のない日も載せる</button><button data-o="summary">期間のまとめを付ける</button></div>
+    <textarea id="exText" rows="12" readonly aria-label="コピーする内容"></textarea>
+    <div class="actions"><span class="hint" id="exCount"></span><button class="btn" id="exCopy">コピーする</button></div>
+    <p class="hint" style="margin:0">Googleフォームなどの記入欄に貼り付けて使えます。コピーできないときは、上の文章を長押しして「すべてを選択」→「コピー」してください。</p>
   </div>
 </div>
 
@@ -1013,6 +1032,65 @@ function renderHist(){
   const L=S.hist||[];
   $('#histList').innerHTML=L.length?L.map(e=>'<div class="hitem"><b>'+md(e.k)+'の記録：'+esc(e.what)+'</b><small>'+fmtAt(e.at)+'　変更前：'+esc(describe(e.before))+'</small><small>変更後：'+esc(describe(e.after))+'</small><button class="btn ghost" data-undo="'+e.id+'">この変更を取り消す</button></div>').join(''):'<p class="empty">まだ変更はありません。</p>';
 }
+/* ---------- テキストでコピー（Googleフォーム等への貼り付け用） ---------- */
+const EX_ITEMS=[['sleep','睡眠'],['mood','気力・体力'],['commute','通勤'],['work','勤務'],['prep','朝支度'],['other','その他の時間'],['note','特記事項']];
+let ex={range:'day',items:Object.fromEntries(EX_ITEMS.map(([k])=>[k,true])),empty:false,summary:true};
+try{const o=JSON.parse(localStorage.getItem('nemuri-export')||'null');if(o)ex={...ex,...o,items:{...ex.items,...(o.items||{})}}}catch(e){}
+const saveEx=()=>{try{localStorage.setItem('nemuri-export',JSON.stringify(ex))}catch(e){}};
+function exDays(){const d=parse(sel);
+  if(ex.range==='day')return[sel];
+  if(ex.range==='week'){const st=addDays(d,-d.getDay());return[...Array(7)].map((_,i)=>ymd(addDays(st,i)))}
+  const n=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();return[...Array(n)].map((_,i)=>ymd(new Date(d.getFullYear(),d.getMonth(),i+1)))}
+function dayText(k){
+  const r=S.days[k],L=['【'+md(k)+'】'];
+  if(!r)return ex.empty?L.concat('（記録なし）'):null;
+  const it=ex.items,s=sleepOf(k);
+  if(it.sleep&&(r.bed||r.wake))L.push('睡眠：'+dayTime(k,bedOff(r),r.bed)+' → '+dayTime(k,wakeOff(r),r.wake)+(s&&s.len!=null?'（'+dur(s.len)+'）':''));
+  if(it.mood&&(r.ki!=null||r.tai!=null))L.push('気力：'+(r.ki??'—')+'% ／ 体力：'+(r.tai??'—')+'%');
+  if(it.commute&&r.commute&&(r.commute.dep||r.commute.arr)){const c=r.commute,sl=S.settings.slots.find(x=>x.id===c.slot),a=toMin(c.dep),b=toMin(c.arr);
+    L.push('通勤：'+(sl?sl.name+' ':'')+(c.dep||'?')+' → '+(c.arr||'?')+(a!=null&&b!=null?'（片道'+((b-a+1440)%1440)+'分）':''))}
+  if(it.work&&r.work&&(r.work.start||r.work.end)){const w=workLen(r);L.push('勤務：'+(r.work.start||'?')+' 〜 '+(r.work.end||'?')+(w!=null?'（'+dur(w)+'）':''))}
+  if(it.prep&&r.prep!=null)L.push('朝支度：'+r.prep+'分');
+  if(it.other&&r.other){const o=r.other;(o.items||[]).forEach(a=>{const m=actLen(a);L.push('その他：'+(a.name||'名前なし')+(a.start||a.end?' '+(a.start||'?')+'〜'+(a.end||'?'):'')+(m!=null?'（'+dur(m)+'）':''))});
+    if(o.memo)L.push('その他メモ：'+o.memo.replace(/\n/g,' ／ '))}
+  if(it.note&&r.note&&r.note.trim())L.push('特記事項：'+r.note.trim().split('\n').map(x=>x.trim()).filter(Boolean).join(' ／ '));
+  if(L.length===1)return ex.empty?L.concat('（選んだ項目の記録なし）'):null;
+  return L;
+}
+function exportText(){
+  const ks=exDays(),blocks=ks.map(dayText).filter(Boolean),out=[];
+  if(ex.summary&&ex.range!=='day'){
+    const rec=ks.filter(k=>S.days[k]),ss=ks.map(sleepOf).filter(Boolean),lens=ss.map(x=>x.len).filter(v=>v!=null);
+    const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
+    const ki=avg(rec.map(k=>S.days[k].ki).filter(v=>v!=null)),tai=avg(rec.map(k=>S.days[k].tai).filter(v=>v!=null));
+    const wk=avg(rec.map(k=>workLen(S.days[k])).filter(v=>v!=null));
+    out.push('■ 生活記録 '+md(ks[0])+'〜'+md(ks[ks.length-1]));
+    out.push('記録した日：'+rec.length+'／'+ks.length+'日');
+    if(ex.items.sleep)out.push('平均睡眠：'+(lens.length?dur(avg(lens)):'—')+'（寝支度 平均'+avgTime(ss.map(x=>off(x.ba)).filter(v=>v!=null))+'・起床 平均'+avgTime(ss.map(x=>off(x.wa)).filter(v=>v!=null))+'）');
+    if(ex.items.mood)out.push('平均 気力：'+(ki??'—')+'% ／ 体力：'+(tai??'—')+'%');
+    if(ex.items.work&&wk!=null)out.push('平均勤務時間：'+dur(wk));
+    out.push('');
+  }else out.push('■ 生活記録'+(ex.range==='day'?'':' '+md(ks[0])+'〜'+md(ks[ks.length-1])));
+  if(!blocks.length)out.push('この期間に記録はありません。');
+  out.push(blocks.map(b=>b.join('\n')).join('\n\n'));
+  return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+function renderExport(){
+  document.querySelectorAll('#exRange button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.r===ex.range));
+  document.querySelectorAll('#exOpts button').forEach(b=>b.setAttribute('aria-pressed',!!ex[b.dataset.o]));
+  $('#exItems').innerHTML=EX_ITEMS.map(([k,n])=>'<label><input type="checkbox" data-ex="'+k+'"'+(ex.items[k]?' checked':'')+'>'+n+'</label>').join('');
+  const t=exportText();$('#exText').value=t;$('#exCount').textContent=t.length+'文字';$('#exCopy').textContent='コピーする';
+}
+$('#openExport').onclick=()=>{ex.range=view;renderExport();openSheet('#export')};
+$('#closeExport').onclick=()=>closeSheet('#export');
+$('#export').addEventListener('click',e=>{if(e.target.id==='export')closeSheet('#export')});
+$('#exRange').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;ex.range=b.dataset.r;saveEx();renderExport()};
+$('#exOpts').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;ex[b.dataset.o]=!ex[b.dataset.o];saveEx();renderExport()};
+$('#exItems').addEventListener('change',e=>{const k=e.target.dataset.ex;if(!k)return;ex.items[k]=e.target.checked;saveEx();renderExport()});
+$('#exCopy').onclick=()=>{const ta=$('#exText'),t=ta.value;
+  const fallback=()=>{ta.focus();ta.select();ta.setSelectionRange(0,t.length);let ok=false;try{ok=document.execCommand('copy')}catch(e){}
+    if(ok){$('#exCopy').textContent='コピーしました';toast('コピーしました。貼り付けて使えます')}else toast('自動でコピーできませんでした。選択された文章を「コピー」してください')};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>{$('#exCopy').textContent='コピーしました';toast('コピーしました。貼り付けて使えます')},fallback)}else fallback();};
 $('#openHist').onclick=()=>{renderHist();openSheet('#hist')};
 $('#closeHist').onclick=()=>closeSheet('#hist');
 $('#hist').addEventListener('click',e=>{if(e.target.id==='hist'){closeSheet('#hist');return}
