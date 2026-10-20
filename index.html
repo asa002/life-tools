@@ -198,6 +198,8 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .shareleg b{font-family:var(--mono);font-weight:500}
 .shareleg small{color:var(--muted);font-family:var(--mono);font-size:.68rem;grid-column:2/4}
 .hbtns{display:flex;gap:8px}
+.reportrow{display:grid;gap:4px;padding-top:10px;border-top:1px solid var(--line)}
+.reportrow .btn{border-color:var(--accent);color:var(--accent);font-weight:700}
 .charthead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 .charthead h2{margin:0}
 .btn.sm{padding:5px 10px;font-size:.78rem}
@@ -282,6 +284,10 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
         <div class="qlabel"><b>起床</b><span id="qWakeFor"></span></div>
         <input type="time" id="qWake" class="tentative" aria-label="起床時刻">
         <button class="btn" id="qWakeBtn">今の時刻で記録</button>
+      </div>
+      <div class="reportrow">
+        <button class="btn ghost big" id="copyReport">朝の日報をコピー</button>
+        <span class="hint" id="reportHint">前日の寝支度から、今日入力した項目までをまとめてコピーします。</span>
       </div>
     </div>
   </section>
@@ -1087,6 +1093,36 @@ $('#export').addEventListener('click',e=>{if(e.target.id==='export')closeSheet('
 $('#exRange').onclick=e=>{const b=e.target.closest('[data-r]');if(!b)return;ex.range=b.dataset.r;saveEx();renderExport()};
 $('#exOpts').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;ex[b.dataset.o]=!ex[b.dataset.o];saveEx();renderExport()};
 $('#exItems').addEventListener('change',e=>{const k=e.target.dataset.ex;if(!k)return;ex.items[k]=e.target.checked;saveEx();renderExport()});
+/* ---------- 朝の日報 ---------- */
+const durJ=m=>Math.floor(m/60)+'時間'+pad(m%60)+'分';
+function reportText(){
+  const k=ymd(new Date()),r=S.days[k];if(!r)return null;
+  const L=['【日報】'+ymdJ(k)],sec=t=>L.push('','■ '+t),s=sleepOf(k);
+  if(r.bed||r.wake){sec('睡眠');
+    L.push('寝支度開始：'+dayTime(k,bedOff(r),r.bed));L.push('起床　　　：'+dayTime(k,wakeOff(r),r.wake));
+    if(s&&s.len!=null)L.push('睡眠時間　：'+durJ(s.len));}
+  if(r.ki!=null||r.tai!=null){sec('今日のコンディション');L.push('気力：'+(r.ki??'—')+'%　体力：'+(r.tai??'—')+'%')}
+  if(r.prep!=null){sec('朝支度');L.push(r.prep+'分')}
+  if(r.commute&&(r.commute.dep||r.commute.arr)){const c=r.commute,sl=S.settings.slots.find(x=>x.id===c.slot),a=toMin(c.dep),b=toMin(c.arr);
+    sec('通勤');L.push((sl?sl.name+'　':'')+'出発 '+(c.dep||'—')+' → 到着 '+(c.arr||'—')+(a!=null&&b!=null?'（片道'+((b-a+1440)%1440)+'分）':''))}
+  if(r.work&&(r.work.start||r.work.end)){const w=workLen(r);sec('勤務');L.push((r.work.start||'—')+' 〜 '+(r.work.end||'—')+(w!=null?'（'+durJ(w)+'）':''))}
+  if(r.other&&((r.other.items||[]).length||r.other.memo)){sec('その他');
+    (r.other.items||[]).forEach(a=>{const m=actLen(a);L.push('・'+(a.name||'名前なし')+(a.start||a.end?'　'+(a.start||'—')+'〜'+(a.end||'—'):'')+(m!=null?'（'+durJ(m)+'）':''))});
+    if(r.other.memo)L.push('・メモ：'+r.other.memo.replace(/\n/g,' ／ '))}
+  sec('特記事項');
+  const notes=(r.note||'').split('\n').map(x=>x.trim()).filter(Boolean);
+  if(notes.length)notes.forEach(x=>L.push('・'+x));else L.push('特になし');
+  return L.join('\n');
+}
+$('#copyReport').onclick=()=>{
+  const t=reportText();
+  if(!t){toast('今日の記録がまだありません。起床などを記録してからコピーしてください');return}
+  const done=()=>{$('#copyReport').textContent='コピーしました';setTimeout(()=>$('#copyReport').textContent='朝の日報をコピー',2500);toast('日報をコピーしました。貼り付けて使えます')};
+  const fallback=()=>{ex.range='day';renderExport();const ta=$('#exText');ta.value=t;$('#exCount').textContent=t.length+'文字';openSheet('#export');
+    ta.focus();ta.select();ta.setSelectionRange(0,t.length);let ok=false;try{ok=document.execCommand('copy')}catch(e){}
+    if(ok)done();else toast('自動でコピーできませんでした。表示された文章をコピーしてください')};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(done,fallback);else fallback();
+};
 $('#exCopy').onclick=()=>{const ta=$('#exText'),t=ta.value;
   const fallback=()=>{ta.focus();ta.select();ta.setSelectionRange(0,t.length);let ok=false;try{ok=document.execCommand('copy')}catch(e){}
     if(ok){$('#exCopy').textContent='コピーしました';toast('コピーしました。貼り付けて使えます')}else toast('自動でコピーできませんでした。選択された文章を「コピー」してください')};
