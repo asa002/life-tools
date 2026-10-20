@@ -95,7 +95,7 @@ input.tentative{border-style:dashed;border-color:var(--dawn)}
 .markrow.sub{padding-left:14px}
 .marksub{font-size:.74rem;color:var(--muted);margin:10px 0 2px}
 .dot{width:7px;height:7px;border-radius:50%}
-.dot.note{background:var(--c-note)} .dot.prep{background:var(--c-prep)} .dot.commute{background:var(--c-commute)} .dot.mood{background:var(--c-mood)}
+.dot.note{background:var(--c-note)} .dot.prep{background:var(--c-prep)} .dot.commute{background:var(--c-commute)} .dot.mood{background:var(--c-mood)} .dot.work{background:var(--c-work)}
 .markrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
 .markrow input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
 .week .cell{min-height:70px}
@@ -175,7 +175,11 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .share h3{margin:0;font-size:.78rem;letter-spacing:.12em;color:var(--muted);font-weight:700}
 .stack{display:flex;height:22px;border-radius:8px;overflow:hidden;background:var(--surface-2)}
 .stack i{display:block;height:100%}
-.s-sleep{background:var(--c-sleep)} .s-prep{background:var(--c-prep)} .s-move{background:var(--dawn)} .s-rest{background:var(--surface-2)}
+.s-sleep{background:var(--c-sleep)} .s-prep{background:var(--c-prep)} .s-move{background:var(--dawn)}
+.orows{display:grid;gap:6px}
+.orow{display:grid;grid-template-columns:minmax(0,1fr) 5.6em 5.6em 34px;gap:6px;align-items:center}
+.orow input{padding:7px 6px}
+.orow .olen{grid-column:1/-1;font-size:.7rem;color:var(--muted);margin-top:-3px} .s-work{background:var(--c-work)} .s-rest{background:var(--surface-2)}
 .shareleg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:6px}
 .shareleg div{display:grid;grid-template-columns:10px 1fr auto;gap:6px;align-items:center;font-size:.78rem}
 .shareleg div>i{width:10px;height:10px;border-radius:3px}
@@ -314,6 +318,28 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
       <div class="secfoot"><button class="btn" data-save="commute">通勤を記録</button></div>
     </div>
 
+    <div class="sec" data-sec="work">
+      <div class="sechead"><h3>勤務時間</h3><span class="secstate" id="st-work"></span></div>
+      <div class="two">
+        <div class="field"><label for="fWs">勤務開始</label><div class="inline"><input type="time" id="fWs"><button class="btn ghost" data-now="fWs">今</button></div></div>
+        <div class="field"><label for="fWe">勤務終了</label><div class="inline"><input type="time" id="fWe"><button class="btn ghost" data-now="fWe">今</button></div></div>
+      </div>
+      <div class="hint" id="workHint">終了が開始より前の時刻なら、日をまたいだ勤務として計算します。休みの日は空欄で大丈夫です。</div>
+      <div class="warnbox" id="w-work" hidden></div>
+      <div class="secfoot"><button class="btn" data-save="work">勤務時間を記録</button></div>
+    </div>
+
+    <div class="sec" data-sec="other">
+      <div class="sechead"><h3>その他の時間</h3><span class="secstate" id="st-other"></span></div>
+      <div class="hint">睡眠・通勤・勤務・朝支度以外に何をしていたかを書けます。時間を入れると割合のグラフに出ます。</div>
+      <div id="otherRows" class="orows"></div>
+      <div class="chips" id="actChips" aria-label="活動の候補"><button type="button" data-act="家事">家事</button><button type="button" data-act="食事">食事</button><button type="button" data-act="入浴">入浴</button><button type="button" data-act="趣味">趣味</button><button type="button" data-act="勉強">勉強</button><button type="button" data-act="運動">運動</button><button type="button" data-act="買い物">買い物</button><button type="button" data-act="家族・友人">家族・友人</button><button type="button" data-act="スマホ・動画">スマホ・動画</button><button type="button" data-act="休憩・ゴロゴロ">休憩</button><button type="button" data-act="通院">通院</button></div>
+      <div><button type="button" class="btn ghost" id="addAct">＋ 行を追加</button></div>
+      <textarea id="fOtherMemo" rows="2" placeholder="自由メモ（例：午後は友人とカフェ、夜は録画を見てのんびり）" aria-label="その他の時間のメモ"></textarea>
+      <div class="warnbox" id="w-other" hidden></div>
+      <div class="secfoot"><button class="btn" data-save="other">その他の時間を記録</button></div>
+    </div>
+
     <div class="sec" data-sec="prep">
       <div class="sechead"><h3>朝の支度にかかった時間</h3><span class="secstate" id="st-prep"></span></div>
       <div class="inline"><input type="number" id="fPrep" min="0" max="300" step="5" inputmode="numeric" placeholder="例 30" style="max-width:8em" aria-label="朝支度の時間（分）"><span>分</span></div>
@@ -344,7 +370,7 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
     <div class="allsave">
       <div class="warnbox" id="w-all" hidden></div>
       <button class="btn big" id="fSaveAll">まとめて記録する</button>
-      <p class="hint">睡眠（寝支度と起床）と気力・体力が必須です。通勤・朝支度・特記事項は空欄でも記録できます。</p>
+      <p class="hint">睡眠（寝支度と起床）と気力・体力が必須です。通勤・勤務時間・その他の時間・朝支度・特記事項は空欄でも記録できます。</p>
     </div>
     <div class="actions">
       <button class="btn danger" id="fClear">この日の記録をすべて消す</button>
@@ -433,8 +459,8 @@ const WD=['日','月','火','水','木','金','土'];
 const clone=o=>JSON.parse(JSON.stringify(o));
 const md=k=>{const d=parse(k);return (d.getMonth()+1)+'/'+d.getDate()+'('+WD[d.getDay()]+')'};
 
-const DEF={mode:'system',colors:{note:'#d9822b',prep:'#2f8f80',commute:'#a3519a',mood:'#b8941f',sleep:'#5b6fd6'},marks:{note:true,prep:false,commute:false,mood:false},slots:[],bg:{type:'none',color:'#c9d3e6'}};
-const MARKS=[['note','特記事項'],['prep','朝支度の時間'],['commute','通勤'],['mood','気力・体力']];
+const DEF={mode:'system',colors:{note:'#d9822b',prep:'#2f8f80',commute:'#a3519a',mood:'#b8941f',work:'#8a63c9',sleep:'#5b6fd6'},marks:{note:true,prep:false,commute:false,mood:false,work:false},slots:[],bg:{type:'none',color:'#c9d3e6'}};
+const MARKS=[['note','特記事項'],['prep','朝支度の時間'],['commute','通勤'],['mood','気力・体力'],['work','勤務']];
 /* 特記事項の見出し（例「入浴：」）ごとのマーク */
 const NOTE_ITEMS=[...document.querySelectorAll('#noteChips [data-t]')].map(b=>({t:b.dataset.t.replace(/：$/,''),name:b.textContent}));
 const NOTE_NEG={'入浴':/できなかった/,'歯みがき・身支度':/できなかった/,'家事':/できなかった/,'服薬':/飲み忘れ/,'運動':/していない/,'食事':/抜き|食欲がない/};
@@ -492,7 +518,7 @@ async function initStore(){
 function applyLook(){
   const st=S.settings,root=document.documentElement;
   if(st.mode==='system')delete root.dataset.mode;else root.dataset.mode=st.mode;
-  root.style.setProperty('--c-note',st.colors.note);root.style.setProperty('--c-prep',st.colors.prep);root.style.setProperty('--c-sleep',st.colors.sleep);root.style.setProperty('--c-commute',st.colors.commute);root.style.setProperty('--c-mood',st.colors.mood);
+  root.style.setProperty('--c-note',st.colors.note);root.style.setProperty('--c-prep',st.colors.prep);root.style.setProperty('--c-sleep',st.colors.sleep);root.style.setProperty('--c-commute',st.colors.commute);root.style.setProperty('--c-mood',st.colors.mood);root.style.setProperty('--c-work',st.colors.work);
   const L=$('#bgLayer');
   if(st.bg.type==='color'){L.hidden=false;L.style.backgroundImage='none';L.style.backgroundColor=st.bg.color;root.classList.add('has-bg')}
   else if(st.bg.type==='image'&&S.bgImage){L.hidden=false;L.style.backgroundColor='#000';L.style.backgroundImage='url("'+S.bgImage+'")';root.classList.add('has-bg')}
@@ -547,7 +573,7 @@ function sleepOf(k){const r=S.days[k];if(!r)return null;const b=toMin(r.bed),w=t
 const dayTime=(k,o,t)=>t?md(ymd(addDays(parse(k),o)))+' '+t:'—';
 function cellHTML(k,cls){
   const d=parse(k),r=S.days[k]||{},s=sleepOf(k);
-  const mk=S.settings.marks,has={note:!!(r.note&&r.note.trim()),prep:r.prep!=null&&r.prep!=='',commute:!!(r.commute&&(r.commute.dep||r.commute.arr)),mood:r.ki!=null||r.tai!=null};
+  const mk=S.settings.marks,has={note:!!(r.note&&r.note.trim()),prep:r.prep!=null&&r.prep!=='',commute:!!(r.commute&&(r.commute.dep||r.commute.arr)),mood:r.ki!=null||r.tai!=null,work:!!(r.work&&(r.work.start||r.work.end))};
   const ni=noteItems(r.note),nm=S.settings.noteMarks;
   const dots=MARKS.filter(([k])=>mk[k]&&has[k]).map(([k])=>'<i class="dot '+k+'"></i>').join('')+
     NOTE_ITEMS.filter(it=>nm[it.t]&&nm[it.t].on&&ni[it.t]!==undefined).map(it=>'<i class="dot'+(ni[it.t]?'':' ring')+'" style="background:'+nm[it.t].color+';--rc:'+nm[it.t].color+'"></i>').join('');
@@ -618,36 +644,51 @@ function renderChart(){
     const rs=ks.map(k=>S.days[k]).filter(Boolean),avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
     const ki=avg(rs.map(r=>r.ki).filter(v=>v!=null)),tai=avg(rs.map(r=>r.tai).filter(v=>v!=null));
     const prep=avg(rs.map(r=>r.prep).filter(v=>v!=null&&v!==''));
-    h+='<div class="stats"><div><span>平均睡眠枠</span><b>'+(lens.length?dur(avg(lens)):'—')+'</b></div><div><span>平均寝支度</span><b>'+avgTime(bs)+'</b></div><div><span>平均起床</span><b>'+avgTime(ws)+'</b></div><div><span>平均 気力/体力</span><b>'+(ki??'—')+' / '+(tai??'—')+'</b></div><div><span>平均朝支度</span><b>'+(prep!=null?prep+'分':'—')+'</b></div></div>';
+    const wk=avg(rs.map(workLen).filter(v=>v!=null));
+    h+='<div class="stats"><div><span>平均睡眠枠</span><b>'+(lens.length?dur(avg(lens)):'—')+'</b></div><div><span>平均寝支度</span><b>'+avgTime(bs)+'</b></div><div><span>平均起床</span><b>'+avgTime(ws)+'</b></div><div><span>平均 気力/体力</span><b>'+(ki??'—')+' / '+(tai??'—')+'</b></div><div><span>平均朝支度</span><b>'+(prep!=null?prep+'分':'—')+'</b></div><div><span>平均勤務時間</span><b>'+(wk!=null?dur(wk):'—')+'</b></div></div>';
   }
   $('#chart').innerHTML=h+shareHTML(ks);
 }
-/* 1日(24h)のうち 睡眠・支度・移動(往復) の割合 */
+/* 1日(24h)のうち 睡眠・支度・移動(往復)・勤務・その他の活動 の割合 */
+const ACT_COLORS=['#2b8fd6','#c74f6f','#4f9a3a','#c0672e','#3f7f9f','#9a6a4f','#6b5bd6','#7a7f2a','#d0443a','#2e9e6a'];
+const actColor=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))>>>0;return ACT_COLORS[h%ACT_COLORS.length]};
+const actLen=it=>{const a=toMin(it.start),b=toMin(it.end);if(a==null||b==null)return null;return (b-a+1440)%1440||null};
+function otherParts(r){const out={};if(!r||!r.other||!Array.isArray(r.other.items))return null;
+  r.other.items.forEach(it=>{const m=actLen(it);if(m==null)return;const n=(it.name||'').trim()||'名前なし';out[n]=(out[n]||0)+m});
+  return Object.keys(out).length?out:null}
 function dayParts(k){
   const r=S.days[k];if(!r)return null;
   const s=sleepOf(k),c=r.commute||{},a=toMin(c.dep),b=toMin(c.arr);
-  const p={sleep:s&&s.len!=null?s.len:null,prep:r.prep!=null&&r.prep!==''?+r.prep:null,move:a!=null&&b!=null?((b-a+1440)%1440)*2:null};
-  return p.sleep==null&&p.prep==null&&p.move==null?null:p;
+  const p={work:workLen(r),sleep:s&&s.len!=null?s.len:null,prep:r.prep!=null&&r.prep!==''?+r.prep:null,move:a!=null&&b!=null?((b-a+1440)%1440)*2:null,other:otherParts(r)};
+  return p.sleep==null&&p.prep==null&&p.move==null&&p.work==null&&!p.other?null:p;
 }
 function shareHTML(ks){
   const ps=ks.map(dayParts).filter(Boolean);
   const title=view==='day'?'1日の時間の割合':'1日あたりの時間の割合（記録した'+ps.length+'日の平均）';
-  if(!ps.length)return '<div class="share"><h3>'+title+'</h3><p class="empty">睡眠・朝支度・通勤のどれかを記録すると表示されます。</p></div>';
+  if(!ps.length)return '<div class="share"><h3>'+title+'</h3><p class="empty">睡眠・朝支度・通勤・勤務・その他の時間のどれかを記録すると表示されます。</p></div>';
   const avg=f=>{const v=ps.map(p=>p[f]).filter(x=>x!=null);return v.length?Math.round(v.reduce((x,y)=>x+y,0)/v.length):0};
-  const m={sleep:avg('sleep'),prep:avg('prep'),move:avg('move')};
-  let used=m.sleep+m.prep+m.move;if(used>1440){const f=1440/used;Object.keys(m).forEach(k=>m[k]=Math.round(m[k]*f));used=1440}
-  m.rest=1440-used;
+  const items=[['sleep','睡眠','var(--c-sleep)'],['prep','朝支度','var(--c-prep)'],['move','移動（往復）','var(--dawn)'],['work','勤務','var(--c-work)']];
+  const m={};items.forEach(([k])=>m[k]=avg(k));
+  // その他の活動：記入した日だけで平均
+  const od=ps.filter(p=>p.other),acts={};
+  od.forEach(p=>Object.entries(p.other).forEach(([n,v])=>acts[n]=(acts[n]||0)+v));
+  Object.entries(acts).sort((x,y)=>y[1]-x[1]).forEach(([n,v])=>{const k='a:'+n;m[k]=Math.round(v/od.length);items.push([k,n,actColor(n)])});
+  let used=items.reduce((t,[k])=>t+m[k],0);if(used>1440){const f=1440/used;items.forEach(([k])=>m[k]=Math.round(m[k]*f));used=1440}
+  m.rest=1440-used;items.push(['rest','その他（未記入）','var(--surface-2)']);
   const P=v=>(v/1440*100).toFixed(1);
-  const items=[['sleep','睡眠'],['prep','朝支度'],['move','移動（往復）'],['rest','その他']];
   const fmt=v=>Math.floor(v/60)+'時間'+pad(v%60)+'分';
-  return '<div class="share"><h3>'+title+'</h3><div class="stack" role="img" aria-label="'+items.map(([k,n])=>n+P(m[k])+'%').join('、')+'">'+
-    items.map(([k])=>m[k]>0?'<i class="s-'+k+'" style="width:'+P(m[k])+'%"></i>':'').join('')+'</div><div class="shareleg">'+
-    items.map(([k,n])=>'<div><i class="s-'+k+'"></i><span>'+n+'</span><b>'+P(m[k])+'%</b><small>'+fmt(m[k])+'</small></div>').join('')+'</div>'+
-    '<p class="hint">移動は出発〜到着の片道×2で計算。'+(view==='day'?'':'各項目は記録がある日だけで平均しています。')+'</p></div>';
+  const sw=(c,k)=>'<i style="background:'+c+'"'+(k==='rest'?' class="s-rest"':'')+'></i>';
+  const shown=items.filter(([k])=>m[k]>0||['sleep','rest'].includes(k));
+  let h='<div class="share"><h3>'+title+'</h3><div class="stack" role="img" aria-label="'+esc(shown.map(([k,n])=>n+P(m[k])+'%').join('、'))+'">'+
+    shown.map(([k,,c])=>m[k]>0?'<i style="background:'+c+';width:'+P(m[k])+'%"></i>':'').join('')+'</div><div class="shareleg">'+
+    shown.map(([k,n,c])=>'<div>'+sw(c,k)+'<span>'+esc(n)+'</span><b>'+P(m[k])+'%</b><small>'+fmt(m[k])+'</small></div>').join('')+'</div>';
+  if(view==='day'){const o=(S.days[sel]||{}).other;if(o&&o.memo)h+='<p class="hint" style="margin:0;white-space:pre-wrap">その他のメモ：'+esc(o.memo)+'</p>'}
+  return h+'<p class="hint">移動は出発〜到着の片道×2、勤務とその他の活動は開始〜終了で計算。'+(view==='day'?'':'各項目は記録がある日だけで平均しています。')+'</p></div>';
 }
 
 /* ---------- day form ---------- */
-const F={bed:$('#fBed'),wake:$('#fWake'),bedDay:$('#fBedDay'),wakeDay:$('#fWakeDay'),ki:$('#ki'),tai:$('#tai'),slot:$('#fSlot'),slotName:$('#fSlotName'),dep:$('#fDep'),arr:$('#fArr'),prep:$('#fPrep'),note:$('#fNote')};
+const F={bed:$('#fBed'),wake:$('#fWake'),bedDay:$('#fBedDay'),wakeDay:$('#fWakeDay'),ki:$('#ki'),tai:$('#tai'),slot:$('#fSlot'),slotName:$('#fSlotName'),dep:$('#fDep'),arr:$('#fArr'),prep:$('#fPrep'),note:$('#fNote'),ws:$('#fWs'),we:$('#fWe'),omemo:$('#fOtherMemo')};
+function workLen(r){if(!r||!r.work)return null;const a=toMin(r.work.start),b=toMin(r.work.end);if(a==null||b==null)return null;const m=(b-a+1440)%1440;return m||null}
 let kiSet=false,taiSet=false;
 const MOOD_DEFAULT=50;
 function setSlider(id,v){const val=v??MOOD_DEFAULT;F[id].value=val;$('#'+id+'Out').textContent=val+'%';if(id==='ki')kiSet=true;else taiSet=true}
@@ -657,12 +698,12 @@ function fillSlots(cur){
 }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 /* 各項目は独立して記録する：sleep / mood / commute / prep / note */
-const SEC={sleep:[F.bed,F.bedDay,F.wake,F.wakeDay],mood:[F.ki,F.tai],commute:[F.slot,F.slotName,F.dep,F.arr],prep:[F.prep],note:[F.note]};
-const SEC_NAME={sleep:'睡眠',mood:'気力・体力',commute:'通勤',prep:'朝支度',note:'特記事項'};
-const SEC_KEYS={sleep:['bed','bedDay','wake','wakeDay'],mood:['ki','tai'],commute:['commute'],prep:['prep'],note:['note']};
+const SEC={sleep:[F.bed,F.bedDay,F.wake,F.wakeDay],mood:[F.ki,F.tai],commute:[F.slot,F.slotName,F.dep,F.arr],work:[F.ws,F.we],other:[F.omemo],prep:[F.prep],note:[F.note]};
+const SEC_NAME={sleep:'睡眠',mood:'気力・体力',commute:'通勤',work:'勤務時間',other:'その他の時間',prep:'朝支度',note:'特記事項'};
+const SEC_KEYS={sleep:['bed','bedDay','wake','wakeDay'],mood:['ki','tai'],commute:['commute'],work:['work'],other:['other'],prep:['prep'],note:['note']};
 const dirtySecs=new Set(),warnKeys={};
 let bedDayTouched=false;
-const hasSec=(r,sec)=>{if(!r)return false;return sec==='sleep'?!!(r.bed||r.wake):sec==='mood'?(r.ki!=null||r.tai!=null):sec==='commute'?!!r.commute:sec==='prep'?r.prep!=null:!!r.note};
+const hasSec=(r,sec)=>{if(!r)return false;return sec==='sleep'?!!(r.bed||r.wake):sec==='mood'?(r.ki!=null||r.tai!=null):sec==='commute'?!!r.commute:sec==='work'?!!r.work:sec==='other'?!!r.other:sec==='prep'?r.prep!=null:!!r.note};
 function secState(sec){const el=$('#st-'+sec),r=S.days[sel];
   el.className='secstate'+(dirtySecs.has(sec)?' dirty':hasSec(r,sec)?' saved':'');
   el.textContent=dirtySecs.has(sec)?'未記録の変更あり':hasSec(r,sec)?'記録済み':sec==='note'?'なし（空欄でOK）':'未記録';}
@@ -682,7 +723,9 @@ function fillSec(sec){
     const c=r.commute||{};fillSlots(c.slot||'');F.slotName.hidden=true;F.slotName.value='';
     F.dep.value=c.dep||'';F.arr.value=c.arr||'';F.dep.classList.remove('tentative');F.arr.classList.remove('tentative');
     $('#commuteTimes').hidden=!c.slot&&!c.dep;commuteHint();
-  }else if(sec==='prep')F.prep.value=r.prep??'';
+  }else if(sec==='other'){const o=r.other||{};renderActRows(o.items||[]);F.omemo.value=o.memo||''}
+  else if(sec==='work'){const w=r.work||{};F.ws.value=w.start||'';F.we.value=w.end||'';workHint()}
+  else if(sec==='prep')F.prep.value=r.prep??'';
   else{F.note.value=r.note||'';$('#noteOpts').hidden=true}
   dirtySecs.delete(sec);dirty=dirtySecs.size>0;clearWarn(sec);secState(sec);
 }
@@ -711,6 +754,21 @@ function setNow(timeEl,dayEl){
 }
 $('#fBedNow').onclick=()=>setNow(F.bed,F.bedDay);
 $('#fWakeNow').onclick=()=>setNow(F.wake,F.wakeDay);
+function actRowHTML(it){it=it||{};return '<div class="orow"><input type="text" data-f="name" placeholder="何をしていた？" value="'+esc(it.name||'')+'" aria-label="活動"><input type="time" data-f="start" value="'+(it.start||'')+'" aria-label="開始"><input type="time" data-f="end" value="'+(it.end||'')+'" aria-label="終了"><button type="button" class="xbtn" data-delrow aria-label="この行を消す">×</button><span class="olen"></span></div>'}
+function renderActRows(items){$('#otherRows').innerHTML=(items.length?items:[{}]).map(actRowHTML).join('');updateActLens()}
+function readActRows(){return[...document.querySelectorAll('#otherRows .orow')].map(r=>({name:r.querySelector('[data-f=name]').value.trim(),start:r.querySelector('[data-f=start]').value,end:r.querySelector('[data-f=end]').value})).filter(it=>it.name||it.start||it.end)}
+function updateActLens(){document.querySelectorAll('#otherRows .orow').forEach(r=>{const m=actLen({start:r.querySelector('[data-f=start]').value,end:r.querySelector('[data-f=end]').value});r.querySelector('.olen').textContent=m!=null?dur(m):''})}
+$('#otherRows').addEventListener('input',()=>{updateActLens();markDirty('other')});
+$('#otherRows').addEventListener('click',e=>{if(!e.target.closest('[data-delrow]'))return;e.target.closest('.orow').remove();if(!$('#otherRows .orow'))$('#otherRows').innerHTML=actRowHTML({});updateActLens();markDirty('other')});
+$('#addAct').onclick=()=>{$('#otherRows').insertAdjacentHTML('beforeend',actRowHTML({}));markDirty('other');$('#otherRows .orow:last-child input').focus()};
+$('#actChips').addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;
+  let row=[...document.querySelectorAll('#otherRows .orow')].find(r=>!r.querySelector('[data-f=name]').value.trim());
+  if(!row){$('#otherRows').insertAdjacentHTML('beforeend',actRowHTML({}));row=$('#otherRows .orow:last-child')}
+  row.querySelector('[data-f=name]').value=b.dataset.act;row.querySelector('[data-f=start]').focus();markDirty('other')});
+function workHint(){const a=toMin(F.ws.value),b=toMin(F.we.value),el=$('#workHint');
+  el.textContent=(a!=null&&b!=null)?'勤務時間 '+dur((b-a+1440)%1440)+((b<a)?'（日をまたぐ勤務として計算）':''):'終了が開始より前の時刻なら、日をまたいだ勤務として計算します。休みの日は空欄で大丈夫です。'}
+[F.ws,F.we].forEach(el=>el.addEventListener('input',workHint));
+document.querySelectorAll('[data-now]').forEach(b=>b.onclick=()=>{const el=document.getElementById(b.dataset.now);el.value=nowHM();workHint();markDirty('work')});
 function commuteHint(){const a=toMin(F.dep.value),b=toMin(F.arr.value);
   $('#commuteHint').textContent=(a!=null&&b!=null)?'通勤時間 片道'+((b-a+1440)%1440)+'分'+(F.dep.classList.contains('tentative')?'（スロットの時刻を仮入力中）':''):''}
 ['ki','tai'].forEach(id=>F[id].addEventListener('input',()=>{$('#'+id+'Wrap').classList.remove('unset');$('#'+id+'Out').textContent=F[id].value+'%';if(id==='ki')kiSet=true;else taiSet=true}));
@@ -743,6 +801,16 @@ function checkSec(sec){
     if((a==null)!==(b==null))warn.push('出発か到着の片方が空です');
     if(a!=null&&b!=null){const m=(b-a+1440)%1440;if(m===0)warn.push('出発と到着が同じ時刻です');else if(m>240)warn.push('片道 '+dur(m)+' になっています（出発と到着が逆かもしれません）');}
     if(!F.slot.value&&a==null&&b==null&&hasSec(S.days[sel],'commute'))warn.push('空なので、この日の通勤の記録を消します');}
+  if(sec==='other'){const rows=readActRows();
+    rows.forEach(it=>{const has=it.start||it.end;if(has&&!it.name)err.push('時間を入れた行に、何をしていたかを書いてください');
+      if(it.name&&((!it.start)!==(!it.end)))warn.push('「'+it.name+'」の開始か終了の片方が空です（グラフには出ません）');
+      const m=actLen(it);if(m!=null&&m>16*60)warn.push('「'+it.name+'」が '+dur(m)+' になっています');});
+    const tot=rows.reduce((t,it)=>t+(actLen(it)||0),0);if(tot>16*60)warn.push('その他の時間の合計が '+dur(tot)+' あります');
+    if(!rows.length&&!F.omemo.value.trim()&&hasSec(S.days[sel],'other'))warn.push('空なので、この日のその他の時間の記録を消します');}
+  if(sec==='work'){const a=toMin(F.ws.value),b=toMin(F.we.value);
+    if((a==null)!==(b==null))warn.push('開始か終了の片方が空です');
+    if(a!=null&&b!=null){const m=(b-a+1440)%1440;if(m===0)warn.push('開始と終了が同じ時刻です');else if(m>16*60)warn.push('勤務が '+dur(m)+' になっています（開始と終了が逆かもしれません）');}
+    if(a==null&&b==null&&hasSec(S.days[sel],'work'))warn.push('空なので、この日の勤務時間の記録を消します');}
   if(sec==='prep'){if(F.prep.value!==''){const p=+F.prep.value;if(!Number.isFinite(p)||p<0)err.push('0以上の数字で入れてください');else if(p>300)err.push('300分までで入れてください');else if(p>120)warn.push(p+'分 になっています');}
     else if(hasSec(S.days[sel],'prep'))warn.push('空なので、この日の朝支度の記録を消します');}
   if(sec==='note'&&!F.note.value.trim()&&hasSec(S.days[sel],'note'))warn.push('空なので、この日の特記事項を消します');
@@ -758,6 +826,8 @@ function buildPatch(sec){
     if(slot==='__new'){slot='s'+Date.now().toString(36);S.settings.slots.push({id:slot,name:F.slotName.value.trim(),dep:F.dep.value,arr:F.arr.value});saveSettings();}
     if(slot||F.dep.value||F.arr.value){patch.commute={slot:slot||'',dep:F.dep.value,arr:F.arr.value};
       const s=S.settings.slots.find(x=>x.id===slot);if(s&&!s.dep&&!s.arr){s.dep=F.dep.value;s.arr=F.arr.value;saveSettings()}}}
+  if(sec==='other'){const items=readActRows(),memo=F.omemo.value.trim();if(items.length||memo)patch.other={items,memo}}
+  if(sec==='work'&&(F.ws.value||F.we.value))patch.work={start:F.ws.value,end:F.we.value};
   if(sec==='prep'&&F.prep.value!=='')patch.prep=Math.round(+F.prep.value);
   if(sec==='note'&&F.note.value.trim())patch.note=F.note.value;
   return patch;
@@ -901,7 +971,7 @@ let tt;function toast(m,act){const t=$('#toast'),b=$('#toastBtn');$('#toastMsg')
 /* ---------- 変更履歴と取り消し ---------- */
 const describe=r=>{if(!r)return'記録なし';const a=[];
   if(r.bed)a.push('寝支度 '+r.bed);if(r.wake)a.push('起床 '+r.wake);if(r.ki!=null)a.push('気力'+r.ki+'%');if(r.tai!=null)a.push('体力'+r.tai+'%');
-  if(r.commute&&(r.commute.dep||r.commute.arr))a.push('通勤 '+(r.commute.dep||'?')+'→'+(r.commute.arr||'?'));if(r.prep!=null)a.push('支度'+r.prep+'分');if(r.note)a.push('メモあり');
+  if(r.commute&&(r.commute.dep||r.commute.arr))a.push('通勤 '+(r.commute.dep||'?')+'→'+(r.commute.arr||'?'));if(r.other)a.push('その他'+((r.other.items||[]).length?(r.other.items.length+'件'):'メモ'));if(r.work&&(r.work.start||r.work.end))a.push('勤務 '+(r.work.start||'?')+'〜'+(r.work.end||'?'));if(r.prep!=null)a.push('支度'+r.prep+'分');if(r.note)a.push('メモあり');
   return a.join('・')||'記録なし'};
 function logChange(k,before,what){
   const after=S.days[k]?clone(S.days[k]):null;
