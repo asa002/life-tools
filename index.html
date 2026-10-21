@@ -484,6 +484,13 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .wchips{display:flex;flex-wrap:wrap;gap:8px}
 .wchips button{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:8px 14px;min-height:44px;font-weight:600;color:var(--ink);cursor:pointer}
 .wchips button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.wdata{border:1px solid var(--line);border-radius:14px;padding:0 12px;background:var(--surface-2)}
+.wdata>summary{list-style:none;cursor:pointer;display:grid;gap:2px;padding:12px 24px 12px 0;position:relative}
+.wdata>summary::-webkit-details-marker{display:none}
+.wdata>summary::after{content:"＋";position:absolute;right:0;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700}
+.wdata[open]>summary::after{content:"－"}
+.wdata>summary b{font-size:.92rem}.wdata>summary small{font-size:.78rem;color:var(--muted)}
+.wdatabox{padding:0 0 12px}.wdatabox label.setrow{flex-wrap:nowrap;align-items:flex-start}.wdatabox label.setrow input{flex:none;margin-top:3px}.wdatabox .sgbody{display:grid;gap:8px;padding:0}
 .wclinks{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
 .wclinks button{border:0;background:transparent;color:var(--accent);font-weight:600;padding:8px 10px;cursor:pointer;min-height:40px}
 .wcnext{display:flex;gap:8px;align-items:center;font-size:.76rem;color:var(--muted);justify-content:center}
@@ -1162,6 +1169,8 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
       <div class="wchips" id="wcWhen"><button type="button" data-w="today">今日</button><button type="button" data-w="yday">昨日</button><button type="button" data-w="pick">日付を選ぶ</button></div>
       <input type="date" id="wcDateIn" hidden aria-label="記録する日"><span class="hint" id="wcDayInfo"></span></div>
     <button class="btn big" id="wcGo">記録をはじめる</button>
+    <details class="wdata" id="wcData"><summary><b>データの引き継ぎ</b><small>別の端末の記録を読み込む・いまの記録をバックアップ</small></summary>
+      <div class="wdatabox" id="wcDataBox"></div></details>
     <div class="wclinks"><button type="button" data-wv="cal">カレンダーを見る</button><button type="button" data-wv="graph">グラフを見る</button><button type="button" data-wv="help">使い方</button><button type="button" data-wv="shortcut">ショートカットを作る</button></div>
     <label class="wcnext"><input type="checkbox" id="wcOff"> 次回から表示しない（設定の「使う機能」でいつでも戻せます）</label>
   </div>
@@ -3069,6 +3078,11 @@ $('#scSheet').addEventListener('click',async e=>{if(e.target.id==='scSheet'){clo
   if(k==='mac')return saveTextFile(name+'.webloc','<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict><key>URL</key><string>'+esc(url)+'</string></dict></plist>\n','application/octet-stream');
   if(k==='copy'){const ok=()=>toast('アドレスをコピーしました');if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(ok,()=>toast('コピーできませんでした。アドレスを長押しして選んでください'));else toast('アドレスを長押しして選んでコピーしてください');return}
   if(k==='share'){try{await navigator.share({title:S.settings.appName||'My note',url})}catch(_){}}});
+/* ようこそ画面の「データの引き継ぎ」：設定の引き継ぎ欄をそのまま移して使う（ボタン・復元の流れは共通） */
+const dataBody=document.querySelector('#sgData .sgbody');
+function dataToSettings(){const home=document.getElementById('sgData');if(dataBody&&dataBody.parentElement!==home)home.appendChild(dataBody)}
+$('#wcData').addEventListener('toggle',()=>{if($('#wcData').open){renderSyncNote();$('#wcDataBox').appendChild(dataBody)}else dataToSettings()});
+new MutationObserver(()=>{if($('#welcome').hidden){$('#wcData').open=false;dataToSettings()}}).observe($('#welcome'),{attributes:true,attributeFilter:['hidden']});
 if(S.settings.welcome!==false){renderWelcome();$('#welcome').hidden=false;const ft=document.getElementById('firstTip');if(ft)ft.hidden=true}
 setTimeout(initStore,0);
 })();
