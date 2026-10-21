@@ -1147,7 +1147,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
         <button type="button" role="tab" data-dd="recv"><b>② 受け取る</b><small>新しい端末で</small></button>
       </div>
       <div class="dpanel" data-dpanel="qr-send">
-        <ol class="dsteps"><li>「QRコードを表示」を押します（1枚だけ出ます）</li><li>「大きく表示」を押すと読み取りやすくなります</li><li>新しい端末で「② 受け取る」→「カメラで読み取る」でこのQRコードを映すか、写真に撮って「写真から読み取る」で選びます</li></ol>
+        <ol class="dsteps"><li>「QRコードを表示」を押します（1枚だけ出ます）</li><li>「大きく表示」を押すと読み取りやすくなります</li><li>新しい端末で「② 受け取る」→「カメラで読み取る」でこのQRコードを映すか、写真に撮って「画像・写真から読み取る」で選びます</li></ol>
         <div class="setrow"><button class="btn" id="qrMake">QRコードを表示</button></div>
         <div class="qrout" id="qrOut" hidden>
           <div class="qrbox" id="qrBox"></div>
@@ -1156,8 +1156,8 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
         </div>
       </div>
       <div class="dpanel" data-dpanel="qr-recv">
-        <ol class="dsteps"><li>「カメラで読み取る」を押し、元の端末に表示したQRコードを映します</li><li>カメラが使えないときは「写真から読み取る」で、QRコードを撮影するか、スクリーンショットを選びます</li><li>読み取れると、復元の確認が出ます</li></ol>
-        <div class="setrow"><button class="btn" id="qrCam">カメラで読み取る</button><label class="btn ghost" style="display:inline-flex;align-items:center">写真から読み取る<input type="file" id="qrPhoto" accept="image/*" capture="environment" hidden></label></div>
+        <ol class="dsteps"><li>「カメラで読み取る」を押し、元の端末に表示したQRコードを映します</li><li>または「画像・写真から読み取る」を押し、フォトライブラリからQRコードの写真やスクリーンショットを選びます（その場で撮影することもできます）</li><li>読み取れると、復元の確認が出ます</li></ol>
+        <div class="setrow"><button class="btn" id="qrCam">カメラで読み取る</button><label class="btn ghost" style="display:inline-flex;align-items:center">画像・写真から読み取る<input type="file" id="qrPhoto" accept="image/*" hidden></label></div>
         <div class="qrcam" id="qrCamBox" hidden><video id="qrVideo" playsinline muted></video><button type="button" class="btn ghost sm" id="qrCamStop">読み取りをやめる</button></div>
         <div class="qrprog" id="qrProg" hidden></div>
       </div>
@@ -3263,9 +3263,9 @@ $('#qrPhoto').addEventListener('change',async e=>{const f=e.target.files[0];e.ta
   img.onerror=()=>toast('画像を開けませんでした');img.src=URL.createObjectURL(f)});
 function qrCamStop(){cancelAnimationFrame(qrRaf);if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null}const b=$('#qrCamBox');if(b)b.hidden=true}
 $('#qrCamStop').onclick=qrCamStop;
-$('#qrCam').onclick=async()=>{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('この画面ではカメラを使えません。「写真から読み取る」を使ってください');return}
+$('#qrCam').onclick=async()=>{if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast('この画面ではカメラを使えません。「画像・写真から読み取る」を使ってください');return}
   try{await loadLib(QR_READ_LIB)}catch(_){toast('読み取りの部品を読み込めませんでした。通信を確認してください');return}
-  try{qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})}catch(e){toast('カメラを使えませんでした（許可されていないか、この画面では使えません）。「写真から読み取る」を使ってください');return}
+  try{qrStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})}catch(e){toast('カメラを使えませんでした（許可されていないか、この画面では使えません）。「画像・写真から読み取る」を使ってください');return}
   const v=$('#qrVideo');v.srcObject=qrStream;$('#qrCamBox').hidden=false;try{await v.play()}catch(_){}
   const loop=async()=>{if(!qrStream)return;if(v.readyState>=2&&v.videoWidth){const t=qrScanImage(v,v.videoWidth,v.videoHeight);if(t&&await qrGot(t))return}qrRaf=requestAnimationFrame(loop)};loop()};
 renderDTabs();
