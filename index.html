@@ -1169,7 +1169,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
         <ol class="dsteps"><li>「ファイルを選んで復元」を押します</li><li>保存しておいたバックアップのファイル（.json）を選びます</li></ol>
         <div class="setrow"><label class="btn" style="display:inline-flex;align-items:center">ファイルを選んで復元<input type="file" id="bkFileIn" accept=".json,application/json,text/plain" hidden></label></div>
       </div>
-      <label class="setrow dimg" id="bkImgRow"><input type="checkbox" id="bkImg"> 背景画像も含める（容量が大きくなります）</label>
+      <div class="dimg" id="bkImgRow"><label class="setrow"><input type="checkbox" id="bkImg" checked> 背景（色・画像）も引き継ぐ</label><span class="hint" id="bkImgNote"></span></div>
       <div class="warnbox" id="bkWarn" hidden></div>
     </div></details>
     <section class="slotcard" id="slotBottom" aria-label="セーブスロット"></section>
@@ -2509,7 +2509,7 @@ $('#txtColor').addEventListener('input',e=>{const prev=S.settings.text.color;
 function renderSyncNote(){$('#syncNote').innerHTML=store?
   '<b>いまは自動で同期されています。</b><br>このページ（Claudeのリンク）は、同じClaudeアカウントでログインしていれば、PCでもスマホでも同じ記録・設定が表示されます。ID・パスワードを別に作る必要はありません。':
   '<b>この画面では、記録はこの端末のブラウザの中だけに保存されています。</b><br>別の端末に移すには、下で方法を選び、元の端末で「① 送る」、新しい端末で「② 受け取る」を進めます。ときどき「ファイル」で保存しておくと安心です。'}
-function backupObj(){const o={app:'seikatsu-kiroku',v:1,at:new Date().toISOString(),days:S.days,settings:S.settings,slots:S.slots||null,hist:S.hist||[]};if($('#bkImg').checked&&S.bgImage)o.bgImage=S.bgImage;return o}
+function backupObj(){const withBg=$('#bkImg').checked,o={app:'seikatsu-kiroku',v:1,at:new Date().toISOString(),days:S.days,settings:withBg?S.settings:{...S.settings,bg:undefined},slots:S.slots||null,hist:S.hist||[]};if(withBg&&S.bgImage)o.bgImage=S.bgImage;if(!withBg)o.nobg=true;return o}
 $('#bkFile').onclick=async()=>{const t=JSON.stringify(backupObj(),null,1),name=(S.settings.appName||'My note')+'_バックアップ_'+ymd(new Date())+'.json';
   let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
   if(dl){try{await dl.save({filename:name,data:new Blob([t],{type:'application/json'})});toast('バックアップを保存しました')}catch(e){toast(e&&e.code==='declined'?'保存をやめました':'保存できませんでした。「QRコード」で引き継いでください')}return}
@@ -2521,7 +2521,7 @@ function restoreFrom(text){let o;try{o=JSON.parse(text)}catch(e){showBk('読み�
   const n=Object.keys(o.days).length;
   if(bkPending!==text){bkPending=text;showBk(o.part?'QRコードの内容（新しい'+n+'日分の記録と設定）を読み込みます。設定は置き換わり、同じ日の記録は上書きされます。それより前の日の、この端末の記録はそのまま残ります。':'バックアップ（'+(o.at||'').slice(0,10)+'・記録'+n+'日分）を読み込みます。いまのこの端末の記録・設定は置き換わります。',()=>restoreFrom(text));return}
   bkPending=null;$('#bkWarn').hidden=true;
-  const before=o.part?[]:Object.keys(S.days);S.days=o.part?{...S.days,...clone(o.days)}:clone(o.days); /* 一部だけのQRは、日ごとに上書き（ほかの日は残す） */if(o.settings)S.settings=merge(o.settings);if(o.slots)S.slots=clone(o.slots);if(Array.isArray(o.hist))S.hist=clone(o.hist);if(o.bgImage)S.bgImage=o.bgImage;
+  const before=o.part?[]:Object.keys(S.days);S.days=o.part?{...S.days,...clone(o.days)}:clone(o.days); /* 一部だけのQRは、日ごとに上書き（ほかの日は残す） */const myBg=clone(S.settings.bg);if(o.settings){S.settings=merge(o.settings);if(o.nobg||!o.settings.bg)S.settings.bg=myBg; /* 背景を引き継がないときは、この端末の背景のまま */else if(S.settings.bg.type==='image'&&!o.bgImage){if(o.bgAvg)S.settings.bg={...S.settings.bg,type:'color',color:o.bgAvg};else if(!S.bgImage)S.settings.bg={...S.settings.bg,type:'none'}}if(!readable(S.settings))S.settings.text={...S.settings.text,mode:'auto'}} /* 背景画像が届かないときは平均色の背景にし、文字が読みにくければ自動の文字色に */if(o.slots)S.slots=clone(o.slots);if(Array.isArray(o.hist))S.hist=clone(o.hist);if(o.bgImage&&!o.nobg)S.bgImage=o.bgImage;
   if(store){before.forEach(k=>{if(!S.days[k])put('d-'+k,null)});Object.keys(S.days).forEach(saveDay);put('settings',S.settings);if(S.slots)put('slots',S.slots);put('hist',{list:S.hist||[]});if(o.bgImage)saveBg()}else lsSave();
   lastSettings=JSON.stringify(S.settings);applyLook();render(true);renderSettings();renderFeatSettings();renderFavSettings();toast('復元しました（記録'+n+'日分）')}
 function showBk(m,go){const w=$('#bkWarn');w.textContent=m;if(go){const b=document.createElement('button');b.type='button';b.className='btn bkgo';b.textContent='この内容で復元する';b.onclick=go;w.appendChild(document.createElement('br'));w.appendChild(b)}w.hidden=false;w.scrollIntoView({block:'nearest',behavior:'smooth'})}
@@ -3208,7 +3208,7 @@ let dt={m:'qr',d:'send'};try{const o=JSON.parse(localStorage.getItem('nemuri-dta
 function renderDTabs(){document.querySelectorAll('[data-dm]').forEach(b=>b.setAttribute('aria-selected',b.dataset.dm===dt.m));
   document.querySelectorAll('[data-dd]').forEach(b=>b.setAttribute('aria-selected',b.dataset.dd===dt.d));
   document.querySelectorAll('[data-dpanel]').forEach(p=>p.hidden=p.dataset.dpanel!==dt.m+'-'+dt.d);
-  $('#bkImgRow').hidden=!(dt.d==='send'&&dt.m!=='qr');
+  $('#bkImgRow').hidden=dt.d!=='send';bkImgNote();
   if(!(dt.m==='qr'&&dt.d==='recv'))qrCamStop();if(!(dt.m==='qr'&&dt.d==='send'))qrAutoStop()}
 document.querySelector('.dtab1').addEventListener('click',e=>{const b=e.target.closest('[data-dm]');if(!b)return;dt.m=b.dataset.dm;try{localStorage.setItem('nemuri-dtab',JSON.stringify(dt))}catch(_){}renderDTabs()});
 document.querySelector('.dtab2').addEventListener('click',e=>{const b=e.target.closest('[data-dd]');if(!b)return;dt.d=b.dataset.dd;try{localStorage.setItem('nemuri-dtab',JSON.stringify(dt))}catch(_){}renderDTabs()});
@@ -3221,11 +3221,19 @@ async function zip(bytes,dir){const CS=dir==='c'?window.CompressionStream:window
 /* 1枚のQRコードに収める（スマホのカメラで確実に読める大きさとして 約1,600文字まで）。入りきらないときは、設定と新しい日の記録から入るだけ入れる */
 const QR_MAX=1300;
 /* 設定は初期値と違う項目だけ入れて小さくする（受け取る側で初期値と合わせて元に戻る） */
-const settingsDiff=()=>{const d=merge({}),o={};Object.keys(S.settings).forEach(k=>{if(JSON.stringify(S.settings[k])!==JSON.stringify(d[k]))o[k]=S.settings[k]});return o};
+/* 見た目（表示モード・グラフや印の色・明るさ・文字色・背景・カードの透け具合）は初期値と同じでも必ず入れる */
+const LOOK_KEYS=['mode','colors','look','text','bg','noteMarks','markSlots'];
+const settingsDiff=withBg=>{const d=merge({}),o={};Object.keys(S.settings).forEach(k=>{if(k==='bg'&&!withBg)return;if(LOOK_KEYS.includes(k)||JSON.stringify(S.settings[k])!==JSON.stringify(d[k]))o[k]=S.settings[k]});return o};
+/* 「背景も引き継ぐ」の説明（QRには画像そのものは入らないので、画像のときは平均の色で代わりにする） */
+function bkImgNote(){const n=$('#bkImgNote');if(!n)return;const img=S.settings.bg&&S.settings.bg.type==='image'&&S.bgImage;
+  n.textContent=!$('#bkImg').checked?'外すと、受け取った端末の背景はそのままになります。':dt.m==='qr'?(img?'背景の画像はQRコードに入りきらないため、画像の代わりに画像の平均の色を背景にします。画像そのものを移すときは「ファイル」を使ってください。':'背景の色・透け具合などの設定も引き継ぎます。'):(img?'背景の画像も入れるので、ファイルが大きくなります。':'背景の色・透け具合などの設定も引き継ぎます。')}
+$('#bkImg').addEventListener('change',()=>{bkImgNote();if(qrText&&!$('#qrOut').hidden)$('#qrMake').click()});
+/* 背景画像はQRコードに入らないので、画像の平均の色を代わりに送る（受け取る側で背景色として使い、文字が読めるようにする） */
+function bgAvgColor(){return new Promise(ok=>{if(!S.bgImage||S.settings.bg.type!=='image')return ok(null);const im=new Image();im.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=16;const g=c.getContext('2d');g.drawImage(im,0,0,16,16);const d=g.getImageData(0,0,16,16).data;let r=0,gg=0,b=0;for(let i=0;i<d.length;i+=4){r+=d[i];gg+=d[i+1];b+=d[i+2]}const n=d.length/4,h=v=>Math.round(v/n).toString(16).padStart(2,'0');ok('#'+h(r)+h(gg)+h(b))}catch(e){ok(null)}};im.onerror=()=>ok(null);im.src=S.bgImage})}
 async function qrEncode(o){const raw=new TextEncoder().encode(JSON.stringify(o));if(window.CompressionStream){try{return'z'+b64u(await zip(raw,'c'))}catch(e){}}return'j'+b64u(raw)}
-async function qrPayload(){const keys=Object.keys(S.days).sort().reverse(),all=keys.length,sd=settingsDiff();
+async function qrPayload(){const keys=Object.keys(S.days).sort().reverse(),all=keys.length,withBg=$('#bkImg').checked,sd=settingsDiff(withBg),bgAvg=withBg?await bgAvgColor():null;
   const build=async(n,withSlots)=>{const d={};keys.slice(0,n).forEach(k=>d[k]=S.days[k]);
-    return qrEncode({app:'seikatsu-kiroku',v:1,at:new Date().toISOString().slice(0,10),days:d,settings:sd,slots:withSlots?S.slots||null:null,part:n<all?{n,all,from:keys[n-1]||null}:null})};
+    return qrEncode({app:'seikatsu-kiroku',v:1,at:new Date().toISOString().slice(0,10),days:d,settings:sd,bgAvg,nobg:withBg?undefined:true,slots:withSlots?S.slots||null:null,part:n<all?{n,all,from:keys[n-1]||null}:null})};
   let withSlots=true,full=await build(all,true);if(full.length<=QR_MAX)return{body:full,n:all,all};
   withSlots=false;full=await build(all,false);if(full.length<=QR_MAX)return{body:full,n:all,all,noSlots:true};
   let lo=0,hi=all,best=await build(0,withSlots); /* 何日分まで入るかを二分探索 */
@@ -3236,7 +3244,7 @@ function qrSvg(t,cell){const q=qrcode(0,'L');q.addData(t,'Byte');q.make();const 
 $('#qrMake').onclick=async()=>{const b=$('#qrMake');b.disabled=true;b.textContent='準備中…';
   try{await loadLib(QR_LIB);const r=await qrPayload();qrText='MN1|'+Math.random().toString(36).slice(2,6)+'|1|1|'+r.body;
     $('#qrBox').innerHTML=qrSvg(qrText);$('#qrOut').hidden=false;
-    $('#qrInfo').textContent=(r.n>=r.all?'記録'+r.all+'日分すべてと設定を、1枚のQRコードにしました。':'記録が多く1枚に入りきらないため、新しい'+r.n+'日分（全'+r.all+'日分のうち）と設定を1枚にしました。全部を移したいときは「ファイル」を使ってください。')+(r.noSlots?'（セーブデータは、いま使っている設定だけ入れています）':'')+'背景画像と変更履歴は含みません。';
+    $('#qrInfo').textContent=(r.n>=r.all?'記録'+r.all+'日分すべてと設定を、1枚のQRコードにしました。':'記録が多く1枚に入りきらないため、新しい'+r.n+'日分（全'+r.all+'日分のうち）と設定を1枚にしました。全部を移したいときは「ファイル」を使ってください。')+(r.noSlots?'（セーブデータは、いま使っている設定だけ入れています）':'')+'表示モード・グラフや印の色・文字色の設定も入っています。'+(!$('#bkImg').checked?'背景は引き継ぎません（受け取る端末の背景のまま）。':S.settings.bg.type==='image'&&S.bgImage?'背景は、画像そのものは入らないため、画像の平均の色にして引き継ぎます。':'背景の設定も入っています。')+'変更履歴は含みません。';
     b.textContent='QRコードを作り直す'}
   catch(e){toast('QRコードを作れませんでした。通信を確認するか、「ファイル」を使ってください');b.textContent='QRコードを表示'}
   b.disabled=false};
