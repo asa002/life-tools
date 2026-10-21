@@ -373,6 +373,13 @@ input[type=time],input[type=date],input[type=number],input[type=text],select{min
 input[type=time],input[type=date]{-webkit-appearance:none;appearance:none}
 .sgbody>*,.fgrp>*,.feat>*,.tagcard>*,.tagcard .r1>*,.field>*,.sec>*,.two>*{min-width:0}
 body{overflow-x:hidden}
+/* 横ぶれ対策：画面幅からはみ出した分は切り取り（スクロールさせない）、PCではスクロールバーの出入りで左右にずれないようにする */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scrollbar-gutter:stable}
+@supports (overflow:clip){html,body{overflow-x:clip}}
+/* iPhoneは16px未満の入力欄を押すと自動で拡大して横にずれるため、タッチ端末では入力欄を16pxにする */
+@media (pointer:coarse){input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]),select,textarea{font-size:16px!important}}
+#pageSettings,#pageSettings *{max-width:100%}
+#pageSettings{touch-action:pan-y pinch-zoom;overflow-x:clip}
 .tagcard .r2{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .tagcard .r2 input[type=color]{width:44px;height:40px;flex:none}
 .tagcard label.chk,.cmark{display:flex;align-items:center;gap:8px;font-size:.85rem;color:var(--ink)}
