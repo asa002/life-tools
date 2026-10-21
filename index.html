@@ -163,6 +163,11 @@ textarea{min-height:84px;resize:vertical}
 
 /* sheets */
 .sheet{position:fixed;inset:0;z-index:30;display:flex;align-items:flex-end;justify-content:center;background:rgba(10,12,20,.45)}
+/* シート上部のボタンはスクロールしても追従 */
+.sheet .panel>.fhead:first-child{position:sticky;top:-16px;z-index:3;margin:-16px calc(-1*max(16px,env(safe-area-inset-right,0px))) 0;padding:14px max(16px,env(safe-area-inset-right,0px)) 10px;background:var(--surface-solid);border-bottom:1px solid var(--line);box-shadow:0 6px 12px -10px rgba(0,0,0,.35);border-radius:18px 18px 0 0}
+.sheet .panel>.fhead .hbtns{flex-wrap:wrap;justify-content:flex-end}
+.sheet .panel .stickyfoot{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));z-index:3;margin:0 calc(-1*max(16px,env(safe-area-inset-right,0px)));padding:10px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px));background:var(--surface-solid);border-top:1px solid var(--line)}
+.btn:disabled{opacity:.4;cursor:default}
 .sheet .panel{background:var(--surface-solid);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;
   padding:16px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:grid;gap:18px}
 .panel h3{margin:0;font-size:1.05rem}
@@ -273,6 +278,19 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .lcleg span{display:inline-flex;align-items:center;gap:5px}
 .lcleg i{width:14px;height:3px;border-radius:2px;display:inline-block}
 .lcleg b{color:var(--ink);font-family:var(--mono);font-weight:500}
+.sgroup{border:1px solid var(--line);border-radius:12px;background:var(--surface-solid);scroll-margin-top:72px}
+.sgroup>summary{padding:12px 14px;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-size:.92rem}
+.sgroup>summary::-webkit-details-marker{display:none}
+.sgroup>summary::after{content:"＋";color:var(--muted);font-weight:400}
+.sgroup[open]>summary::after{content:"－"}
+.sgroup[open]>summary{border-bottom:1px solid var(--line);margin-bottom:10px}
+.sgbody{padding:0 14px 14px;display:grid;gap:8px}
+#settings .panel{gap:8px}
+#settings .panel>.fhead{flex-wrap:wrap;align-items:center}
+.jumpsel{width:auto;flex:1 1 9em;min-width:0;padding:6px 8px;font-size:.85rem;background:var(--surface-2)}
+.formbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px));z-index:4;display:flex;gap:6px;align-items:center;margin:0 -14px;padding:8px 14px;background:var(--surface);backdrop-filter:blur(var(--card-blur));-webkit-backdrop-filter:blur(var(--card-blur));border-block:1px solid var(--line)}
+:root:not(.has-bg) .formbar{background:var(--surface-solid)}
+.sec,.patternbar,.allsave{scroll-margin-top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px) + 60px)}
 .charthead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 .charthead h2{margin:0}
 .btn.sm{padding:5px 10px;font-size:.78rem}
@@ -406,6 +424,11 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 
   <section class="card form" id="form">
     <div class="fhead"><b id="fDate"></b><span class="hint" id="fState"></span></div>
+    <div class="formbar" id="formBar">
+      <select id="formJump" class="jumpsel" aria-label="記録の項目へ移動"></select>
+      <button class="btn ghost sm" id="undoLast" title="直前の変更を戻す">↶ 戻す</button>
+      <button class="btn sm" id="barSaveAll">まとめて記録</button>
+    </div>
 
     <div class="sec" data-sec="sleep">
       <div class="sechead"><h3>睡眠</h3><span class="secstate" id="st-sleep"></span></div>
@@ -553,8 +576,8 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 
 <div class="sheet" id="settings" hidden>
   <div class="panel" role="dialog" aria-label="設定">
-    <div class="fhead"><h3>設定</h3><button class="btn ghost" id="closeSettings">閉じる</button></div>
-    <div><h4>追加機能</h4>
+    <div class="fhead"><h3>設定</h3><select id="sgJump" class="jumpsel" aria-label="設定の項目へ移動"><option value="">項目へ移動…</option><option value="sg0">追加機能</option><option value="sg1">表示モード</option><option value="sg2">カレンダーに付けるマーク</option><option value="sg3">グラフの色</option><option value="sg4">背景</option><option value="sg5">よく使う値</option><option value="sg6">通勤先と勤務パターン</option></select><div class="hbtns"><button class="btn ghost" id="undoSettings" disabled>↶ 一つ前に戻す</button><button class="btn" id="closeSettings">閉じる</button></div></div>
+    <details class="sgroup" id="sg0" open><summary>追加機能</summary><div class="sgbody">
       <p class="hint" style="margin-top:0">使うものにチェックを入れると、記録画面とカレンダーに表示されます。外すと隠れます（記録は消えません）。</p>
       <label class="markrow"><input type="checkbox" data-feat="period"><span>月経管理</span><span></span></label>
       <div class="feat" id="featPeriod" hidden>
@@ -574,20 +597,22 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
         <div class="setrow"><button class="btn ghost sm" id="addClinic">＋ 通院日を追加</button><button class="btn ghost sm" id="addEvent">＋ 予定を追加</button></div>
         <span class="hint">日付を1つずつ指定する方法と、「4週ごと」「毎月10日」「毎週月曜」などのくり返しの両方が使えます。</span>
       </div>
-    </div>
-    <div><h4>表示モード</h4><div class="opts" id="modeOpts">
-      <button data-mode="system">端末に合わせる</button><button data-mode="light">ライト</button><button data-mode="dark">ダーク</button></div></div>
-    <div><h4>カレンダーに付けるマーク</h4>
+    </div></details>
+    <details class="sgroup" id="sg1"><summary>表示モード</summary><div class="sgbody">
+      <div class="opts" id="modeOpts">
+      <button data-mode="system">端末に合わせる</button><button data-mode="light">ライト</button><button data-mode="dark">ダーク</button></div>
+    </div></details>
+    <details class="sgroup" id="sg2"><summary>カレンダーに付けるマーク</summary><div class="sgbody">
       <div id="markList"></div>
       <div class="marksub">特記事項の項目ごと（ボタンで入れた見出しを見分けます。「できなかった」などは白抜きの点になります）</div>
       <div id="noteMarkList"></div>
       <p class="hint">チェックした項目を記録した日に、その色の点が付きます。</p>
-    </div>
-    <div><h4>グラフの色</h4>
+    </div></details>
+    <details class="sgroup" id="sg3"><summary>グラフの色</summary><div class="sgbody">
       <div class="colorrow"><span>睡眠グラフ</span><input type="color" id="colSleep"></div>
       <div style="margin-top:8px"><button class="btn ghost" id="resetColors">色を初期値に戻す</button></div>
-    </div>
-    <div><h4>背景</h4>
+    </div></details>
+    <details class="sgroup" id="sg4"><summary>背景</summary><div class="sgbody">
       <div class="opts" id="bgOpts"><button data-bg="none">標準</button><button data-bg="color">好きな色</button><button data-bg="image">画像</button></div>
       <div class="colorrow" id="bgColorRow" hidden><span>背景色</span><input type="color" id="bgColor"></div>
       <div id="bgImageRow" hidden style="margin-top:8px;display:grid;gap:6px">
@@ -600,17 +625,17 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
         <span class="hint">濃さを下げるほど背景がよく見えます。文字が読みにくいときは、ぼかしを強めにすると見やすくなります。</span>
         <div><button class="btn ghost" id="resetLook">初期値に戻す（濃さ84%・ぼかし14）</button></div>
       </div>
-    </div>
-    <div><h4>よく使う値</h4>
+    </div></details>
+    <details class="sgroup" id="sg5"><summary>よく使う値</summary><div class="sgbody">
       <div id="favList"></div>
       <p class="hint">各欄の下に候補として並びます。カンマ区切りで入れてください（時刻は 23:30 のように、数値は 50 のように）。★付きは、これまでの記録で2回以上使った値で、自動で加わります。</p>
       <div><button class="btn ghost" id="resetFavs">初期値に戻す</button></div>
-    </div>
-    <div><h4>通勤先と勤務パターン</h4>
+    </div></details>
+    <details class="sgroup" id="sg6"><summary>通勤先と勤務パターン</summary><div class="sgbody">
       <p class="hint" style="margin-top:0">通勤先ごとに、早番・日勤・夜勤などの勤務パターンを登録できます。出発・到着・勤務開始・終了を一度入れておけば、記録画面でワンタップで入ります。帰りの通勤は行きと同じ時間として、帰宅予定を計算します。</p>
       <div id="slotList"></div>
       <button class="btn ghost" id="addSlot">＋ 通勤先を追加</button>
-    </div>
+    </div></details>
   </div>
 </div>
 
@@ -630,7 +655,7 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
     <div><h4>入れる項目</h4><div class="exchecks" id="exItems"></div></div>
     <div class="opts" id="exOpts"><button data-o="empty">記録のない日も載せる</button><button data-o="summary">期間のまとめを付ける</button></div>
     <textarea id="exText" rows="12" readonly aria-label="コピーする内容"></textarea>
-    <div class="actions"><span class="hint" id="exCount"></span><button class="btn" id="exCopy">コピーする</button></div>
+    <div class="actions stickyfoot"><span class="hint" id="exCount"></span><button class="btn" id="exCopy">コピーする</button></div>
     <p class="hint" style="margin:0">Googleフォームなどの記入欄に貼り付けて使えます。コピーできないときは、上の文章を長押しして「すべてを選択」→「コピー」してください。</p>
   </div>
 </div>
@@ -690,7 +715,13 @@ function put(id,data){
   queue[id]=p;return p;
 }
 const saveDay=k=>put('d-'+k,S.days[k]&&Object.keys(S.days[k]).length?S.days[k]:null);
-const saveSettings=()=>put('settings',S.settings);
+/* 設定は変更のたびに直前の状態を残し、「一つ前に戻す」で順に戻せる */
+let lastSettings=null;const settingsUndo=[];
+function saveSettings(){
+  const cur=JSON.stringify(S.settings);
+  if(lastSettings&&lastSettings!==cur){settingsUndo.push(lastSettings);if(settingsUndo.length>30)settingsUndo.shift()}
+  lastSettings=cur;const b=document.getElementById('undoSettings');if(b)b.disabled=!settingsUndo.length;
+  return put('settings',S.settings)}
 const saveBg=()=>put('bg',S.bgImage?{img:S.bgImage}:null);
 
 async function initStore(){
@@ -709,7 +740,7 @@ async function initStore(){
       const days={};let st=null,bg=null,hs=[];
       snap.docs.forEach(d=>{const v=d.data();if(!v)return;
         if(d.id==='hist')hs=clone(v.list||[]);else if(d.id==='settings')st=v;else if(d.id==='bg')bg=v.img||null;else if(d.id.startsWith('d-'))days[d.id.slice(2)]=clone(v);});
-      S.days=days;if(st)S.settings=merge(st);S.bgImage=bg;S.hist=hs;
+      S.days=days;if(st){S.settings=merge(st);lastSettings=JSON.stringify(S.settings)}S.bgImage=bg;S.hist=hs;
       applyLook();render(false);refreshClean();
     },()=>toast('同期が止まりました。ページを開き直してください'));
   }catch(e){store=null}
@@ -1086,7 +1117,7 @@ function fillSec(sec){
 function fillForm(){
   const d=parse(sel);
   $('#fDate').textContent=(d.getMonth()+1)+'月'+d.getDate()+'日('+WD[d.getDay()]+')の記録';
-  Object.keys(SEC).forEach(fillSec);headState();dirty=false;renderPChips();$('#pSaveRow').hidden=true;
+  Object.keys(SEC).forEach(fillSec);headState();dirty=false;buildFormJump();renderPChips();$('#pSaveRow').hidden=true;
 }
 function refreshClean(){Object.keys(SEC).forEach(s=>{if(!dirtySecs.has(s))fillSec(s);else secState(s)});headState()}
 Object.entries(SEC).forEach(([sec,els])=>els.forEach(el=>{el.addEventListener('input',()=>markDirty(sec));el.addEventListener('change',()=>markDirty(sec))}));
@@ -1134,7 +1165,7 @@ function renderMedsForm(){const meds=S.settings.meds;
 $('#medRows').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;const id=b.closest('[data-mid]').dataset.mid,t=b.dataset.t;
   medsState[id]=medsState[id]||{};medsState[id][t]=!medsState[id][t];renderMedsForm();markDirty('meds')});
 $('#medAll').onclick=()=>{S.settings.meds.forEach(m=>{medsState[m.id]={};(m.times||[]).forEach(t=>medsState[m.id][t]=true)});renderMedsForm();markDirty('meds')};
-function applyFeatures(){const f=FEAT();$('#secPeriod').hidden=!f.period;$('#secMeds').hidden=!f.meds}
+function applyFeatures(){const f=FEAT();$('#secPeriod').hidden=!f.period;$('#secMeds').hidden=!f.meds;if($('#formJump'))buildFormJump()}
 const activeSec=sec=>sec==='period'?!!FEAT().period:sec==='meds'?!!FEAT().meds:true;
 function formRec(){return{work:{start:F.ws.value,end:F.we.value},commute:{dep:F.dep.value,arr:F.arr.value}}}
 function homePlanHint(){const r=formRec(),pl=planOf(r),c=commLen(r.commute),el=$('#homePlan');
@@ -1315,8 +1346,28 @@ $('#fClear').onclick=()=>{
 /* ---------- settings ---------- */
 function openSheet(id){$(id).hidden=false}
 function closeSheet(id){$(id).hidden=true}
-$('#openSettings').onclick=()=>{renderSettings();renderFeatSettings();renderFavSettings();openSheet('#settings')};
+$('#undoSettings').onclick=()=>{const prev=settingsUndo.pop();if(!prev)return;
+  S.settings=merge(JSON.parse(prev));lastSettings=JSON.stringify(S.settings);put('settings',S.settings);
+  $('#undoSettings').disabled=!settingsUndo.length;
+  applyLook();renderSettings();renderFeatSettings();renderFavSettings();render(false);refreshClean();toast('設定を一つ前に戻しました')};
+$('#openSettings').onclick=()=>{if(lastSettings==null)lastSettings=JSON.stringify(S.settings);renderSettings();renderFeatSettings();renderFavSettings();openSheet('#settings')};
 $('#closeSettings').onclick=()=>closeSheet('#settings');
+$('#sgJump').addEventListener('change',e=>{const id=e.target.value;if(!id)return;
+  document.querySelectorAll('#settings .sgroup').forEach(d=>d.open=d.id===id);
+  const el=document.getElementById(id);requestAnimationFrame(()=>el.scrollIntoView({block:'start',behavior:'smooth'}));e.target.value=''});
+/* 記録フォームの項目ジャンプと追従バー */
+function buildFormJump(){const opts=[['','項目へ移動…']];
+  if(!$('#patternBar').hidden)opts.push(['patternBar','勤務パターンで入力']);
+  document.querySelectorAll('#form .sec').forEach(sec=>{if(sec.hidden)return;const h=sec.querySelector('h3');if(h)opts.push([sec.dataset.sec,h.textContent])});
+  opts.push(['allsave','まとめて記録・消去']);
+  $('#formJump').innerHTML=opts.map(([v,t])=>'<option value="'+v+'">'+esc(t)+'</option>').join('')}
+$('#formJump').addEventListener('change',e=>{const v=e.target.value;if(!v)return;
+  const el=v==='patternBar'?$('#patternBar'):v==='allsave'?document.querySelector('.allsave'):document.querySelector('#form .sec[data-sec="'+v+'"]');
+  if(el)el.scrollIntoView({block:'start',behavior:'smooth'});e.target.value=''});
+$('#undoLast').onclick=()=>{const e=(S.hist||[])[0];if(!e){toast('戻せる変更はまだありません');return}undo(e)};
+$('#barSaveAll').onclick=()=>saveAll();
+const setHdr=()=>{const h=document.querySelector('header.top');if(h)document.documentElement.style.setProperty('--hdr',h.offsetHeight+'px')};
+setHdr();window.addEventListener('resize',setHdr);
 $('#settings').addEventListener('click',e=>{if(e.target.id==='settings')closeSheet('#settings')});
 function renderFeatSettings(){const st=S.settings,f=st.features;
   document.querySelectorAll('[data-feat]').forEach(c=>c.checked=!!f[c.dataset.feat]);
@@ -1668,6 +1719,7 @@ function renderStatus(){
 $('#gapList').addEventListener('click',e=>{const b=e.target.closest('[data-go]');if(!b)return;view='day';showPage('main');selectDate(b.dataset.go);document.getElementById('form').scrollIntoView({block:'start'})});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderQuick()});
 applyLook();render(true);
+lastSettings=JSON.stringify(S.settings);
 setTimeout(initStore,0);
 })();
 </script>
