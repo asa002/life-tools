@@ -3140,7 +3140,9 @@ function renderWcTopics(){$('#wcTopicList').innerHTML='<div class="wtflow" aria-
 renderWcTopics();
 $('#wcTopicList').addEventListener('click',e=>{const b=e.target.closest('[data-wt]');if(!b)return;const sel0=WC_TOPICS[+b.dataset.wt][2];if(sel0==='#wcData')$('#wcData').open=true;spotlight(sel0)});
 $('#wcHelpBtn').onclick=()=>{const d=$('#wcTopics');d.open=!d.open;if(d.open)d.scrollIntoView({block:'start',behavior:'smooth'})};
-if(!Object.keys(S.days).length)$('#wcTopics').open=true; /* はじめての人には開いた状態で見せる */
+/* トピックスは初めて開いたときだけ展開しておき、2回目以降は閉じた状態（「？」かタイトルを押すと開く） */
+{let seen=false;try{seen=localStorage.getItem('nemuri-wctopics-seen')==='1'}catch(e){}
+  if(!seen){$('#wcTopics').open=true;try{localStorage.setItem('nemuri-wctopics-seen','1')}catch(e){}}}
 /* ようこそ画面の「データの引き継ぎ」：設定の引き継ぎ欄をそのまま移して使う（ボタン・復元の流れは共通） */
 const dataBody=document.querySelector('#sgData .sgbody');
 function dataToSettings(){const home=document.getElementById('sgData');if(dataBody&&dataBody.parentElement!==home)home.appendChild(dataBody)}
