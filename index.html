@@ -314,7 +314,8 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .pagepick{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line))}
 .pagepick span{font-size:.82rem;font-weight:700;color:var(--accent)}
 .pagepick select{font-weight:700}
-.bprow{display:grid;grid-template-columns:minmax(0,1fr) 9.5em;gap:8px;align-items:center;padding:4px 0}
+.bprow select{display:none}
+.bprow{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;align-items:center;padding:4px 0}
 .bprow label{display:flex;align-items:center;gap:6px;font-size:.9rem}
 .bprow input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
 .bprow select{min-height:38px;padding:5px 6px;font-size:14px}
@@ -418,6 +419,10 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .wclinks{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
 .wclinks button{border:0;background:transparent;color:var(--accent);font-weight:600;padding:8px 10px;cursor:pointer;min-height:40px}
 .wcnext{display:flex;gap:8px;align-items:center;font-size:.76rem;color:var(--muted);justify-content:center}
+.fgrp{display:grid;gap:2px;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin-top:8px}
+.fgrp h5{margin:2px 0 4px;font-size:.88rem;display:grid;gap:1px}.fgrp h5 small{font-weight:400;font-size:.7rem;color:var(--muted)}
+.wslot{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.wnew{display:grid;gap:8px;padding:10px;border-radius:12px;background:var(--surface-2)}
 .slotbar{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;width:100%}
 .slotbar b{font-size:.8rem;color:var(--muted)}
 .slotq{width:auto;max-width:9.5em;min-height:36px;padding:4px 8px;font-size:14px;font-weight:700;background:var(--surface-2)}
@@ -859,42 +864,56 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
         <span class="hint" id="nmSubHint"></span></div>
       <span class="hint">例：「わたしの毎日」「体調ノート」「シフト勤務ログ」など。ホーム画面に追加したときの名前は、追加するときに付け直せます。</span>
     </div></details>
-    <details class="sgroup" id="sg0" open><summary><span class="sgt">使う機能<small>月経・お薬・体の記録・趣味・予定・日報の共有</small></span></summary><div class="sgbody">
-      <p class="hint" style="margin-top:0">使うものにチェックを入れると、記録画面とカレンダーに表示されます。外すと隠れます（記録は消えません）。</p>
-      <label class="markrow"><input type="checkbox" data-feat="period"><span>月経管理</span><span></span></label>
-      <div class="feat" id="featPeriod" hidden>
-        <div class="setrow">周期の目安 <input type="number" id="perCycle" min="20" max="45" inputmode="numeric"> 日　期間の目安 <input type="number" id="perLen" min="2" max="10" inputmode="numeric"> 日</div>
-        <span class="hint">記録が2周期以上たまると、実際の平均から次の開始日を予測します。予測日はカレンダーに点線の枠で出ます。</span>
-        <label class="setrow"><input type="checkbox" id="perOvu"> 排卵日の目安（次の開始予定の14日前）も表示する</label>
-      </div>
-      <label class="markrow"><input type="checkbox" data-feat="body"><span>体の記録（体温・体重など）</span><span></span></label>
-      <div class="feat" id="featBody" hidden>
-        <span class="hint">記録したい項目にチェックを入れ、右で「どのページで記録するか」を選びます。月経管理をオンにすると、基礎体温は自動で加わります。</span>
-        <div class="exchecks" id="bodyPick"></div>
-        <div class="setrow">身長 <input type="number" id="bHeight" min="100" max="220" step="0.1" inputmode="decimal" placeholder="160"> cm　目標体重 <input type="number" id="bGoal" min="20" max="200" step="0.1" inputmode="decimal" placeholder="任意"> kg</div>
-        <span class="hint">身長を入れるとBMIを計算します。目標体重はグラフに点線で表示します。</span>
-      </div>
-      <label class="markrow"><input type="checkbox" data-feat="meds"><span>お薬管理</span><span></span></label>
-      <div class="feat" id="featMeds" hidden>
-        <div id="medSet"></div>
-        <button class="btn ghost sm" id="addMed">＋ お薬を追加</button>
-        <div class="setrow">記録するページ <select id="medsPageSel" style="width:auto"><option value="women">月経・婦人科</option><option value="health">健康・バイタル</option><option value="life">毎日の生活</option></select></div>
-        <span class="hint">通院日は下の「定期的な予定・通院日」から登録できます。</span>
-      </div>
+    <details class="sgroup" id="sg0" open><summary><span class="sgt">使う機能<small>時間の記録と量・数値の記録を、必要なものだけ選ぶ</small></span></summary><div class="sgbody">
+      <p class="hint" style="margin-top:0">チェックを入れた項目が記録画面に欄として並び、グラフやカレンダーにも反映されます。外すと隠れます（記録は消えません）。セーブスロットごとに選び分けられるので、「仕事の日」「ダイエット中」など用途別に見るものを絞れます。</p>
+      <div class="fgrp"><h5>時間の記録<small>いつ・何時から何時まで（グラフの「時間帯」タブに表示）</small></h5>
+      <label class="markrow"><input type="checkbox" data-feat="show_sleep"><span>睡眠（寝支度・起床）</span><span></span></label>
+      <label class="markrow"><input type="checkbox" data-feat="show_commute"><span>通勤</span><span></span></label>
+      <label class="markrow"><input type="checkbox" data-feat="show_work"><span>勤務時間</span><span></span></label>
+      <label class="markrow"><input type="checkbox" data-feat="show_home"><span>帰宅</span><span></span></label>
+      <label class="markrow"><input type="checkbox" data-feat="show_prep"><span>朝の支度</span><span></span></label>
+      <label class="markrow"><input type="checkbox" data-feat="show_other"><span>その他の時間</span><span></span></label>
       <label class="markrow"><input type="checkbox" data-feat="hobby"><span>趣味・自分の時間</span><span></span></label>
       <div class="feat" id="featHobby" hidden>
         <div id="hobbySet"></div>
         <button class="btn ghost sm" id="addHobby">＋ 趣味を追加</button>
         <span class="hint">趣味ごとに色と「1週間の目標時間」を決めておくと、記録画面の「趣味・自分の時間」ページで進み具合が見られます。目標なしでも使えます。</span>
       </div>
-      <label class="markrow"><input type="checkbox" id="welcomeOn"><span>起動時のようこそ画面</span><span></span></label>
-      <label class="markrow"><input type="checkbox" data-feat="share"><span>日報・テキストで共有</span><span></span></label>
-      <div class="feat" id="featShare" hidden><span class="hint">「朝の日報をコピー」ボタンと「テキストでコピー」を表示します。職場や家族に記録を送る人向けです。</span></div>
       <label class="markrow"><input type="checkbox" data-feat="events"><span>定期的な予定・通院日</span><span></span></label>
       <div class="feat" id="featEvents" hidden>
         <div id="evSet"></div>
         <div class="setrow"><button class="btn ghost sm" id="addClinic">＋ 通院日を追加</button><button class="btn ghost sm" id="addEvent">＋ 予定を追加</button></div>
         <span class="hint">日付を1つずつ指定する方法と、「4週ごと」「毎月10日」「毎週月曜」などのくり返しの両方が使えます。</span>
+      </div>
+      </div>
+      <div class="fgrp"><h5>量・数値の記録<small>どれくらい・どんな状態（グラフの「数値」タブに表示）</small></h5>
+      <label class="markrow"><input type="checkbox" data-feat="show_mood"><span>気力・体力</span><span></span></label>
+      <label class="markrow"><input type="checkbox" data-feat="body"><span>体の記録（体温・体重など）</span><span></span></label>
+      <div class="feat" id="featBody" hidden>
+        <span class="hint">記録したい項目にチェックを入れると、記録画面の「体の記録」欄に並びます。月経管理をオンにすると、基礎体温は自動で加わります。</span>
+        <div class="exchecks" id="bodyPick"></div>
+        <div class="setrow">身長 <input type="number" id="bHeight" min="100" max="220" step="0.1" inputmode="decimal" placeholder="160"> cm　目標体重 <input type="number" id="bGoal" min="20" max="200" step="0.1" inputmode="decimal" placeholder="任意"> kg</div>
+        <span class="hint">身長を入れるとBMIを計算します。目標体重はグラフに点線で表示します。</span>
+      </div>
+      <label class="markrow"><input type="checkbox" data-feat="period"><span>月経管理</span><span></span></label>
+      <div class="feat" id="featPeriod" hidden>
+        <div class="setrow">周期の目安 <input type="number" id="perCycle" min="20" max="45" inputmode="numeric"> 日　期間の目安 <input type="number" id="perLen" min="2" max="10" inputmode="numeric"> 日</div>
+        <span class="hint">記録が2周期以上たまると、実際の平均から次の開始日を予測します。予測日はカレンダーに点線の枠で出ます。</span>
+        <label class="setrow"><input type="checkbox" id="perOvu"> 排卵日の目安（次の開始予定の14日前）も表示する</label>
+      </div>
+      <label class="markrow"><input type="checkbox" data-feat="meds"><span>お薬管理</span><span></span></label>
+      <div class="feat" id="featMeds" hidden>
+        <div id="medSet"></div>
+        <button class="btn ghost sm" id="addMed">＋ お薬を追加</button>
+        <div class="setrow" hidden>記録するページ <select id="medsPageSel" style="width:auto"><option value="women">月経・婦人科</option><option value="health">健康・バイタル</option><option value="life">毎日の生活</option></select></div>
+        <span class="hint">通院日は下の「定期的な予定・通院日」から登録できます。</span>
+      </div>
+      <label class="markrow"><input type="checkbox" data-feat="show_note"><span>特記事項</span><span></span></label>
+      </div>
+      <div class="fgrp"><h5>表示・共有</h5>
+      <label class="markrow"><input type="checkbox" id="welcomeOn"><span>起動時のようこそ画面</span><span></span></label>
+      <label class="markrow"><input type="checkbox" data-feat="share"><span>日報・テキストで共有</span><span></span></label>
+      <div class="feat" id="featShare" hidden><span class="hint">「朝の日報をコピー」ボタンと「テキストでコピー」を表示します。職場や家族に記録を送る人向けです。</span></div>
       </div>
     </div></details>
     <details class="sgroup" id="sg1"><summary><span class="sgt">画面の見え方<small>ライト／ダーク・明るさ・鮮やかさ・色合い</small></span></summary><div class="sgbody">
@@ -956,7 +975,8 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
     <details class="sgroup" id="sgTags"><summary><span class="sgt">特記事項のボタン<small>ボタンの追加・削除・名前・答えの候補</small></span></summary><div class="sgbody">
       <p class="hint" style="margin:0">特記事項の欄に並ぶボタンを、自分の生活に合わせて自由に作りかえられます。<br>こんなこともできます：「子どもの様子」「ペットの散歩」「通院メモ」「仕事の出来事」「天気と頭痛」など、よく書くことをボタンにしておくと、押すだけで見出しと答えが入ります。作ったボタンは「カレンダーの印」で色付きの点にもできます。</p>
       <div id="tagSet"></div>
-      <div class="setrow"><button class="btn ghost sm" id="addTag">＋ ボタンを追加</button><button class="btn ghost sm" id="resetTags">初期状態に戻す</button></div>
+      <div class="setrow"><select id="tagPreset" style="width:auto;flex:1" aria-label="候補から追加"></select><button class="btn ghost sm" id="addPreset">候補から追加</button></div>
+      <div class="setrow"><button class="btn ghost sm" id="addTag">＋ 自分で作る</button><button class="btn ghost sm" id="resetTags">初期状態に戻す（特記事項・出来事・予定休）</button></div>
     </div></details>
     <details class="sgroup" id="sg5"><summary><span class="sgt">入力候補ボタン<small>時刻・気力体力・朝支度・趣味の時間のワンタップ候補</small></span></summary><div class="sgbody">
       <div id="favList"></div>
@@ -1033,8 +1053,11 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
 <div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wcTitle">
   <div class="wcard">
     <div class="wchead"><small id="wcHello"></small><h2 id="wcTitle"></h2><span id="wcDate"></span></div>
-    <div class="wstep" id="wcSlotStep"><b>セーブデータ</b><select id="wcSlot" aria-label="使うセーブデータ"></select></div>
-    <div class="wstep"><b>何を記録しますか？</b><div class="wchips" id="wcPages"></div></div>
+    <div class="wstep" id="wcSlotStep"><b>セーブデータ</b><div class="wslot"><select id="wcSlot" aria-label="使うセーブデータ"></select><button type="button" class="btn ghost" id="wcNewBtn">＋ 新しく作る</button></div>
+      <div class="wnew" id="wcNew" hidden><input type="text" id="wcNewName" maxlength="16" placeholder="名前（例：仕事の日・ダイエット中）" aria-label="新しいセーブデータの名前">
+        <div class="wchips" id="wcNewBase"><button type="button" data-nb="blank" aria-pressed="true">まっさらな設定で</button><button type="button" data-nb="copy" aria-pressed="false">いまの設定をコピー</button></div>
+        <button type="button" class="btn" id="wcNewMake">このセーブデータを作る</button><span class="hint">記録データはすべてのセーブデータで共通です。セーブデータごとに、使う機能（見る項目）や見た目を選び分けられます。</span></div></div>
+    <div class="wstep"><b>何から記録しますか？</b><div class="wchips" id="wcPages"></div><span class="hint">記録のページは1つです。使う機能をオンにした項目が並びます。</span></div>
     <div class="wstep"><b>いつの記録ですか？</b>
       <div class="wchips" id="wcWhen"><button type="button" data-w="today">今日</button><button type="button" data-w="yday">昨日</button><button type="button" data-w="pick">日付を選ぶ</button></div>
       <input type="date" id="wcDateIn" hidden aria-label="記録する日"><span class="hint" id="wcDayInfo"></span></div>
@@ -1065,8 +1088,10 @@ const DEF={mode:'system',colors:{note:'#d9822b',prep:'#2f8f80',commute:'#a3519a'
 const MARKS=[['note','特記事項'],['prep','朝支度の時間'],['commute','通勤'],['mood','気力・体力'],['work','勤務'],['late','帰りが遅くなった日'],['hobby','趣味の時間']];
 /* 特記事項の見出し（例「入浴：」）ごとのマーク */
 const DEF_TAGS=[...document.querySelectorAll('#noteChips [data-t]')].map(b=>({t:b.dataset.t.replace(/：$/,''),name:b.textContent,o:b.dataset.o?b.dataset.o.split('|'):[]}));
-const NOTE_ITEMS=DEF_TAGS; /* 既定の項目（マークの初期値用） */
-const noteTags=()=>Array.isArray(S.settings.noteTags)?S.settings.noteTags:DEF_TAGS;
+const PRESET_TAGS=[{t:'特記事項',name:'特記事項',o:[]},...DEF_TAGS]; /* 追加できる候補 */
+const START_TAGS=['特記事項','予定・出来事','予定休'].map(t=>{const x=clone(PRESET_TAGS.find(y=>y.t===t));if(t==='予定・出来事')x.name='出来事';return x}); /* 初期状態のボタン */
+const NOTE_ITEMS=PRESET_TAGS;
+const noteTags=()=>Array.isArray(S.settings.noteTags)?S.settings.noteTags:START_TAGS;
 const NEG_GENERIC=/できなかった|しなかった|していない|忘れ|なし$/;
 const NOTE_NEG={'入浴':/できなかった/,'歯みがき・身支度':/できなかった/,'家事':/できなかった/,'服薬':/飲み忘れ/,'運動':/していない/,'食事':/抜き|食欲がない/};
 const NOTE_COLORS=['#2b8fd6','#d9822b','#2f8f80','#8a63c9','#c74f6f','#4f9a3a','#b8941f','#5b6fd6','#a3519a','#3f7f9f','#c0672e','#7a7f2a','#6b5bd6','#888f9e','#9a6a4f','#d0443a','#2e9e6a','#c23b5a'];
@@ -1078,7 +1103,7 @@ function noteItems(note){const out={};if(!note)return out;
   return out;}
 const merge=s=>{s=s||{};if(!s.appName||s.appName==='生活記録')s={...s,appName:'My note'};if(s.appSubMode==null){s={...s,appSubMode:(s.appSub&&s.appSub!=='睡眠・支度・移動')?'custom':'auto'}};const nm={};Object.keys(DEF_NM).forEach(k=>nm[k]={...DEF_NM[k],...((s.noteMarks||{})[k]||{})});Object.entries(s.noteMarks||{}).forEach(([k,v])=>{if(!nm[k])nm[k]={on:false,color:'#5b6fd6',...v}});
   if(s.nmv!==2){nm['入浴'].on=false;nm['気になったこと'].on=true} /* 既定のマークを「気になったこと」に置き換え */
-  return{...clone(DEF),...s,nmv:2,noteMarks:nm,features:{period:false,meds:false,events:false,share:false,body:false,hobby:false,...(s.features||{})},body:{items:['wt','fat'],height:'',goal:'',...(s.body||{})},period:{cycle:28,len:5,ovu:false,...(s.period||{})},meds:Array.isArray(s.meds)?clone(s.meds):[],events:Array.isArray(s.events)?clone(s.events):[],colors:{...DEF.colors,...(s.colors||{})},marks:{...DEF.marks,...(s.marks||{})},bg:{...DEF.bg,...(s.bg||{})},text:{...DEF.text,...(s.text||{})},look:{...DEF.look,...(s.look||{})},hobbies:Array.isArray(s.hobbies)?clone(s.hobbies):[],markSlots:Array.isArray(s.markSlots)?clone(s.markSlots):[{src:'note',color:'#d9822b'}],slots:Array.isArray(s.slots)?clone(s.slots):[]}};
+  return{...clone(DEF),...s,nmv:2,noteMarks:nm,features:{show_sleep:true,show_commute:true,show_work:true,show_home:true,show_prep:true,show_other:true,show_mood:true,show_note:true,period:false,meds:false,events:false,share:false,body:false,hobby:false,...(s.features||{})},body:{items:['wt','fat'],height:'',goal:'',...(s.body||{})},period:{cycle:28,len:5,ovu:false,...(s.period||{})},meds:Array.isArray(s.meds)?clone(s.meds):[],events:Array.isArray(s.events)?clone(s.events):[],colors:{...DEF.colors,...(s.colors||{})},marks:{...DEF.marks,...(s.marks||{})},bg:{...DEF.bg,...(s.bg||{})},text:{...DEF.text,...(s.text||{})},look:{...DEF.look,...(s.look||{})},hobbies:Array.isArray(s.hobbies)?clone(s.hobbies):[],markSlots:Array.isArray(s.markSlots)?clone(s.markSlots):[{src:'note',color:'#d9822b'}],slots:Array.isArray(s.slots)?clone(s.slots):[]}};
 let S={days:{},settings:merge(),bgImage:null,slots:null};
 let view='month', sel=ymd(new Date()), dirty=false, store=null;
 
@@ -1399,13 +1424,13 @@ const PAGES=[['life','毎日の生活'],['hobby','趣味・自分の時間'],['w
 const PURPOSE_DEF={bt:'women',wt:'diet',fat:'diet',muscle:'diet',waist:'diet',temp:'health',bp:'health',pulse:'health',steps:'health',water:'health'};
 const purposeOf=k=>((S.settings.body||{}).purpose||{})[k]||PURPOSE_DEF[k]||'health';
 const medsPage=()=>S.settings.medsPage||(FEAT().period?'women':'health');
-let formPage='life';try{formPage=localStorage.getItem('nemuri-page')||'life'}catch(e){}
+let formPage='all'; /* 記録ページは1つ。使う機能に合わせて項目だけが増減する */
 function pagesAvail(){const f=FEAT(),items=bodyItems(),has=pg=>items.some(b=>purposeOf(b.k)===pg);
   return PAGES.filter(([k])=>k==='life'||(k==='hobby'&&f.hobby)||(k==='women'&&(f.period||has('women')||(f.meds&&medsPage()==='women')))||(k==='diet'&&has('diet'))||(k==='health'&&(has('health')||(f.meds&&medsPage()==='health'))))}
 const bodyItems=()=>bodyItemsAll();
 /* 選んだ項目名から見出しを作る（例：体重・体脂肪率・BMI） */
 function bodyTitle(pg){const it=bodyItemsAll().filter(b=>purposeOf(b.k)===pg).map(b=>b.k==='bp'?'血圧':b.name.replace(/（.*）/,''));if(it.includes('体重')&&(S.settings.body||{}).height)it.splice(it.indexOf('体重')+1,0,'BMI');return it.join('・')}
-const pageBodyItems=()=>bodyItemsAll().filter(b=>purposeOf(b.k)===formPage);
+const pageBodyItems=()=>bodyItemsAll();const _pbiOld=()=>bodyItemsAll().filter(b=>purposeOf(b.k)===formPage);
 const bmi=wt=>{const h=+(S.settings.body||{}).height;return h>=100&&wt?wt/((h/100)**2):null};
 const PARAMS={
   ki:{name:'気力',unit:'pct',color:'var(--dawn)',get:(r)=>r.ki},
@@ -1792,7 +1817,7 @@ $('#medRows').addEventListener('click',e=>{const b=e.target.closest('[data-t]');
 $('#medAll').onclick=()=>{S.settings.meds.forEach(m=>{medsState[m.id]={};(m.times||[]).forEach(t=>medsState[m.id][t]=true)});renderMedsForm();markDirty('meds')};
 let bodyVals={};
 function renderBodyForm(){const items=pageBodyItems(),box=$('#bodyFields');
-  $('#secBody h3').textContent=bodyTitle(formPage)||'体の記録';
+  $('#secBody h3').textContent=bodyItemsAll().map(b=>b.k==='bp'?'血圧':b.name.replace(/（.*）/,'')).concat(bodyItemsAll().some(b=>b.k==='wt')&&(S.settings.body||{}).height?['BMI']:[]).join('・')||'体の記録';
   box.innerHTML=items.map(b=>b.bp?'<div class="bfield"><label>血圧（上／下）</label><div class="bp"><input type="number" inputmode="numeric" data-b="bpH" min="50" max="250" placeholder="120" value="'+(bodyVals.bpH??'')+'" aria-label="血圧（上）"><span>/</span><input type="number" inputmode="numeric" data-b="bpL" min="30" max="150" placeholder="80" value="'+(bodyVals.bpL??'')+'" aria-label="血圧（下）"></div><span class="sub">mmHg</span></div>':
     '<div class="bfield"><label for="b_'+b.k+'">'+b.name+'</label><div class="inline"><input type="number" id="b_'+b.k+'" inputmode="'+(b.dec?'decimal':'numeric')+'" step="'+b.step+'" min="'+b.min+'" max="'+b.max+'" placeholder="'+b.ph+'" data-b="'+b.k+'" value="'+(bodyVals[b.k]??'')+'"><span>'+b.unit+'</span></div><span class="sub" id="bsub_'+b.k+'"></span></div>').join('');
   updateBodySubs();
@@ -1809,16 +1834,18 @@ function renderPerLinks(){const r=S.days[sel]||{},bt=r.body&&r.body.bt,ms=FEAT()
   else L.push('<span class="hint">ピルや鎮痛剤の服薬は「お薬管理」をオンにすると記録できます。</span>');
   $('#perLinks').innerHTML=L.join('')}
 $('#perLinks').addEventListener('click',e=>{const b=e.target.closest('[data-goto]');if(!b)return;const se=document.querySelector('#form .sec[data-sec="'+b.dataset.goto+'"]');if(se){setClosed(se,false);se.scrollIntoView({block:'start',behavior:'smooth'})}});
-const SEC_PAGE=sec=>sec==='hobby'?'hobby':sec==='period'?'women':sec==='meds'?medsPage():sec==='body'?formPage:'life';
+const SEC_PAGE=sec=>'all';const _secPageOld=sec=>sec==='hobby'?'hobby':sec==='period'?'women':sec==='meds'?medsPage():sec==='body'?formPage:'life';
 function secVisible(sec){const f=FEAT();
+  if(['sleep','commute','work','home','prep','other','mood','note'].includes(sec)&&f['show_'+sec]===false)return false;
   if(sec==='hobby'&&!f.hobby)return false;if(sec==='period'&&!f.period)return false;if(sec==='meds'&&!f.meds)return false;if(sec==='body'&&!pageBodyItems().length)return false;
   return SEC_PAGE(sec)===formPage}
-function renderPageSel(){const av=pagesAvail();if(!av.some(([k])=>k===formPage))formPage='life';
+function renderPageSel(){$('#pagePick').hidden=true;return;const av=pagesAvail();
   $('#pageSel').innerHTML=av.map(([k,n])=>'<option value="'+k+'"'+(k===formPage?' selected':'')+'>'+(k==='diet'&&bodyTitle('diet')?bodyTitle('diet'):n)+'</option>').join('');$('#pagePick').hidden=av.length<2}
 function applyFeatures(){const f=FEAT();renderPageSel();if(typeof renderHobbyCard==='function'&&$('#hobbyCard'))setTimeout(renderHobbyCard,0);
   document.querySelectorAll('#form .sec').forEach(se=>se.hidden=!secVisible(se.dataset.sec));
-  $('#patternBar').hidden=formPage!=='life';
-  $('#allReq').textContent=formPage==='life'?'睡眠（寝支度と起床）と気力・体力が必須です。通勤・勤務時間・その他の時間・朝支度・特記事項は空欄でも記録できます。':'このページの欄をまとめて記録します。空欄の項目は記録しません。';
+  $('#patternBar').hidden=f.show_commute===false&&f.show_work===false;
+  {const q=document.getElementById('quickTitle');if(q)q.closest('section').hidden=f.show_sleep===false}
+  $('#allReq').textContent='入力した欄をまとめて記録します。空欄の項目は記録しません（あとから書き足せます）。';
   {const sig=formPage+'|'+pageBodyItems().map(b=>b.k).join(',');if(sig!==applyFeatures.sig){applyFeatures.sig=sig;renderBodyForm()}}$('#reportRow').hidden=!f.share;$('#openExport').hidden=!f.share;if($('#formJump'))buildFormJump()}
 const activeSec=sec=>secVisible(sec);
 function formRec(){return{work:{start:F.ws.value,end:F.we.value},commute:{dep:F.dep.value,arr:F.arr.value},home:{plan:$('#fHomePlanIn').value}}}
@@ -1958,6 +1985,7 @@ function saveSec(sec){
 function renderNoteChips(){$('#noteChips').innerHTML=noteTags().filter(x=>x.t).map(x=>'<button type="button" data-t="'+esc(x.t)+'：" data-o="'+esc((x.o||[]).join('|'))+'">'+esc(x.name||x.t)+'</button>').join('')+'<button type="button" class="chipedit" data-edittags>✎ ボタンを編集</button>'}
 function editTags(){const L=clone(noteTags());S.settings.noteTags=L;return L}
 function renderTagSettings(){const L=noteTags();
+  {const used=new Set(L.map(x=>x.t)),rest=PRESET_TAGS.filter(x=>!used.has(x.t));$('#tagPreset').innerHTML=rest.length?rest.map(x=>'<option value="'+esc(x.t)+'">'+esc(x.name)+(x.o&&x.o.length?'（'+x.o.slice(0,3).join('・')+'…）':'')+'</option>').join(''):'<option value="">（候補はすべて追加済み）</option>';$('#addPreset').disabled=!rest.length}
   $('#tagSet').innerHTML=L.map((x,i)=>'<div class="tagcard" data-ti="'+i+'"><div class="r1"><input type="text" data-tf="name" value="'+esc(x.name||'')+'" placeholder="ボタンの名前" aria-label="ボタンの名前"><button type="button" data-tmv="-1" aria-label="上へ"'+(i?'':' disabled')+'>↑</button><button type="button" data-tmv="1" aria-label="下へ"'+(i<L.length-1?'':' disabled')+'>↓</button><button type="button" class="xbtn" data-tdel aria-label="このボタンを削除">×</button></div>'+
     '<label>記録される見出し<input type="text" data-tf="t" value="'+esc(x.t||'')+'" placeholder="例：子どもの様子"></label>'+
     '<div class="tagans">'+(x.o||[]).map((a,j)=>'<span class="favchip">'+esc(a)+'<button type="button" data-adel="'+j+'" aria-label="'+esc(a)+'を消す">×</button></span>').join('')+'</div>'+
@@ -1974,6 +2002,7 @@ $('#tagSet').addEventListener('click',e=>{const c=e.target.closest('[data-ti]');
     const L=editTags();L[i].o=[...(L[i].o||[]),v].slice(0,10);renderTagSettings();tagSave()}});
 $('#tagSet').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('[data-anew]')){e.preventDefault();e.target.closest('[data-ti]').querySelector('[data-aadd]').click()}});
 $('#addTag').onclick=()=>{const L=editTags();L.push({t:'',name:'',o:[]});renderTagSettings();tagSave();setTimeout(()=>{const ins=document.querySelectorAll('#tagSet [data-tf=name]');if(ins.length)ins[ins.length-1].focus()},0)};
+$('#addPreset').onclick=()=>{const t=$('#tagPreset').value;const x=PRESET_TAGS.find(y=>y.t===t);if(!x)return;const L=editTags();L.push(clone(x));renderTagSettings();tagSave();toast('「'+x.name+'」のボタンを追加しました')};
 $('#resetTags').onclick=()=>{S.settings.noteTags=null;renderTagSettings();saveSettings();renderNoteChips();render(false);toast('特記事項のボタンを初期状態に戻しました')};
 $('#noteChips').addEventListener('click',e=>{if(e.target.closest('[data-edittags]')){showPage('settings');const d=document.getElementById('sgTags');document.querySelectorAll('#pageSettings .sgroup').forEach(x=>x.open=x===d);setTimeout(()=>d.scrollIntoView({block:'start'}),50);return}});
 $('#noteChips').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;
@@ -2003,7 +2032,7 @@ let allKey='';
 function saveAll(){
   const btn=$('#fSaveAll'),secs=Object.keys(SEC).filter(activeSec);let errN=0,warnAll=[];
   secs.forEach(sec=>{$('#w-'+sec).hidden=true});
-  const req=[];if(formPage==='life'){if(!F.bed.value)req.push('寝支度を始めた時刻');if(!F.wake.value)req.push('起きた時刻')}
+  const req=[];
   if(req.length){showWarn('sleep',[req.join('と')+'を入れてください'],'まとめて記録に必要です');errN++}
   secs.forEach(sec=>{const c=checkSec(sec);
     const w=c.warn;
@@ -2468,7 +2497,7 @@ function slotCardHTML(){const sl=ensureSlots(),cur=sl.list[sl.active];
     '<div class="slotrow"><span>いま使っている</span><b class="slotnow">'+esc(slotLabel(cur,sl.active))+'</b></div>'+
     '<label class="slotrow"><span>読み込む</span><select data-sl="load" aria-label="読み込むスロット">'+opts(sl.active)+'</select></label>'+
     '<div class="slotsave"><span>名前を付けて保存</span><input type="text" data-sl="name" maxlength="16" placeholder="例：平日・夜勤期間・ダイエット中" value="'+esc(cur?cur.name||'':'')+'" aria-label="スロット名">'+
-    '<div class="slotsave2"><select data-sl="to" aria-label="保存先のスロット">'+sl.list.map((x,i)=>'<option value="'+i+'"'+(i===sl.active?' selected':'')+'>保存先：'+esc(slotLabel(x,i))+'</option>').join('')+'</select><button type="button" class="btn" data-sl="save">保存</button></div></div>'+
+    '<div class="slotsave2"><select data-sl="to" aria-label="保存先のスロット">'+(()=>{const ne=sl.list.findIndex(x=>!x);return(ne>=0?'<option value="'+ne+'">＋ 新しい枠に保存（スロット'+(ne+1)+'）</option>':'')})()+sl.list.map((x,i)=>'<option value="'+i+'"'+(i===sl.active?' selected':'')+'>保存先：'+esc(slotLabel(x,i))+'</option>').join('')+'</select><button type="button" class="btn" data-sl="save">保存</button></div></div>'+
     '<span class="hint">設定を変えると、いま使っているスロットに自動で保存されます。別のスロットに残したいときは「保存先」を選んで保存してください。</span>'}
 function renderSlots(){const sl=ensureSlots();
   ['#slotTop','#slotBottom'].forEach(id=>{const el=$(id);if(el)el.innerHTML=slotCardHTML()});
@@ -2481,6 +2510,10 @@ function switchSlot(i){const sl=ensureSlots();if(i===sl.active)return;
   sl.active=i;lastSettings=JSON.stringify(S.settings);settingsUndo.length=0;$('#undoSettings').disabled=true;
   put('settings',S.settings);put('slots',S.slots);
   applyLook();render(true);if(!$('#pageSettings').hidden)openSettingsPage();renderSlots()}
+function createSlot(name,copy){const sl=ensureSlots(),idx=sl.list.findIndex(x=>!x);
+  if(idx<0){toast('セーブデータは'+SLOT_N+'個までです。設定の「セーブスロット」で、使わないものに上書きしてください');return false}
+  slotAutoSave();const base=copy?clone(S.settings):merge({appName:S.settings.appName});
+  sl.list[idx]={name:name||'スロット'+(idx+1),settings:base,at:Date.now()};switchSlot(idx);toast('セーブデータ「'+sl.list[idx].name+'」を作りました（スロット'+(idx+1)+'）');return true}
 let slotArm=null;
 document.querySelectorAll('.slotcard').forEach(card=>{
   card.addEventListener('change',e=>{if(e.target.dataset.sl==='load')switchSlot(+e.target.value);if(e.target.dataset.sl==='to'){slotArm=null;card.querySelector('[data-sl=save]').textContent='保存'}});
@@ -2502,7 +2535,7 @@ const HELP=[
   ['よく使う時刻や数値をワンタップで入れたい','入力欄の下に並ぶ「23:00」「50%」などのボタンを押すと、その値が入ります。候補は「設定 → 入力候補ボタン」で変えられます。','main','input','#form .qchips'],
   ['まとめて保存したい・間違えたので戻したい','「まとめて記録」で表示中の項目をまとめて保存します。「↶ 戻す」で直前の変更を取り消せます。右上の時計ボタンでは過去の変更履歴から戻せます。','main','input','#barSaveAll'],
   ['通勤と勤務時間をいっぺんに入れたい','「勤務パターンでまとめて入力」のボタンを押すと、通勤と勤務の時刻が一度に入ります。パターンは「設定 → 通勤・勤務パターン」で登録します。','main','input','#patternBar'],
-  ['ダイエット・月経・趣味などを記録したい','「設定 → 使う機能」でオンにすると、記録フォームの上に「記録するページ」が出ます。そこで目的別のページに切り替えます。','settings',null,'#sg0']]],
+  ['ダイエット・月経・趣味などを記録したい','「設定 → 使う機能」でオンにすると、記録画面に「体の記録」「月経」「お薬」「趣味」などの欄が増えます。記録のページは1つで、オフにすると欄が消えます（記録は残ります）。','settings',null,'#sg0']]],
  ['見る・振り返る',[
   ['カレンダーで記録を見たい','記録タブ上部の「カレンダー」を押します。印（点）の意味はカレンダーの下に出ます。どの記録に印を付けるかは「設定 → カレンダーの印」で選べます。','main','cal','#legend'],
   ['グラフで変化を見たい','「グラフ・分析」を押し、左上のプルダウンでグラフの種類（睡眠・気力・体重など）を選びます。「選んだ項目を重ねる」で好きな組み合わせも作れます。','main','graph','#chartKind'],
@@ -2689,28 +2722,32 @@ document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderQuic
 applyLook();render(true);
 lastSettings=JSON.stringify(S.settings);
 /* ---------- ようこそ画面（開いたとき・更新したとき） ---------- */
-let wc={page:formPage,when:'today',date:ymd(new Date())};
+let wc={page:'auto',when:'today',date:ymd(new Date())};
 function wcDay(){return wc.when==='today'?ymd(new Date()):wc.when==='yday'?ymd(addDays(new Date(),-1)):wc.date}
 function renderWelcome(){const h=new Date().getHours(),sl=ensureSlots();
   $('#wcHello').textContent=h<5?'こんばんは':h<11?'おはようございます':h<18?'こんにちは':'こんばんは';
   $('#wcTitle').textContent=S.settings.appName||'My note';const t=new Date();$('#wcDate').textContent=ymdJ(ymd(t))+' '+pad(t.getHours())+':'+pad(t.getMinutes());
   const used=sl.list.map((x,i)=>[x,i]).filter(([x,i])=>x||i===sl.active);
-  $('#wcSlotStep').hidden=used.length<2;$('#wcSlot').innerHTML=used.map(([x,i])=>'<option value="'+i+'"'+(i===sl.active?' selected':'')+'>'+esc(slotLabel(x,i))+'</option>').join('');
-  const av=pagesAvail();if(!av.some(([k])=>k===wc.page))wc.page='life';
-  $('#wcPages').innerHTML=av.map(([k,n])=>'<button type="button" data-p="'+k+'" aria-pressed="'+(k===wc.page)+'">'+esc(k==='diet'&&bodyTitle('diet')?bodyTitle('diet'):n)+'</button>').join('');
+  $('#wcSlotStep').hidden=false;$('#wcSlot').innerHTML=used.map(([x,i])=>'<option value="'+i+'"'+(i===sl.active?' selected':'')+'>'+esc(slotLabel(x,i))+'</option>').join('');
+  applyFeatures();const items=secList().map(se=>[se.dataset.sec,TAB_LABEL[se.dataset.sec]||(se.querySelector('h3')||{}).textContent]);
+  if(!items.some(([k])=>k===wc.page))wc.page='auto';
+  $('#wcPages').innerHTML='<button type="button" data-p="auto" aria-pressed="'+(wc.page==='auto')+'">未記録の項目から</button>'+items.map(([k,n])=>'<button type="button" data-p="'+k+'" aria-pressed="'+(k===wc.page)+'">'+esc(n)+'</button>').join('');
   document.querySelectorAll('#wcWhen [data-w]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.w===wc.when));
   $('#wcDateIn').hidden=wc.when!=='pick';$('#wcDateIn').value=wc.date;
   const k=wcDay(),r=S.days[k];const n=r?Object.keys(SEC).filter(x=>hasSec(r,x)).length:0;
   $('#wcDayInfo').textContent=md(k)+'：'+(r?'記録あり（'+n+'項目）。続きから入力できます':'まだ記録がありません');}
 function closeWelcome(){$('#welcome').hidden=true;if($('#wcOff').checked){S.settings.welcome=false;saveSettings()}}
 $('#wcSlot').addEventListener('change',e=>{switchSlot(+e.target.value);renderWelcome()});
+let wcBase='blank';
+$('#wcNewBtn').onclick=()=>{$('#wcNew').hidden=!$('#wcNew').hidden;if(!$('#wcNew').hidden)$('#wcNewName').focus()};
+$('#wcNewBase').addEventListener('click',e=>{const b=e.target.closest('[data-nb]');if(!b)return;wcBase=b.dataset.nb;document.querySelectorAll('#wcNewBase [data-nb]').forEach(x=>x.setAttribute('aria-pressed',x.dataset.nb===wcBase))});
+$('#wcNewMake').onclick=()=>{if(createSlot($('#wcNewName').value.trim(),wcBase==='copy')){$('#wcNew').hidden=true;$('#wcNewName').value='';renderWelcome()}};
 $('#wcPages').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;wc.page=b.dataset.p;renderWelcome()});
 $('#wcWhen').addEventListener('click',e=>{const b=e.target.closest('[data-w]');if(!b)return;wc.when=b.dataset.w;renderWelcome();if(wc.when==='pick')$('#wcDateIn').focus()});
 $('#wcDateIn').addEventListener('change',e=>{if(e.target.value){wc.date=e.target.value;renderWelcome()}});
 $('#wcGo').onclick=()=>{closeWelcome();showPage('main');showView('input');
-  if(wc.page!==formPage){const ps=$('#pageSel');formPage=wc.page;try{localStorage.setItem('nemuri-page',formPage)}catch(e){}applyFeatures()}
   sel=wcDay();dirty=false;render(true);
-  const vis=secList(),first=vis.find(se=>!hasSec(S.days[sel],se.dataset.sec))||vis[0];if(first)goSec(first);else window.scrollTo(0,0)};
+  const vis=secList(),first=wc.page!=='auto'?vis.find(se=>se.dataset.sec===wc.page):(vis.find(se=>!hasSec(S.days[sel],se.dataset.sec)&&se.dataset.sec!=='note')||vis[0]);if(first)goSec(first);else window.scrollTo(0,0)};
 document.querySelector('.wclinks').addEventListener('click',e=>{const b=e.target.closest('[data-wv]');if(!b)return;closeWelcome();showPage('main');
   if(b.dataset.wv==='help'){$('#openHelp').click();return}sel=wcDay();showView(b.dataset.wv);render(false)});
 $('#welcomeOn').checked=S.settings.welcome!==false;
