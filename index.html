@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="生活記録">
+<meta name="apple-mobile-web-app-title" content="My note">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
-<title>生活記録</title>
+<title>My note</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Shippori+Mincho+B1:wght@700&family=IBM+Plex+Mono:wght@500&display=swap">
@@ -404,6 +404,25 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .slotq{width:auto;max-width:9.5em;min-height:36px;padding:4px 8px;font-size:14px;font-weight:700;background:var(--surface-2)}
 .brand{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .syncnote{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));border-radius:10px;padding:10px 12px;font-size:.85rem;line-height:1.6}
+.sectabs{display:grid!important;grid-template-columns:44px minmax(0,1fr) 44px;gap:6px;align-items:center;overflow:visible!important}
+.secnav{min-height:44px;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;font-size:1.3rem;line-height:1;color:var(--ink);cursor:pointer}
+.secnav:disabled{opacity:.35;cursor:default}
+.secpick select{font-weight:700;width:100%;cursor:pointer}
+.secprog{grid-column:1/-1;display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;font-size:.74rem;color:var(--ink)}
+.secprog i{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden;display:block}
+.secprog u{display:block;height:100%;background:var(--c-prep);border-radius:3px}
+.helpbtn{font-weight:700;font-size:1.05rem;color:var(--accent)}
+.hgrp{margin-top:6px}
+.hgrp>h4{margin:8px 0 6px;font-size:.78rem;letter-spacing:.12em;color:var(--muted)}
+.htopic{border:1px solid var(--line);border-radius:12px;margin-bottom:6px;background:var(--surface-solid)}
+.htopic>summary{list-style:none;cursor:pointer;padding:11px 12px;font-weight:700;font-size:.92rem;display:flex;gap:8px;align-items:center}
+.htopic>summary::-webkit-details-marker{display:none}
+.htopic>summary::before{content:"？";display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);font-size:.75rem;flex:none}
+.htopic>div{padding:0 12px 12px;display:grid;gap:8px;font-size:.88rem;line-height:1.65}
+.spot{outline:3px solid var(--dawn)!important;outline-offset:3px;border-radius:12px;animation:spot 1.2s ease-in-out 3}
+@keyframes spot{50%{outline-color:transparent}}
+@media (prefers-reduced-motion: reduce){.spot{animation:none}}
+.firsttip{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 10%,var(--surface-solid));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));font-size:.86rem}
 .charthead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 .charthead h2{margin:0}
 .btn.sm{padding:6px 12px;font-size:.82rem;min-height:38px}
@@ -503,8 +522,8 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
 <div id="bgLayer" hidden></div>
 <div class="wrap">
   <header class="top">
-    <h1 class="brand"><span id="appName">生活記録</span> <small id="appSub">睡眠・支度・移動</small></h1>
-    <div class="hbtns"><select id="slotQuick" class="slotq" aria-label="セーブスロットを切り替える"></select><button class="iconbtn" id="openHist" aria-label="変更履歴"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></svg></button>
+    <h1 class="brand"><span id="appName">My note</span> <small id="appSub" hidden></small></h1>
+    <div class="hbtns"><button class="iconbtn helpbtn" id="openHelp" aria-label="使い方ガイド" title="使い方ガイド">？</button><select id="slotQuick" class="slotq" aria-label="セーブスロットを切り替える"></select><button class="iconbtn" id="openHist" aria-label="変更履歴"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></svg></button>
 </div>
   </header>
   <nav class="tabs" role="tablist" aria-label="画面">
@@ -580,7 +599,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
     <label class="pagepick" id="pagePick" hidden><span>記録するページ</span><select id="pageSel" aria-label="記録するページ"></select></label>
     <div class="formbar" id="formBar">
       <div class="sectabs" id="secTabs" role="tablist" aria-label="記録の項目"></div>
-      <div class="fbrow"><select id="formJump" class="jumpsel" aria-label="記録の項目へ移動" hidden></select><span class="hint" id="tabHint">項目をタップすると、その欄だけを開きます</span>
+      <div class="fbrow"><select id="formJump" class="jumpsel" aria-label="記録の項目へ移動" hidden></select><span class="hint" id="tabHint">‹ › かプルダウンで項目を切り替えます</span>
       <button class="btn ghost sm" id="undoLast" title="直前の変更を戻す">↶ 戻す</button>
       <button class="btn sm" id="barSaveAll">まとめて記録</button></div>
     </div>
@@ -750,8 +769,11 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
       <div class="slotbar" id="slotNameRow"><b>スロット名</b><input type="text" id="slotName" maxlength="16" placeholder="例：平日・夜勤期間・ダイエット中"></div>
       <span class="hint" style="width:100%">設定はいま選んでいるスロットに自動で保存されます。スロットを切り替えると、そのスロットの設定（使う機能・候補・勤務パターン・見た目など）を読み込みます。記録したデータはどのスロットでも共通で、すべて見られます。</span></div>
     <details class="sgroup" id="sgName"><summary><span class="sgt">アプリの名前<small>画面上部のタイトルと、その横の小さな説明</small></span></summary><div class="sgbody">
-      <label class="field"><span class="lbl">タイトル</span><input type="text" id="nmTitle" maxlength="20" placeholder="生活記録"></label>
-      <label class="field"><span class="lbl">横の小さな説明（空欄なら表示しません）</span><input type="text" id="nmSub" maxlength="30" placeholder="睡眠・支度・移動"></label>
+      <label class="field"><span class="lbl">タイトル</span><input type="text" id="nmTitle" maxlength="20" placeholder="My note"></label>
+      <div class="field"><span class="lbl">横の小さな説明</span>
+        <div class="opts" id="nmSubMode"><button type="button" data-sm="auto">記録に合わせて自動</button><button type="button" data-sm="custom">自分で決める</button><button type="button" data-sm="none">表示しない</button></div>
+        <input type="text" id="nmSub" maxlength="30" placeholder="例：睡眠・勤務・趣味" hidden>
+        <span class="hint" id="nmSubHint"></span></div>
       <span class="hint">例：「わたしの毎日」「体調ノート」「シフト勤務ログ」など。ホーム画面に追加したときの名前は、追加するときに付け直せます。</span>
     </div></details>
     <details class="sgroup" id="sg0" open><summary><span class="sgt">使う機能<small>月経・お薬・体の記録・趣味・予定・日報の共有</small></span></summary><div class="sgbody">
@@ -908,6 +930,14 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
   </div>
 </div>
 
+<div class="sheet" id="help" hidden>
+  <div class="panel" role="dialog" aria-label="使い方ガイド">
+    <div class="fhead"><h3>使い方ガイド</h3><button class="btn ghost" id="closeHelp">閉じる</button></div>
+    <p class="hint" style="margin:0">知りたいことを押すと説明が開きます。「その場所を見る」で、実際の画面のその場所が光ります。</p>
+    <div id="helpList"></div>
+  </div>
+</div>
+
 <div class="sheet" id="hist" hidden>
   <div class="panel" role="dialog" aria-label="変更履歴">
     <div class="fhead"><h3>変更履歴</h3><button class="btn ghost" id="closeHist">閉じる</button></div>
@@ -933,7 +963,7 @@ const WD=['日','月','火','水','木','金','土'];
 const clone=o=>JSON.parse(JSON.stringify(o));
 const md=k=>{const d=parse(k);return (d.getMonth()+1)+'/'+d.getDate()+'('+WD[d.getDay()]+')'};
 
-const DEF={mode:'system',colors:{note:'#d9822b',prep:'#2f8f80',commute:'#a3519a',mood:'#b8941f',work:'#8a63c9',late:'#c74f6f',hobby:'#2e9e6a',sleep:'#5b6fd6'},marks:{note:true,prep:false,commute:false,mood:false,work:false,late:true,hobby:true},slots:[],bg:{type:'none',color:'#c9d3e6',alpha:84,blur:0},appName:'生活記録',appSub:'睡眠・支度・移動',look:{bright:100,sat:100,hue:0},text:{mode:'auto',color:'#1b2233'}};
+const DEF={mode:'system',colors:{note:'#d9822b',prep:'#2f8f80',commute:'#a3519a',mood:'#b8941f',work:'#8a63c9',late:'#c74f6f',hobby:'#2e9e6a',sleep:'#5b6fd6'},marks:{note:true,prep:false,commute:false,mood:false,work:false,late:true,hobby:true},slots:[],bg:{type:'none',color:'#c9d3e6',alpha:84,blur:0},appName:'My note',appSub:'',look:{bright:100,sat:100,hue:0},text:{mode:'auto',color:'#1b2233'}};
 const MARKS=[['note','特記事項'],['prep','朝支度の時間'],['commute','通勤'],['mood','気力・体力'],['work','勤務'],['late','帰りが遅くなった日'],['hobby','趣味の時間']];
 /* 特記事項の見出し（例「入浴：」）ごとのマーク */
 const DEF_TAGS=[...document.querySelectorAll('#noteChips [data-t]')].map(b=>({t:b.dataset.t.replace(/：$/,''),name:b.textContent,o:b.dataset.o?b.dataset.o.split('|'):[]}));
@@ -948,7 +978,7 @@ function noteItems(note){const out={};if(!note)return out;
   note.split('\n').forEach(line=>{const m=line.match(/^\s*([^：:]+)[：:](.*)$/);if(!m)return;const t=m[1].trim();
     if(!noteTags().some(x=>x.t===t))return;const neg=NOTE_NEG[t]?NOTE_NEG[t].test(m[2]):NEG_GENERIC.test(m[2].trim());out[t]=out[t]===true||!neg;});
   return out;}
-const merge=s=>{s=s||{};const nm={};Object.keys(DEF_NM).forEach(k=>nm[k]={...DEF_NM[k],...((s.noteMarks||{})[k]||{})});Object.entries(s.noteMarks||{}).forEach(([k,v])=>{if(!nm[k])nm[k]={on:false,color:'#5b6fd6',...v}});
+const merge=s=>{s=s||{};if(!s.appName||s.appName==='生活記録')s={...s,appName:'My note'};if(s.appSubMode==null){s={...s,appSubMode:(s.appSub&&s.appSub!=='睡眠・支度・移動')?'custom':'auto'}};const nm={};Object.keys(DEF_NM).forEach(k=>nm[k]={...DEF_NM[k],...((s.noteMarks||{})[k]||{})});Object.entries(s.noteMarks||{}).forEach(([k,v])=>{if(!nm[k])nm[k]={on:false,color:'#5b6fd6',...v}});
   if(s.nmv!==2){nm['入浴'].on=false;nm['気になったこと'].on=true} /* 既定のマークを「気になったこと」に置き換え */
   return{...clone(DEF),...s,nmv:2,noteMarks:nm,features:{period:false,meds:false,events:false,share:false,body:false,hobby:false,...(s.features||{})},body:{items:['wt','fat'],height:'',goal:'',...(s.body||{})},period:{cycle:28,len:5,ovu:false,...(s.period||{})},meds:Array.isArray(s.meds)?clone(s.meds):[],events:Array.isArray(s.events)?clone(s.events):[],colors:{...DEF.colors,...(s.colors||{})},marks:{...DEF.marks,...(s.marks||{})},bg:{...DEF.bg,...(s.bg||{})},text:{...DEF.text,...(s.text||{})},look:{...DEF.look,...(s.look||{})},hobbies:Array.isArray(s.hobbies)?clone(s.hobbies):[],slots:Array.isArray(s.slots)?clone(s.slots):[]}};
 let S={days:{},settings:merge(),bgImage:null,slots:null};
@@ -1007,6 +1037,13 @@ async function initStore(){
 }
 
 /* ---------- look ---------- */
+/* 横の小さな説明：自動（直近30日でよく記録している項目から選ぶ）／自分で決める／表示しない */
+function appSubText(){const st=S.settings,m=st.appSubMode||'auto';if(m==='none')return'';if(m==='custom')return st.appSub||'';
+  const cnt={},add=k=>cnt[k]=(cnt[k]||0)+1,today=new Date();
+  for(let i=0;i<30;i++){const r=S.days[ymd(addDays(today,-i))];if(!r)continue;
+    if(r.bed||r.wake)add('睡眠');if(r.ki!=null||r.tai!=null)add('体調');if(r.commute)add('通勤');if(r.work)add('仕事');if(r.prep!=null)add('支度');
+    if(r.hobby&&hobbyTotal(r)>0)add('趣味');if(r.body&&Object.keys(r.body).length)add('からだ');if(r.period&&r.period.flow)add('月経');if(r.meds)add('お薬');if(r.other)add('自分の時間')}
+  return Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]).join('・')}
 function applyLook(){
   const st=S.settings,root=document.documentElement;
   if(st.mode==='system')delete root.dataset.mode;else root.dataset.mode=st.mode;
@@ -1019,7 +1056,7 @@ function applyLook(){
   const lk=st.look||{bright:100,sat:100,hue:0};
   root.style.setProperty('--fx',(lk.bright==100&&lk.sat==100&&!+lk.hue)?'none':'brightness('+lk.bright+'%) saturate('+lk.sat+'%) hue-rotate('+lk.hue+'deg)');
   if($('#blurNote'))$('#blurNote').hidden=!(st.bg.type!=='none'&&!(+st.bg.blur));
-  $('#appName').textContent=st.appName||'生活記録';$('#appSub').textContent=st.appSub??'';$('#appSub').hidden=!st.appSub;document.title=st.appName||'生活記録';
+  const sub=appSubText();$('#appName').textContent=st.appName||'My note';$('#appSub').textContent=sub;$('#appSub').hidden=!sub;document.title=st.appName||'My note';
   applyTextColor();
 }
 /* 文字色：自動（背景×カードの濃さから明るさを計算）／表示モードどおり／好きな色 */
@@ -1798,14 +1835,20 @@ $('#pageSel').addEventListener('change',e=>{
   const want=chartByPage[formPage]||PAGE_CHART[formPage];if(want&&KIND_NAME[want])chartKind=want;
   applyFeatures();renderChart();buildFormJump();document.getElementById('form').scrollIntoView({block:'start',behavior:'smooth'})});
 const TAB_LABEL={sleep:'睡眠',mood:'気力・体力',commute:'通勤',work:'勤務',home:'帰宅',other:'その他',prep:'朝支度',note:'特記事項',hobby:'趣味',period:'月経',meds:'お薬'};
-function renderSecTabs(){const box=$('#secTabs');if(!box)return;const r=S.days[sel];
-  const vis=[...document.querySelectorAll('#form .sec')].filter(x=>!x.hidden);
-  box.innerHTML=vis.map(se=>{const k=se.dataset.sec,open=!se.classList.contains('closed'),st=dirtySecs.has(k)?'dirty':hasSec(r,k)?'saved':'';
-    const lab=TAB_LABEL[k]||(se.querySelector('h3')||{}).textContent||k;
-    return '<button type="button" class="stab" role="tab" data-tab="'+k+'" aria-selected="'+open+'"><i class="sd '+st+'"></i>'+esc(lab)+'</button>'}).join('');
-  const on=box.querySelector('[aria-selected="true"]');if(on)box.scrollLeft=Math.max(0,on.offsetLeft-box.clientWidth/2+on.offsetWidth/2)}
-$('#secTabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;const se=document.querySelector('#form .sec[data-sec="'+b.dataset.tab+'"]');if(!se)return;
-  openOnly(se);renderSecTabs();setTimeout(()=>se.scrollIntoView({block:'start',behavior:'smooth'}),30)});
+/* 記録する項目の切り替え：プルダウン＋前後ボタン（PCでもスマホでも全項目を選べる） */
+function secList(){return[...document.querySelectorAll('#form .sec')].filter(x=>!x.hidden)}
+function renderSecTabs(){const box=$('#secTabs');if(!box)return;const r=S.days[sel],vis=secList();
+  let cur=vis.findIndex(se=>!se.classList.contains('closed'));
+  const mark=k=>dirtySecs.has(k)?'●未保存':hasSec(r,k)?'✓記録済み':(k==='note'?'なしでOK':'未記録');
+  const done=vis.filter(se=>hasSec(r,se.dataset.sec)).length;
+  box.innerHTML='<button type="button" class="secnav" data-step="-1" aria-label="前の項目"'+(cur<=0?' disabled':'')+'>‹</button>'+
+    '<label class="secpick"><span class="vh">記録する項目</span><select id="secPick">'+(cur<0?'<option value="">項目を選ぶ…</option>':'')+vis.map((se,i)=>{const k=se.dataset.sec,lab=TAB_LABEL[k]||(se.querySelector('h3')||{}).textContent||k;
+      return '<option value="'+k+'"'+(i===cur?' selected':'')+'>'+(i+1)+'. '+esc(lab)+'（'+mark(k)+'）</option>'}).join('')+'</select></label>'+
+    '<button type="button" class="secnav" data-step="1" aria-label="次の項目"'+(cur>=vis.length-1?' disabled':'')+'>›</button>'+
+    '<div class="secprog"><span>記録済み '+done+'/'+vis.length+'</span><i><u style="width:'+(vis.length?Math.round(done/vis.length*100):0)+'%"></u></i></div>';}
+function goSec(se){if(!se)return;openOnly(se);renderSecTabs();setTimeout(()=>se.scrollIntoView({block:'start',behavior:'smooth'}),30)}
+$('#secTabs').addEventListener('change',e=>{if(e.target.id!=='secPick'||!e.target.value)return;goSec(document.querySelector('#form .sec[data-sec="'+e.target.value+'"]'))});
+$('#secTabs').addEventListener('click',e=>{const b=e.target.closest('[data-step]');if(!b||b.disabled)return;const vis=secList();let i=vis.findIndex(se=>!se.classList.contains('closed'));i=Math.max(0,Math.min(vis.length-1,i+ +b.dataset.step));goSec(vis[i])});
 function buildFormJump(){setTimeout(renderSecTabs,0);const opts=[['','項目へ移動…']];
   if(!$('#patternBar').hidden)opts.push(['patternBar','勤務パターンで入力']);
   document.querySelectorAll('#form .sec').forEach(sec=>{if(sec.hidden)return;const h=sec.querySelector('h3');if(h)opts.push([sec.dataset.sec,h.textContent])});
@@ -1877,14 +1920,14 @@ $('#bkCopy').onclick=()=>{const t=JSON.stringify(backupObj());
   const ok=()=>toast('引き継ぎ用の文字をコピーしました（'+Math.round(t.length/1024)+'KB）。メモやメールで別の端末に送って貼り付けてください');
   const fb=()=>{const ta=$('#bkPaste');ta.value=t;ta.focus();ta.select();let r=false;try{r=document.execCommand('copy')}catch(e){}r?ok():toast('自動でコピーできませんでした。下の欄の文字を全部選んでコピーしてください')};
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb()};
-$('#bkFile').onclick=async()=>{const t=JSON.stringify(backupObj(),null,1),name='生活記録_バックアップ_'+ymd(new Date())+'.json';
+$('#bkFile').onclick=async()=>{const t=JSON.stringify(backupObj(),null,1),name=(S.settings.appName||'My note')+'_バックアップ_'+ymd(new Date())+'.json';
   let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
   if(dl){try{await dl.save({filename:name,data:new Blob([t],{type:'application/json'})});toast('バックアップを保存しました')}catch(e){toast(e&&e.code==='declined'?'保存をやめました':'保存できませんでした。「引き継ぎ用の文字をコピー」をお使いください')}return}
   if(window.claude){toast('この画面ではファイルを保存できません。「引き継ぎ用の文字をコピー」をお使いください');return}
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast('バックアップを保存しました')};
 let bkPending=null;
 function restoreFrom(text){let o;try{o=JSON.parse(text)}catch(e){showBk('読み込めませんでした。コピーした文字を最初から最後まで全部貼り付けてください。');return}
-  if(!o||o.app!=='seikatsu-kiroku'||typeof o.days!=='object'){showBk('生活記録のバックアップではないようです。');return}
+  if(!o||o.app!=='seikatsu-kiroku'||typeof o.days!=='object'){showBk('このアプリのバックアップではないようです。');return}
   const n=Object.keys(o.days).length;
   if(bkPending!==text){bkPending=text;showBk('バックアップ（'+(o.at||'').slice(0,10)+'・記録'+n+'日分）を読み込みます。いまのこの端末の記録・設定は置き換わります。よければもう一度ボタンを押してください。');return}
   bkPending=null;$('#bkWarn').hidden=true;
@@ -1894,7 +1937,7 @@ function restoreFrom(text){let o;try{o=JSON.parse(text)}catch(e){showBk('読み�
 function showBk(m){const w=$('#bkWarn');w.textContent=m;w.hidden=false}
 $('#bkFromText').onclick=()=>{const t=$('#bkPaste').value.trim();if(!t){toast('引き継ぎ用の文字を貼り付けてください');return}restoreFrom(t)};
 $('#bkFileIn').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{bkPending=null;restoreFrom(String(rd.result));if(bkPending)toast('内容を確認して、もう一度「ファイルから復元」で同じファイルを選んでください')};rd.readAsText(f)});
-function renderFeatSettings(){renderSyncNote();renderTextSettings();renderSlots();$('#nmTitle').value=S.settings.appName||'生活記録';$('#nmSub').value=S.settings.appSub??'';renderTagSettings();renderLook();renderHobbySettings();$('#featHobby').hidden=!S.settings.features.hobby;const st=S.settings,f=st.features;
+function renderFeatSettings(){renderSyncNote();renderTextSettings();renderSlots();$('#nmTitle').value=S.settings.appName||'My note';$('#nmSub').value=S.settings.appSub??'';renderSubMode();renderTagSettings();renderLook();renderHobbySettings();$('#featHobby').hidden=!S.settings.features.hobby;const st=S.settings,f=st.features;
   document.querySelectorAll('[data-feat]').forEach(c=>c.checked=!!f[c.dataset.feat]);
   $('#featPeriod').hidden=!f.period;$('#featBody').hidden=!f.body;
   $('#bodyPick').innerHTML=BODY.map(b=>'<div class="bprow"><label><input type="checkbox" data-bp="'+b.k+'"'+((st.body.items||[]).includes(b.k)||(b.k==='bt'&&f.period)?' checked':'')+(b.k==='bt'&&f.period?' disabled':'')+'>'+b.name+'</label><select data-bpp="'+b.k+'" aria-label="'+b.name+'を記録するページ">'+PAGES.filter(([k])=>k!=='life').map(([k,n])=>'<option value="'+k+'"'+(purposeOf(b.k)===k?' selected':'')+'>'+n+'</option>').join('')+'</select></div>').join('');
@@ -2097,13 +2140,13 @@ function exportText(){
     const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
     const ki=avg(rec.map(k=>S.days[k].ki).filter(v=>v!=null)),tai=avg(rec.map(k=>S.days[k].tai).filter(v=>v!=null));
     const wk=avg(rec.map(k=>workLen(S.days[k])).filter(v=>v!=null));
-    out.push('■ 生活記録 '+md(ks[0])+'〜'+md(ks[ks.length-1]));
+    out.push('■ '+(S.settings.appName||'My note')+' '+md(ks[0])+'〜'+md(ks[ks.length-1]));
     out.push('記録した日：'+rec.length+'／'+ks.length+'日');
     if(ex.items.sleep)out.push('平均睡眠：'+(lens.length?dur(avg(lens)):'—')+'（寝支度 平均'+avgTime(ss.map(x=>off(x.ba)).filter(v=>v!=null))+'・起床 平均'+avgTime(ss.map(x=>off(x.wa)).filter(v=>v!=null))+'）');
     if(ex.items.mood)out.push('平均 気力：'+(ki??'—')+'% ／ 体力：'+(tai??'—')+'%');
     if(ex.items.work&&wk!=null)out.push('平均勤務時間：'+dur(wk));
     out.push('');
-  }else out.push('■ 生活記録'+(ex.range==='day'?'':' '+md(ks[0])+'〜'+md(ks[ks.length-1])));
+  }else out.push('■ '+(S.settings.appName||'My note')+(ex.range==='day'?'':' '+md(ks[0])+'〜'+md(ks[ks.length-1])));
   if(!blocks.length)out.push('この期間に記録はありません。');
   out.push(blocks.map(b=>b.join('\n')).join('\n\n'));
   return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
@@ -2195,7 +2238,7 @@ $('#tbCopy').onclick=()=>{const{head,rows}=tbData();const t=[head,...rows].map(r
   const fb=()=>{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();let r=false;try{r=document.execCommand('copy')}catch(e){}ta.remove();r?ok():toast('コピーできませんでした。CSVファイルを保存してください')};
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb()};
 $('#tbCsv').onclick=async()=>{const{head,rows}=tbData();const q=c=>/[",\n]/.test(c)?'"'+c.replace(/"/g,'""')+'"':c;
-  const csv='﻿'+[head,...rows].map(r=>r.map(q).join(',')).join('\r\n');const ks=tbDays(),name='生活記録_'+ks[0]+'_'+ks[ks.length-1]+'.csv';
+  const csv='﻿'+[head,...rows].map(r=>r.map(q).join(',')).join('\r\n');const ks=tbDays(),name=(S.settings.appName||'My note')+'_'+ks[0]+'_'+ks[ks.length-1]+'.csv';
   let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
   if(dl){try{await dl.save({filename:name,data:new Blob([csv],{type:'text/csv'})});toast('CSVファイルを保存しました')}catch(e){toast(e&&e.code==='declined'?'保存をやめました':'保存できませんでした。「表をコピー」をお使いください')}return}
   if(window.claude){toast('この画面ではファイルを保存できません。「表をコピー」をお使いください');return}
@@ -2215,8 +2258,46 @@ function switchSlot(i){const sl=ensureSlots();if(i===sl.active)return;
 $('#slotSel').addEventListener('change',e=>switchSlot(+e.target.value));
 $('#slotQuick').addEventListener('change',e=>switchSlot(+e.target.value));
 $('#slotName').addEventListener('change',e=>{const sl=ensureSlots(),cur=sl.list[sl.active];cur.name=e.target.value.trim()||'スロット'+(sl.active+1);put('slots',S.slots);renderSlots();toast('スロット名を「'+cur.name+'」にしました')});
-$('#nmTitle').addEventListener('change',e=>{S.settings.appName=e.target.value.trim()||'生活記録';e.target.value=S.settings.appName;applyLook();saveSettings()});
-$('#nmSub').addEventListener('change',e=>{S.settings.appSub=e.target.value.trim();applyLook();saveSettings()});
+function renderSubMode(){const m=S.settings.appSubMode||'auto';document.querySelectorAll('#nmSubMode [data-sm]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.sm===m));
+  $('#nmSub').hidden=m!=='custom';$('#nmSubHint').textContent=m==='auto'?'いまの表示：'+(appSubText()||'（まだ記録がないので表示なし）')+'。よく記録している項目に合わせて自動で変わります。':m==='custom'?'入れた言葉をそのまま表示します。':'タイトルだけを表示します。'}
+$('#nmSubMode').onclick=e=>{const b=e.target.closest('[data-sm]');if(!b)return;S.settings.appSubMode=b.dataset.sm;renderSubMode();applyLook();saveSettings()};
+$('#nmTitle').addEventListener('change',e=>{S.settings.appName=e.target.value.trim()||'My note';e.target.value=S.settings.appName;applyLook();saveSettings()});
+$('#nmSub').addEventListener('change',e=>{S.settings.appSub=e.target.value.trim();renderSubMode();applyLook();saveSettings()});
+/* ---------- 使い方ガイド（どこを押すと何ができるか） ---------- */
+const HELP=[
+ ['記録する',[
+  ['いまの時刻で寝支度・起床を記録したい','画面の一番上のカードで「今の時刻で記録」を押すだけです。時刻を直したいときは、時刻を変えてから押します。','main','input','#qBedBtn'],
+  ['別の日の記録を見る・直したい','記録フォームの日付の左右にある ‹ › で日を移動します。カレンダーで日付を押しても移動できます。','main','input','#dPrev'],
+  ['入力する項目を切り替えたい','日付の下のプルダウン（例：「1. 睡眠（未記録）」）で項目を選びます。‹ › で前後の項目に順に進めます。どこまで記録したかは「記録済み ○/○」で分かります。','main','input','#secTabs'],
+  ['よく使う時刻や数値をワンタップで入れたい','入力欄の下に並ぶ「23:00」「50%」などのボタンを押すと、その値が入ります。候補は「設定 → 入力候補ボタン」で変えられます。','main','input','#form .qchips'],
+  ['まとめて保存したい・間違えたので戻したい','「まとめて記録」で表示中の項目をまとめて保存します。「↶ 戻す」で直前の変更を取り消せます。右上の時計ボタンでは過去の変更履歴から戻せます。','main','input','#barSaveAll'],
+  ['通勤と勤務時間をいっぺんに入れたい','「勤務パターンでまとめて入力」のボタンを押すと、通勤と勤務の時刻が一度に入ります。パターンは「設定 → 通勤・勤務パターン」で登録します。','main','input','#patternBar'],
+  ['ダイエット・月経・趣味などを記録したい','「設定 → 使う機能」でオンにすると、記録フォームの上に「記録するページ」が出ます。そこで目的別のページに切り替えます。','settings',null,'#sg0']]],
+ ['見る・振り返る',[
+  ['カレンダーで記録を見たい','記録タブ上部の「カレンダー」を押します。印（点）の意味はカレンダーの下に出ます。どの記録に印を付けるかは「設定 → カレンダーの印」で選べます。','main','cal','#legend'],
+  ['グラフで変化を見たい','「グラフ・分析」を押し、左上のプルダウンでグラフの種類（睡眠・気力・体重など）を選びます。「選んだ項目を重ねる」で好きな組み合わせも作れます。','main','graph','#chartKind'],
+  ['Excelやスプレッドシートに出したい','「グラフ・分析」の「表に書き出す」から、表のコピーやCSVの保存ができます。','main','graph','#openTable'],
+  ['記録の抜けを確認したい','下の「記録状況」タブで、記録を始めた日と、記録が抜けている日・期間が分かります。','status',null,'.tabs [data-page=status]']]],
+ ['自分好みにする',[
+  ['名前や見た目を変えたい','「設定 → アプリの名前」でタイトルを変えられます。「画面の見え方」「背景」「文字の色」で明るさ・背景画像・文字色を変えられます。','settings',null,'#sgName'],
+  ['特記事項のボタンを増やしたい・消したい','「設定 → 特記事項のボタン」で、ボタンの追加・削除・名前・答えの候補を自由に編集できます。','settings',null,'#sgTags'],
+  ['仕事の日用・休みの日用など設定を切り替えたい','設定タブ一番上の「セーブスロット」で、設定一式を最大10個まで保存・切り替えできます。記録データはどのスロットでも共通です。','settings',null,'#slotSel'],
+  ['PCとスマホで同じ記録を見たい・バックアップしたい','「設定 → データの引き継ぎ」を開くと、いまの同期状態と、引き継ぎ・バックアップの方法が出ます。','settings',null,'#sgData']]]];
+function renderHelp(){$('#helpList').innerHTML=HELP.map(([g,items],gi)=>'<div class="hgrp"><h4>'+g+'</h4>'+items.map(([t,d],i)=>'<details class="htopic"><summary>'+esc(t)+'</summary><div><span>'+esc(d)+'</span><div><button type="button" class="btn ghost sm" data-hgo="'+gi+'-'+i+'">その場所を見る</button></div></div></details>').join('')+'</div>').join('')}
+function spotlight(selector){const el=document.querySelector(selector);if(!el){toast('この場所はいまの設定では表示されていません');return}
+  const det=el.closest('details');if(det)det.open=true;if(el.tagName==='DETAILS')el.open=true;
+  el.scrollIntoView({block:'center',behavior:'smooth'});el.classList.add('spot');setTimeout(()=>el.classList.remove('spot'),3800)}
+$('#openHelp').onclick=()=>{renderHelp();openSheet('#help');try{localStorage.setItem('nemuri-helpseen','1')}catch(e){}const t=document.getElementById('firstTip');if(t)t.remove()};
+$('#closeHelp').onclick=()=>closeSheet('#help');
+$('#help').addEventListener('click',e=>{if(e.target.id==='help'){closeSheet('#help');return}const b=e.target.closest('[data-hgo]');if(!b)return;
+  const[gi,i]=b.dataset.hgo.split('-').map(Number),[,,pg,vw,selr]=HELP[gi][1][i];closeSheet('#help');
+  if(pg)showPage(pg);if(vw&&typeof showView==='function')showView(vw);setTimeout(()=>spotlight(selr),250)});
+/* 初めて開いた人に一度だけ案内 */
+(()=>{let seen=false;try{seen=!!localStorage.getItem('nemuri-helpseen')}catch(e){}if(seen)return;
+  const tip=document.createElement('div');tip.className='firsttip';tip.id='firstTip';
+  tip.innerHTML='<span>はじめての方へ：右上の <b>？</b> を押すと、どこを押すと何ができるかの説明が見られます。</span><button type="button" class="btn ghost sm">閉じる</button>';
+  tip.querySelector('button').onclick=()=>{tip.remove();try{localStorage.setItem('nemuri-helpseen','1')}catch(e){}};
+  const pm=document.getElementById('pageMain');if(pm)pm.insertBefore(tip,pm.firstChild)})();
 $('#openHist').onclick=()=>{renderHist();openSheet('#hist')};
 $('#closeHist').onclick=()=>closeSheet('#hist');
 $('#hist').addEventListener('click',e=>{if(e.target.id==='hist'){closeSheet('#hist');return}
@@ -2275,7 +2356,7 @@ $('#addHobby').onclick=()=>{const hs=S.settings.hobbies;hs.push({id:'y'+Date.now
 $('#hobbySet').addEventListener('input',e=>{const c=e.target.closest('[data-hid]');if(!c)return;const h=S.settings.hobbies.find(x=>x.id===c.dataset.hid),f=e.target.dataset.hf;if(!h||!f)return;h[f]=f==='goal'?+e.target.value:e.target.value;featSave()});
 $('#hobbySet').addEventListener('change',e=>{const c=e.target.closest('[data-hid]');if(!c)return;const h=S.settings.hobbies.find(x=>x.id===c.dataset.hid),f=e.target.dataset.hf;if(h&&f==='goal'){h.goal=+e.target.value;featSave()}});
 $('#hobbySet').addEventListener('click',e=>{const c=e.target.closest('[data-hid]');if(!c||!e.target.closest('[data-hdel]'))return;S.settings.hobbies=S.settings.hobbies.filter(x=>x.id!==c.dataset.hid);renderHobbySettings();featSave()});
-function render(withForm){if($('#slotQuick')&&!render.sl){render.sl=1;setTimeout(renderSlots,0)}PM=periodModel();setTimeout(renderSelDay,0);applyFeatures();renderUpcoming();renderHobbyCard();renderQuick();renderCal();renderChart();if(withForm)fillForm();if(page==='status')renderStatus();renderFavs()}
+function render(withForm){{const sub=appSubText();$('#appSub').textContent=sub;$('#appSub').hidden=!sub}if($('#slotQuick')&&!render.sl){render.sl=1;setTimeout(renderSlots,0)}PM=periodModel();setTimeout(renderSelDay,0);applyFeatures();renderUpcoming();renderHobbyCard();renderQuick();renderCal();renderChart();if(withForm)fillForm();if(page==='status')renderStatus();renderFavs()}
 
 /* ---------- よく使う値（候補ボタン） ---------- */
 const FAV={
