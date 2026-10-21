@@ -348,6 +348,13 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .hstep{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:6px;align-items:center}
 .hstep button{min-height:44px;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;font-size:1.1rem}
 .hstep output{text-align:center;font-family:var(--mono);font-size:1.15rem}
+.hses{display:grid;gap:6px}
+.hsrow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto 40px;gap:6px;align-items:center}
+.hsrow input{min-width:0;width:100%}
+.hsrow .xbtn{width:40px;height:40px}
+.hsinfo{display:flex;justify-content:space-between;gap:8px;font-size:.78rem;color:var(--muted)}
+.hsinfo b{color:var(--ink);font-family:var(--mono)}
+.hsadd{justify-self:start}
 .hadd{display:flex;flex-wrap:wrap;gap:6px}
 .hadd button{border:1px solid var(--line);background:transparent;border-radius:16px;padding:5px 12px;min-height:36px;font-size:.82rem}
 .hgoal{display:grid;gap:10px}
@@ -903,7 +910,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
       <div id="hobbyRows"></div>
       <input type="text" id="fHobbyMemo" placeholder="ひとことメモ（例：ギターで新しい曲を1曲通せた）" aria-label="趣味のメモ">
       <div class="warnbox" id="w-hobby" hidden></div>
-      <div class="secfoot"><button class="btn ghost" id="hobbyClear">この日の時間を0にする</button><button class="btn" data-save="hobby">趣味の時間を記録</button></div>
+      <div class="secfoot"><button class="btn ghost" id="hobbyClear">この日の時間をすべて消す</button><button class="btn" data-save="hobby">趣味の時間を記録</button></div>
     </div>
 
     <div class="sec" data-sec="note">
@@ -1501,7 +1508,7 @@ let mainView='input';try{mainView=localStorage.getItem('nemuri-view')||'input'}c
 function showView(v){const _b=curLoc();mainView=v;try{localStorage.setItem('nemuri-view',v)}catch(e){}
   document.querySelectorAll('#viewSeg [data-v]').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v));
   document.querySelectorAll('#pageMain [data-view]').forEach(el=>el.classList.toggle('offview',el.dataset.view!==v));
-  if(v==='cal')setTimeout(()=>renderSelDay(),0);
+  if(v==='cal')setTimeout(()=>renderSelDay(),0);if(v==='graph')renderChart(); /* グラフは表示したときに最新の記録で描き直す */
   window.scrollTo(0,0);uhNav(_b)}
 $('#viewSeg').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)showView(b.dataset.v)});
 $('#dPrev').onclick=()=>selectDate(ymd(addDays(parse(sel),-1)));
@@ -1803,7 +1810,10 @@ function daySegs(k){const out=[],add=(a,b,kind,label,color)=>{if(a==null||b==nul
     if(i.plan!=null&&i.plan>we)add(we,i.plan,'move','移動');if(i.actual!=null&&i.plan!=null&&i.actual>i.plan)add(i.plan,i.actual,'late')}}
   if(rp&&rp.work){const we=workEndAbs(rp.work);if(we!=null&&we>1440){add(0,we-1440,'work');const i=homeInfo(rp);if(i.plan!=null&&i.plan>we)add(we-1440,i.plan-1440,'move','移動')}} /* 前日からの夜勤 */
   if(r.other&&Array.isArray(r.other.items))r.other.items.forEach(it=>{const c=span(toMin(it.start),toMin(it.end));if(c)add(c[0],c[1],'act',it.name||'その他',actColor(it.name||'その他'))});
-  if(FEAT().hobby&&r.hobby&&r.hobby.min)Object.entries(r.hobby.min).forEach(([id,m])=>{const at=toMin((r.hobby.at||{})[id]);const h=S.settings.hobbies.find(x=>x.id===id);if(at!=null&&m>0)add(at,at+(+m),'act',h?h.name:'趣味',h&&h.color||'var(--c-hobby)')});
+  if(FEAT().hobby){const hinfo=id=>{const h=S.settings.hobbies.find(x=>x.id===id);return[h?h.name:'趣味',h&&h.color||'var(--c-hobby)']};
+    if(r.hobby&&Array.isArray(r.hobby.ses))r.hobby.ses.forEach(x=>{const c=span(toMin(x.start),toMin(x.end));if(c)add(c[0],c[1],'act',...hinfo(x.id))});
+    else if(r.hobby&&r.hobby.min)Object.entries(r.hobby.min).forEach(([id,m])=>{const at=toMin((r.hobby.at||{})[id]);if(at!=null&&m>0)add(at,at+(+m),'act',...hinfo(id))});
+    if(rp&&rp.hobby&&Array.isArray(rp.hobby.ses))rp.hobby.ses.forEach(x=>{const c=span(toMin(x.start),toMin(x.end));if(c&&c[1]>1440)add(0,c[1]-1440,'act',...hinfo(x.id))})} /* 前日から日をまたいだ分も */
   CX().forEach(c=>{const nm=c.name||'項目',col=c.color||'#7a7f2a',v=(r.cx||{})[c.id],pv=((rp||{}).cx||{})[c.id];
     if(v){const sp=span(toMin(v.start),toMin(v.end));if(sp)add(sp[0],sp[1],'act',nm,col)}
     if(pv){const sp=span(toMin(pv.start),toMin(pv.end));if(sp&&sp[1]>1440)add(0,sp[1]-1440,'act',nm,col)}}); /* 自分で追加した時間（前日からまたぐ分も） */
@@ -2002,7 +2012,7 @@ function fillSec(sec){
     $('#commuteTimes').hidden=!c.slot&&!c.dep;commuteHint();
   }else if(sec==='other'){const o=r.other||{};renderActRows(o.items||[]);F.omemo.value=o.memo||''}
   else if(sec==='work'){const w=r.work||{};F.ws.value=w.start||'';F.we.value=w.end||'';F.ws.dataset.pattern=w.pattern||'';workHint()}
-  else if(sec==='hobby'){const h=r.hobby||{};hobbyState=clone(h.min||{});hobbyAt=clone(h.at||{});$('#fHobbyMemo').value=h.memo||'';renderHobbyForm()}
+  else if(sec==='hobby'){const h=r.hobby||{};hobbySes=hobbySesOf(h);$('#fHobbyMemo').value=h.memo||'';renderHobbyForm()}
   else if(sec==='period'){const pr=r.period||{};perFlow=pr.flow||'';perSym=new Set(pr.sym||[]);renderPeriodForm();renderPerLinks()}
   else if(sec==='body'){bodyVals=clone(r.body||{});renderBodyForm()}
   else if(sec==='meds'){medsState=clone(r.meds||{});renderMedsForm()}
@@ -2193,6 +2203,11 @@ function checkSec(sec){
     if(!any&&CX().some(c=>((S.days[sel]||{}).cx||{})[c.id]))warn.push('空なので、この日の記録を消します');}
   if(sec==='cn'){let any=false;CN().forEach(c=>{const v=cnState[c.id];if(v===''||v==null)return;const nm='「'+(c.name||'項目')+'」';if(cnMode(c)==='count'){if(+v===0)return;any=true;if(!Number.isInteger(+v)||+v<0)err.push(nm+'の回数は0以上の整数で入れてください');else if(+v>100)warn.push(nm+'が '+v+'回 になっています');return}any=true;if(!Number.isFinite(+v))err.push(nm+'は数字で入れてください')});
     if(!any&&CN().some(c=>((S.days[sel]||{}).cn||{})[c.id]!=null))warn.push('空なので、この日の記録を消します');}
+  if(sec==='hobby'){const nm=id=>{const h=S.settings.hobbies.find(x=>x.id===id);return'「'+(h&&h.name||'趣味')+'」'};let tot=0;
+    hobbySes.forEach(x=>{const a=toMin(x.start),b=toMin(x.end);if((a==null)!==(b==null))warn.push(nm(x.id)+'の開始か終了の片方が空です（その行は記録しません）');
+      if(a!=null&&b!=null){const len=(b-a+1440)%1440;tot+=len;if(len===0)warn.push(nm(x.id)+'の開始と終了が同じ時刻です');else if(len>12*60)warn.push(nm(x.id)+'が '+dur(len)+' になっています（開始と終了が逆かもしれません）')}});
+    if(tot>16*60)warn.push('趣味の時間の合計が '+dur(tot)+' あります');
+    if(!hobbySes.some(x=>actLen(x)||x.legacy>0)&&!$('#fHobbyMemo').value.trim()&&hasSec(S.days[sel],'hobby'))warn.push('空なので、この日の趣味の時間の記録を消します');}
   if(sec==='note'&&!F.note.value.trim()&&hasSec(S.days[sel],'note'))warn.push('空なので、この日の特記事項を消します');
   return{err,warn};
 }
@@ -2212,7 +2227,11 @@ function buildPatch(sec){
     Object.entries(bodyVals).forEach(([k,v])=>{if(v===''||v==null)return;const n=+v;if(!Number.isFinite(n))return;if(keep.has(k))o[k]=n});
     const old=(S.days[sel]||{}).body||{};Object.entries(old).forEach(([k,v])=>{if(!keep.has(k)&&o[k]==null)o[k]=v}); /* 表示していない項目の記録は残す */
     if(Object.keys(o).length)patch.body=o}
-  if(sec==='hobby'){const m={};Object.entries(hobbyState).forEach(([k,v])=>{if(+v>0)m[k]=Math.round(+v)});const memo=$('#fHobbyMemo').value.trim();const at={};Object.keys(m).forEach(k=>{if(hobbyAt[k])at[k]=hobbyAt[k]});if(Object.keys(m).length||memo)patch.hobby={min:m,at,memo}}
+  if(sec==='hobby'){const ses=[],m={},at={},memo=$('#fHobbyMemo').value.trim();
+    hobbySes.forEach(x=>{if(!S.settings.hobbies.some(h=>h.id===x.id))return;const len=actLen(x);
+      if(len){ses.push({id:x.id,start:x.start,end:x.end});m[x.id]=(m[x.id]||0)+len;if(!at[x.id]||x.start<at[x.id])at[x.id]=x.start}
+      else if(!x.start&&!x.end&&x.legacy>0)m[x.id]=(m[x.id]||0)+x.legacy}); /* 時刻のない以前の記録（分のみ）はそのまま残す */
+    if(ses.length||Object.keys(m).length||memo)patch.hobby={ses,min:m,at,memo}}
   if(sec==='period'&&(perFlow||perSym.size))patch.period={flow:perFlow,sym:[...perSym]};
   if(sec==='meds'){const o={};Object.entries(medsState).forEach(([id,t])=>{const tt={};Object.entries(t||{}).forEach(([k,v])=>{if(v)tt[k]=true});if(Object.keys(tt).length)o[id]=tt});if(Object.keys(o).length)patch.meds=o}
   if(sec==='home'){const h={};if(F.home.value)h.time=F.home.value;if($('#fHomePlanIn').value)h.plan=$('#fHomePlanIn').value;if(homeCat)h.cat=homeCat;if(F.homeWhy.value.trim())h.reason=F.homeWhy.value.trim();if(Object.keys(h).length)patch.home=h}
@@ -2859,20 +2878,36 @@ function renderUpcoming(){
     return '<div class="up"><span class="ud">'+md(it.k)+'</span><span class="ul"><i style="background:'+it.c+'"></i>'+esc(it.t)+'</span><span class="ua">'+(it.a?esc(it.a)+'　':'')+(dd===0?'今日':dd===1?'明日':dd>0?dd+'日後':'')+'</span></div>'}).join(''):'<p class="empty" style="margin:0">これから60日の予定はありません。</p>';
 }
 /* ---------- 趣味・自分の時間 ---------- */
-let hobbyState={},hobbyAt={};
+let hobbySes=[];
+/* 記録の形：hobby.ses=[{id,start,end}]（1日に何回でも）。min（合計分）・at（最初の開始）も一緒に残すので、週の集計などはそのまま使える */
+function hobbySesOf(h){if(!h)return[];if(Array.isArray(h.ses))return clone(h.ses);
+  return Object.entries(h.min||{}).filter(([,m])=>+m>0).map(([id,m])=>{const a=toMin((h.at||{})[id]);return a!=null?{id,start:(h.at||{})[id],end:hm((a+(+m))%1440)}:{id,start:'',end:'',legacy:+m}})}
 const hobbyTotal=r=>r&&r.hobby&&r.hobby.min?Object.values(r.hobby.min).reduce((a,b)=>a+(+b||0),0):0;
-const hobbyText=r=>Object.entries((r.hobby||{}).min||{}).filter(([,m])=>m>0).map(([id,m])=>{const h=S.settings.hobbies.find(x=>x.id===id);return(h?h.name:'趣味')+' '+m+'分'}).join('、');
+const hobbyText=r=>{const h=r.hobby||{},hs=S.settings.hobbies,nm=id=>{const x=hs.find(y=>y.id===id);return x?x.name:'趣味'};
+  if(Array.isArray(h.ses)&&h.ses.length){const g={};h.ses.forEach(x=>{(g[x.id]=g[x.id]||[]).push(x.start+'〜'+x.end)});
+    return Object.entries(g).map(([id,L])=>nm(id)+' '+L.join('・')+'（計'+durHM(+(h.min||{})[id]||0)+'）').join('、')}
+  return Object.entries(h.min||{}).filter(([,m])=>m>0).map(([id,m])=>nm(id)+' '+m+'分').join('、')};
 const durHM=m=>m>=60?Math.floor(m/60)+'時間'+(m%60?m%60+'分':''):m+'分';
 function renderHobbyForm(){const hs=S.settings.hobbies;
-  $('#hobbyRows').innerHTML=hs.length?hs.map(h=>{const v=+hobbyState[h.id]||0;return '<div class="hrow" data-hid="'+h.id+'"><div class="hh"><b><i style="background:'+(h.color||'#2e9e6a')+'"></i>'+esc(h.name||'趣味')+'</b><span class="hint">'+(h.goal?'週の目標 '+durHM(h.goal):'')+'</span></div>'+
-    '<div class="hstep"><button type="button" data-hd="-15" aria-label="15分減らす">−</button><output>'+durHM(v)+'</output><button type="button" data-hd="15" aria-label="15分増やす">＋</button></div>'+
-    '<div class="hadd">'+favList('hobby').map(m=>'<button type="button" data-hset="'+m+'">'+durHM(m)+'</button>').join('')+'</div>'+
-    '<label class="hat"><span>何時から（任意・タイムラインに表示）</span><input type="time" data-hat="'+h.id+'" value="'+(hobbyAt[h.id]||'')+'"></label></div>'}).join(''):'<p class="hint" style="margin:0">設定タブの「使う機能」→「趣味・自分の時間」で、趣味を登録してください（例：読書・ゲーム・ギター・散歩）。</p>'}
-$('#hobbyRows').addEventListener('click',e=>{const row=e.target.closest('[data-hid]');if(!row)return;const id=row.dataset.hid;let v=+hobbyState[id]||0;
-  const d=e.target.closest('[data-hd]'),st=e.target.closest('[data-hset]');if(d)v=Math.max(0,Math.min(1440,v+ +d.dataset.hd));else if(st)v=+st.dataset.hset;else return;
-  hobbyState[id]=v;renderHobbyForm();markDirty('hobby')});
-$('#hobbyRows').addEventListener('input',e=>{const k=e.target.dataset.hat;if(!k)return;hobbyAt[k]=e.target.value;markDirty('hobby')});
-$('#hobbyClear').onclick=()=>{hobbyState={};renderHobbyForm();markDirty('hobby')};
+  $('#hobbyRows').innerHTML=hs.length?hs.map(h=>{const rows=hobbySes.map((x,i)=>[x,i]).filter(([x])=>x.id===h.id);const tot=rows.reduce((a,[x])=>a+(actLen(x)||(!x.start&&!x.end?x.legacy||0:0)),0);
+    return '<div class="hrow" data-hid="'+h.id+'"><div class="hh"><b><i style="background:'+esc(h.color||'#2e9e6a')+'"></i>'+esc(h.name||'趣味')+'</b><span class="hint">'+(h.goal?'週の目標 '+durHM(h.goal):'')+'</span></div>'+
+      '<div class="hses">'+rows.map(([x,i])=>{const len=actLen(x);return '<div class="hsrow" data-si="'+i+'"><input type="time" data-sf="start" value="'+esc(x.start||'')+'" aria-label="'+esc(h.name||'趣味')+'の開始"><span>〜</span><input type="time" data-sf="end" value="'+esc(x.end||'')+'" aria-label="'+esc(h.name||'趣味')+'の終了"><button type="button" class="btn ghost sm" data-snow>今</button><button type="button" class="xbtn" data-sdel aria-label="この時間を消す">×</button></div>'+
+        (len?'':!x.start&&!x.end&&x.legacy?'<span class="hint" style="margin:0">以前の記録：'+durHM(x.legacy)+'（時刻なし）。時刻を入れると置き換わります</span>':'')}).join('')+'</div>'+
+      '<div class="hsinfo"><button type="button" class="btn ghost sm hsadd" data-sadd>＋ 時間を追加'+(rows.length?'（'+(rows.length+1)+'回目）':'')+'</button><span>この日の合計 <b>'+durHM(tot)+'</b></span></div>'+
+      '<div class="hadd" aria-label="長さの候補（開始から終わりを入れる）">'+favList('hobby').map(m=>'<button type="button" data-hset="'+m+'">'+durHM(m)+'</button>').join('')+'</div></div>'}).join('')+
+    '<p class="hint" style="margin:0">何時から何時までを入れます。1日に2回以上あったときは「＋ 時間を追加」で行を増やせます。「今」は、開始が空なら開始に、入っていれば終了に今の時刻を入れます。長さのボタン（30分など）は、開始が入っている行の終わりを自動で入れます（開始が空なら、今を終わりとして逆算します）。</p>':
+    '<p class="hint" style="margin:0">設定タブの「使う機能」→「趣味・自分の時間」で、趣味を登録してください（例：読書・ゲーム・ギター・散歩）。</p>'}
+$('#hobbyRows').addEventListener('click',e=>{const row=e.target.closest('[data-hid]');if(!row)return;const id=row.dataset.hid,sr=e.target.closest('[data-si]'),x=sr?hobbySes[+sr.dataset.si]:null;
+  if(e.target.closest('[data-sadd]')){hobbySes.push({id,start:'',end:''});renderHobbyForm();const ins=document.querySelectorAll('#hobbyRows [data-hid="'+id+'"] [data-sf=start]');if(ins.length)ins[ins.length-1].focus();return}
+  if(x&&e.target.closest('[data-sdel]')){hobbySes.splice(+sr.dataset.si,1);renderHobbyForm();markDirty('hobby');return}
+  if(x&&e.target.closest('[data-snow]')){const t=nowHM();if(!x.start)x.start=t;else if(!x.end)x.end=t;else{x.start=t;x.end=''}delete x.legacy;renderHobbyForm();markDirty('hobby');return}
+  const st=e.target.closest('[data-hset]');if(st){const m=+st.dataset.hset;let t=[...hobbySes].reverse().find(y=>y.id===id&&y.start&&!y.end)||[...hobbySes].reverse().find(y=>y.id===id&&!y.start&&!y.end);
+    if(!t){t={id,start:'',end:''};hobbySes.push(t)}delete t.legacy;
+    if(t.start)t.end=hm((toMin(t.start)+m)%1440);else{const n=toMin(nowHM());t.end=nowHM();t.start=hm((n-m+1440)%1440)}
+    renderHobbyForm();markDirty('hobby')}});
+$('#hobbyRows').addEventListener('change',e=>{const sr=e.target.closest('[data-si]'),f=e.target.dataset.sf;if(!sr||!f)return;const x=hobbySes[+sr.dataset.si];x[f]=e.target.value;delete x.legacy;renderHobbyForm();markDirty('hobby')});
+$('#hobbyRows').addEventListener('input',e=>{const sr=e.target.closest('[data-si]'),f=e.target.dataset.sf;if(!sr||!f)return;hobbySes[+sr.dataset.si][f]=e.target.value;markDirty('hobby')});
+$('#hobbyClear').onclick=()=>{hobbySes=[];renderHobbyForm();markDirty('hobby')};
 function renderHobbyCard(){const f=FEAT(),card=$('#hobbyCard');card.hidden=!f.hobby||formPage!=='hobby';
   if(card.hidden)return;
   if(!S.settings.hobbies.length){$('#hobbyTitle').textContent='趣味・自分の時間';$('#hobbySum').innerHTML='<p class="hint" style="margin:0">設定タブの「使う機能」→「趣味・自分の時間」で趣味を登録すると、週ごとの合計や目標の進み具合がここに出ます。</p>';return}
