@@ -15,7 +15,7 @@
 <style>
 /* Layout: one narrow column for the phone; sticky header, calendar → sleep chart → day form. Night indigo + dawn amber. */
 :root{
-  --bg:#eceff5; --surface-solid:#ffffff; --surface-2:#f3f5f9; --ink:#1b2233; --muted:#5f6a82; --line:#d6dbe6;
+  --bg:#eceff5; --surface-solid:#ffffff; --surface-2:#f3f5f9; --ink:#1b2233; --muted:#4b5569; --line:#d6dbe6;
   --accent:#3d4fa8; --accent-ink:#ffffff; --dawn:#d9822b; --danger:#b8423a;
   --c-note:#d9822b; --c-prep:#2f8f80; --c-sleep:#5b6fd6;
   --display:"Shippori Mincho B1","Hiragino Mincho ProN","Yu Mincho",serif;
@@ -25,19 +25,19 @@
   --r:14px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0f121a; --surface-solid:#181c27; --surface-2:#20263a; --ink:#e6e9f2; --muted:#949db2; --line:#2c3347;
+  --bg:#0f121a; --surface-solid:#181c27; --surface-2:#20263a; --ink:#e6e9f2; --muted:#adb5c7; --line:#2c3347;
   --accent:#8f9cf2; --accent-ink:#11142a; --dawn:#f0a85a; --danger:#e8786e; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0f121a; --surface-solid:#181c27; --surface-2:#20263a; --ink:#e6e9f2; --muted:#949db2; --line:#2c3347;
+  --bg:#0f121a; --surface-solid:#181c27; --surface-2:#20263a; --ink:#e6e9f2; --muted:#adb5c7; --line:#2c3347;
   --accent:#8f9cf2; --accent-ink:#11142a; --dawn:#f0a85a; --danger:#e8786e; color-scheme:dark}
 /* the app's own mode switch wins over the viewer theme */
 :root:root[data-mode="light"]{
-  --bg:#eceff5; --surface-solid:#ffffff; --surface-2:#f3f5f9; --ink:#1b2233; --muted:#5f6a82; --line:#d6dbe6;
+  --bg:#eceff5; --surface-solid:#ffffff; --surface-2:#f3f5f9; --ink:#1b2233; --muted:#4b5569; --line:#d6dbe6;
   --accent:#3d4fa8; --accent-ink:#ffffff; --dawn:#d9822b; --danger:#b8423a; color-scheme:light}
 :root:root[data-mode="dark"]{
-  --bg:#0f121a; --surface-solid:#181c27; --surface-2:#20263a; --ink:#e6e9f2; --muted:#949db2; --line:#2c3347;
+  --bg:#0f121a; --surface-solid:#181c27; --surface-2:#20263a; --ink:#e6e9f2; --muted:#adb5c7; --line:#2c3347;
   --accent:#8f9cf2; --accent-ink:#11142a; --dawn:#f0a85a; --danger:#e8786e; color-scheme:dark}
-:root{--card-a:84%;--card-blur:14px;--c-late:#c74f6f;--c-work:#8a63c9;--c-period:#d9547a;--c-med:#2f9e6e}
+:root{--c-hobby:#2e9e6a;--card-a:84%;--card-blur:0px;--fx:none;--c-late:#c74f6f;--c-work:#8a63c9;--c-period:#d9547a;--c-med:#2f9e6e}
 :root.has-bg{--surface:color-mix(in srgb,var(--surface-solid) var(--card-a),transparent)}
 
 *{box-sizing:border-box}
@@ -91,7 +91,7 @@ input.tentative{border-style:dashed;border-color:var(--dawn)}
 .nav b{font-size:1.05rem}
 .nav .arrows{display:flex;gap:6px}
 .nav .arrows button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:transparent}
-.todaybtn{font-size:.78rem;border:1px solid var(--line);background:transparent;border-radius:16px;padding:4px 10px;margin-right:4px}
+.todaybtn{white-space:nowrap;min-width:3.6em;font-size:.78rem;border:1px solid var(--line);background:transparent;border-radius:16px;padding:4px 10px;margin-right:4px}
 
 .grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
 .wd{text-align:center;font-size:.7rem;color:var(--muted);padding-bottom:2px}
@@ -142,7 +142,9 @@ input.tentative{border-style:dashed;border-color:var(--dawn)}
 .meter i.tai u{background:var(--c-prep)}
 
 /* form */
-.form{display:grid;gap:14px}
+.form{display:grid;gap:14px;grid-template-columns:minmax(0,1fr)}
+.form>*,.wrap>*,.pagewrap>*,.card>*,.formbar>*{min-width:0}
+.sectabs{max-width:none}
 .fhead{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
 .fhead b{font-size:1.05rem}
 .field{display:grid;gap:5px}
@@ -258,13 +260,14 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .wtl .pin.h{background:var(--ink);opacity:.9;width:3px}
 .latelist{display:grid;gap:0;margin-top:12px}
 .latelist h3{margin:0 0 4px;font-size:.78rem;letter-spacing:.12em;color:var(--muted);font-weight:700}
-.late{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.84rem}
-.late:last-child{border:0}
-.late .d{font-weight:700;white-space:nowrap}
-.late .t{font-family:var(--mono);font-size:.8rem}
-.late .w{grid-column:2;color:var(--muted)}
-.late .cat{display:inline-block;background:var(--c-late);color:#fff;border-radius:8px;padding:0 7px;font-size:.72rem;margin-right:6px}
+.latelist .late{display:grid;grid-template-columns:auto minmax(0,1fr);gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:.84rem}
+.latelist .late:last-child{border:0}
+.latelist .late .d{font-weight:700;white-space:nowrap}
+.latelist .late .t{font-family:var(--mono);font-size:.8rem}
+.latelist .late .w{grid-column:2;color:var(--muted)}
+.latelist .late .cat{display:inline-block;background:var(--c-late);color:#fff;border-radius:8px;padding:0 7px;font-size:.72rem;margin-right:6px}
 .dot.late{background:var(--c-late)}
+.dot.hobby{background:var(--c-hobby)}
 .reportrow{display:grid;gap:4px;padding-top:10px;border-top:1px solid var(--line)}
 .reportrow .btn{border-color:var(--accent);color:var(--accent);font-weight:700}
 .kindsel{width:auto;max-width:65%;font-weight:700;padding:6px 8px;background:var(--surface-2)}
@@ -300,6 +303,107 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 #tbPreview th{position:sticky;top:0;background:var(--surface-2);font-family:var(--body);font-weight:700}
 #tbPreview td:first-child,#tbPreview th:first-child{text-align:left}
 .charthead .hbtns{gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.bodygrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.bfield{display:grid;gap:4px}
+.bfield label{font-size:.78rem;color:var(--muted);font-weight:500}
+.bfield .inline span{font-size:.82rem;color:var(--muted);white-space:nowrap}
+.bfield .bp{display:grid;grid-template-columns:1fr auto 1fr;gap:4px;align-items:center}
+.bfield .sub{font-size:.72rem;color:var(--muted);min-height:1em}
+.perlinks{display:flex;flex-wrap:wrap;gap:6px}
+.perlinks .btn{min-height:36px}
+.pagepick{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px;align-items:center;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 9%,transparent);border:1px solid color-mix(in srgb,var(--accent) 30%,var(--line))}
+.pagepick span{font-size:.82rem;font-weight:700;color:var(--accent)}
+.pagepick select{font-weight:700}
+.bprow{display:grid;grid-template-columns:minmax(0,1fr) 9.5em;gap:8px;align-items:center;padding:4px 0}
+.bprow label{display:flex;align-items:center;gap:6px;font-size:.9rem}
+.bprow input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}
+.bprow select{min-height:38px;padding:5px 6px;font-size:14px}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(40px,1fr));gap:8px}
+.sw{position:relative;aspect-ratio:1;max-width:100%;border-radius:50%;border:2px solid var(--line);cursor:pointer;padding:0;min-height:40px}
+.sw[aria-pressed="true"]{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 35%,transparent)}
+.sw[aria-pressed="true"]::after{content:"✓";position:absolute;inset:0;display:grid;place-items:center;font-weight:700;color:var(--swc,#fff)}
+.sw:disabled{cursor:not-allowed;opacity:.35}
+.sw:disabled::before{content:"";position:absolute;left:15%;right:15%;top:50%;height:2px;background:var(--danger);transform:rotate(-45deg)}
+.preview{border-radius:12px;padding:14px;border:1px solid var(--line);background-size:cover;background-position:center}
+.pvcard{display:grid;gap:2px;padding:12px;border-radius:10px;border:1px solid var(--line)}
+.pvcard b{font-size:.95rem}.pvcard span{font-size:.85rem}.pvcard small{font-size:.75rem;opacity:.8}
+.morecolors{border:1px solid var(--line);border-radius:10px}
+.morecolors>summary{padding:10px 12px;cursor:pointer;font-size:.88rem;font-weight:700;list-style:none}
+.morecolors>summary::-webkit-details-marker{display:none}
+.morecolors>summary::after{content:" ＋";color:var(--muted);font-weight:400}
+.morecolors[open]>summary::after{content:" －"}
+.morecolors>*:not(summary){margin:0 12px 10px}
+.cgrid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:3px}
+.cgrid .sw{border-radius:6px;min-height:26px;border-width:1px}
+.cgrid .sw[aria-pressed="true"]{border-width:2px}
+.hexrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+.sgroup>summary .sgt{display:grid;gap:1px}
+.sgroup>summary .sgt small{font-size:.72rem;font-weight:400;color:var(--muted)}
+.hrow{display:grid;gap:6px;padding:10px 0;border-bottom:1px solid var(--line)}
+.hrow:last-child{border:0}
+.hrow .hh{display:flex;align-items:center;gap:8px;justify-content:space-between}
+.hrow .hh b{display:flex;align-items:center;gap:8px;font-size:.95rem}
+.hrow .hh i{width:12px;height:12px;border-radius:4px;flex:none}
+.hstep{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:6px;align-items:center}
+.hstep button{min-height:44px;border:1px solid var(--line);background:var(--surface-2);border-radius:10px;font-size:1.1rem}
+.hstep output{text-align:center;font-family:var(--mono);font-size:1.15rem}
+.hadd{display:flex;flex-wrap:wrap;gap:6px}
+.hadd button{border:1px solid var(--line);background:transparent;border-radius:16px;padding:5px 12px;min-height:36px;font-size:.82rem}
+.hgoal{display:grid;gap:10px}
+.hg{display:grid;gap:4px}
+.hg .top{display:flex;justify-content:space-between;align-items:baseline;font-size:.88rem}
+.hg .top b{display:flex;align-items:center;gap:6px}.hg .top i{width:10px;height:10px;border-radius:3px}
+.hg .top span{font-family:var(--mono);font-size:.8rem;color:var(--muted)}
+.hg .bar2{height:10px;border-radius:5px;background:var(--surface-2);overflow:hidden}
+.hg .bar2 u{display:block;height:100%;border-radius:5px}
+.hsum{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:12px}
+.hsum div{background:color-mix(in srgb,var(--c-hobby) 10%,var(--surface-2));border-radius:10px;padding:8px 10px;display:flex;flex-direction:column}
+.hsum span{font-size:.68rem;color:var(--muted)}.hsum b{font-family:var(--mono);font-weight:500;font-size:1.05rem}
+.hset{display:grid;gap:6px;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+.hset .r1{display:grid;grid-template-columns:minmax(0,1fr) 44px 44px;gap:6px;align-items:center}
+.hset input[type=color]{width:44px;height:44px}
+.note-blur{color:var(--dawn)}
+html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下のタブなど）を崩さない */
+.lookrow{display:grid;grid-template-columns:4.5em minmax(0,1fr) 3.6em;gap:10px;align-items:center}
+.lookrow output{font-family:var(--mono);text-align:right;font-size:.85rem}
+#lookHue{background:linear-gradient(90deg,#d94a4a,#d9c24a,#4ad96a,#4ab8d9,#6a4ad9,#d94ab8,#d94a4a);border-radius:8px;height:10px;appearance:none;-webkit-appearance:none}
+.offview{display:none!important}
+.viewseg{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px));z-index:6;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:14px;background:color-mix(in srgb,var(--surface-solid) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);box-shadow:0 6px 14px -12px rgba(0,0,0,.4)}
+.seg:not(:has(button:not(.offview))){display:none}
+.viewseg button{border:0;background:transparent;border-radius:10px;min-height:42px;font-weight:700;color:var(--muted)}
+.viewseg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+.formbar{position:static!important;top:auto;margin:0!important;padding:0!important;background:transparent!important;border:0!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+.sec,.patternbar,.allsave{scroll-margin-top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px) + 120px)}
+.datebar{display:grid!important;grid-template-columns:44px minmax(0,1fr) 44px;align-items:center;gap:6px}
+.datebar .dmid{display:flex;flex-direction:column;align-items:center;text-align:center;line-height:1.3}
+.dnav{min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);font-size:1.3rem}
+.selday{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;margin-top:12px;padding:10px 12px;border-radius:12px;background:var(--surface-2)}
+.selday b{font-size:.95rem}.selday small{display:block;color:var(--muted);font-size:.78rem;line-height:1.4}
+.secstate{max-width:62%;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.secstate.saved::before{content:"✓ "}
+.chips .chipedit{border-style:dashed;color:var(--accent);background:transparent}
+.tagcard{display:grid;gap:6px;border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px}
+.tagcard .r1{display:grid;grid-template-columns:minmax(0,1fr) 40px 40px 40px;gap:6px;align-items:center}
+.tagcard .r1 button{min-height:40px;border:1px solid var(--line);background:var(--surface-2);border-radius:10px}
+.tagcard label{display:grid;grid-template-columns:5.5em minmax(0,1fr);gap:8px;align-items:center;font-size:.8rem;color:var(--muted)}
+.tagans{display:flex;flex-wrap:wrap;gap:6px}
+.tagadd{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+.formbar{flex-direction:column;align-items:stretch!important;gap:6px!important}
+.sectabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 -14px;padding:0 14px 2px;scroll-padding-inline:14px}
+.sectabs::-webkit-scrollbar{display:none}
+.stab{flex:none;display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--surface-2);border-radius:18px;padding:6px 12px;min-height:38px;font-size:.84rem;white-space:nowrap}
+.stab[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
+.stab .sd{width:8px;height:8px;border-radius:50%;background:transparent;border:1.5px solid var(--muted)}
+.stab .sd.saved{background:var(--c-prep);border-color:var(--c-prep)}
+.stab .sd.dirty{background:var(--dawn);border-color:var(--dawn)}
+.stab[aria-selected="true"] .sd{border-color:var(--accent-ink)}
+.fbrow{display:flex;gap:6px;align-items:center}
+.fbrow .hint{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.72rem}
+.slotbar{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;width:100%}
+.slotbar b{font-size:.8rem;color:var(--muted)}
+.slotq{width:auto;max-width:9.5em;min-height:36px;padding:4px 8px;font-size:14px;font-weight:700;background:var(--surface-2)}
+.brand{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.syncnote{background:color-mix(in srgb,var(--accent) 8%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line));border-radius:10px;padding:10px 12px;font-size:.85rem;line-height:1.6}
 .charthead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 .charthead h2{margin:0}
 .btn.sm{padding:6px 12px;font-size:.82rem;min-height:38px}
@@ -365,6 +469,21 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .secstate{font-size:.72rem;color:var(--muted)}
 .secstate.dirty{color:var(--dawn);font-weight:700}
 .secstate.saved{color:var(--c-prep)}
+/* はみ出し防止：横にスクロールする要素がページ幅を押し広げないようにする */
+.pagewrap>*,.form>*,.formbar>*,.datebar>*{min-width:0}
+.formbar,.sectabs,.datebar{max-width:100%}
+.sectabs{margin:0;padding:0 0 2px}
+.dt{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr) auto}
+.dt select,.dt input{min-width:0;width:100%}
+/* 未入力の状態を読みやすく */
+.secstate{color:var(--ink);background:var(--surface-2);border:1px solid var(--line);border-radius:10px;padding:1px 8px;font-weight:600}
+.secstate.dirty{color:#fff;background:var(--dawn);border-color:var(--dawn)}
+.secstate.saved{color:var(--c-prep);background:color-mix(in srgb,var(--c-prep) 12%,transparent);border-color:color-mix(in srgb,var(--c-prep) 40%,transparent)}
+#fState{color:var(--ink);font-weight:600}
+.stab{color:var(--ink)}
+.stab .sd{border-color:var(--ink);opacity:.7}
+.stab .sd.saved,.stab .sd.dirty{opacity:1}
+input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
 .secfoot{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap}
 .warnbox{border:1px solid color-mix(in srgb,var(--dawn) 55%,transparent);background:color-mix(in srgb,var(--dawn) 10%,transparent);border-radius:10px;padding:10px 12px;font-size:.84rem}
 .warnbox ul{margin:4px 0 0;padding-left:1.2em}
@@ -384,8 +503,8 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 <div id="bgLayer" hidden></div>
 <div class="wrap">
   <header class="top">
-    <h1 class="brand">生活記録 <small>睡眠・支度・移動</small></h1>
-    <div class="hbtns"><button class="iconbtn" id="openHist" aria-label="変更履歴"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></svg></button>
+    <h1 class="brand"><span id="appName">生活記録</span> <small id="appSub">睡眠・支度・移動</small></h1>
+    <div class="hbtns"><select id="slotQuick" class="slotq" aria-label="セーブスロットを切り替える"></select><button class="iconbtn" id="openHist" aria-label="変更履歴"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></svg></button>
 </div>
   </header>
   <nav class="tabs" role="tablist" aria-label="画面">
@@ -394,8 +513,11 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
     <button role="tab" data-page="settings" aria-selected="false"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg><span>設定</span></button>
   </nav>
   <div id="pageMain" class="pagewrap">
+  <div class="viewseg" role="tablist" aria-label="記録画面の表示" id="viewSeg">
+    <button role="tab" data-v="input">入力</button><button role="tab" data-v="cal">カレンダー</button><button role="tab" data-v="graph">グラフ・分析</button>
+  </div>
 
-  <section class="card">
+  <section data-view="input" class="card">
     <h2 id="quickTitle">いまの時刻で記録</h2>
     <div class="quick">
       <div class="qrow">
@@ -415,7 +537,7 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
     </div>
   </section>
 
-  <section class="card">
+  <section data-view="cal" class="card">
     <div class="seg" role="group" aria-label="表示">
       <button data-view="day">日</button><button data-view="week">週</button><button data-view="month">月</button>
     </div>
@@ -425,19 +547,27 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
     </div>
     <div id="cal"></div>
     <div class="legend" id="legend"></div>
+    <div class="selday" id="selDay"></div>
   </section>
 
-  <section class="card" id="upcoming" hidden>
+  <section data-view="graph" class="card" id="hobbyCard" hidden>
+    <h2 id="hobbyTitle">趣味・自分の時間</h2>
+    <div id="hobbySum"></div>
+  </section>
+
+  <section data-view="cal" class="card" id="upcoming" hidden>
     <h2>これからの予定</h2>
     <div id="perSum"></div>
     <div class="uplist" id="upList"></div>
   </section>
 
-  <section class="card">
+  <section data-view="graph" class="card">
     <div class="charthead"><select id="chartKind" class="kindsel" aria-label="グラフの種類">
         <optgroup label="睡眠"><option value="sleep">睡眠スケジュール（帯）</option><option value="sleepLen">睡眠時間</option><option value="bedwake">寝支度・起床の時刻</option></optgroup>
         <optgroup label="気力・体力"><option value="ki">気力</option><option value="tai">体力</option><option value="mood">気力と体力</option><option value="sleepMood">睡眠時間と気力・体力</option></optgroup>
         <optgroup label="仕事・生活"><option value="work">勤務時間</option><option value="home">帰宅時刻</option><option value="workHome">勤務時間と帰宅時刻</option><option value="commute">通勤時間（片道）</option><option value="prep">朝支度の時間</option></optgroup>
+        <optgroup label="趣味" id="hobbyKinds"><option value="hobby">趣味の時間</option><option value="hobbyMood">趣味の時間と気力</option></optgroup>
+        <optgroup label="体の記録" id="bodyKinds"><option value="bt">基礎体温</option><option value="wtfat">体重と体脂肪率</option><option value="wt">体重</option><option value="wtmus">体重と筋肉量</option><option value="bmi">BMI</option><option value="temp">体温</option><option value="bp">血圧と脈拍</option><option value="steps">歩数</option><option value="water">水分</option></optgroup>
         <optgroup label="自由に組み合わせ"><option value="custom">選んだ項目を重ねる…</option></optgroup>
       </select><div class="hbtns"><button class="btn ghost sm" id="openTable" title="Googleスプレッドシート・Excel用">表に書き出す</button><button class="btn ghost sm" id="openExport">テキストでコピー</button></div></div>
     <div class="exchecks" id="customPick" hidden></div>
@@ -445,12 +575,14 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
     <div id="chart"></div>
   </section>
 
-  <section class="card form" id="form">
-    <div class="fhead"><b id="fDate"></b><span class="hint" id="fState"></span></div>
+  <section data-view="input" class="card form" id="form">
+    <div class="fhead datebar"><button type="button" class="dnav" id="dPrev" aria-label="前の日">‹</button><div class="dmid"><b id="fDate"></b><span class="hint" id="fState"></span></div><button type="button" class="dnav" id="dNext" aria-label="次の日">›</button></div>
+    <label class="pagepick" id="pagePick" hidden><span>記録するページ</span><select id="pageSel" aria-label="記録するページ"></select></label>
     <div class="formbar" id="formBar">
-      <select id="formJump" class="jumpsel" aria-label="記録の項目へ移動"></select>
+      <div class="sectabs" id="secTabs" role="tablist" aria-label="記録の項目"></div>
+      <div class="fbrow"><select id="formJump" class="jumpsel" aria-label="記録の項目へ移動" hidden></select><span class="hint" id="tabHint">項目をタップすると、その欄だけを開きます</span>
       <button class="btn ghost sm" id="undoLast" title="直前の変更を戻す">↶ 戻す</button>
-      <button class="btn sm" id="barSaveAll">まとめて記録</button>
+      <button class="btn sm" id="barSaveAll">まとめて記録</button></div>
     </div>
 
     <div class="sec" data-sec="sleep">
@@ -477,8 +609,17 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
       <div class="opts" id="flowOpts"><button type="button" data-flow="">なし</button><button type="button" data-flow="少">生理中・少なめ</button><button type="button" data-flow="中">ふつう</button><button type="button" data-flow="多">多め</button></div>
       <div class="chips" id="symChips"><button type="button" data-sym="腹痛">腹痛</button><button type="button" data-sym="腰痛">腰痛</button><button type="button" data-sym="頭痛">頭痛</button><button type="button" data-sym="だるさ">だるさ</button><button type="button" data-sym="眠気">眠気</button><button type="button" data-sym="イライラ・気分の波">気分の波</button><button type="button" data-sym="肌荒れ">肌荒れ</button><button type="button" data-sym="むくみ">むくみ</button><button type="button" data-sym="鎮痛剤を使った">鎮痛剤</button></div>
       <div class="hint" id="periodHint"></div>
+      <div class="perlinks" id="perLinks"></div>
       <div class="warnbox" id="w-period" hidden></div>
       <div class="secfoot"><button class="btn" data-save="period">月経を記録</button></div>
+    </div>
+
+    <div class="sec" data-sec="body" id="secBody" hidden>
+      <div class="sechead"><h3>体の記録</h3><span class="secstate" id="st-body"></span></div>
+      <div class="bodygrid" id="bodyFields"></div>
+      <div class="hint" id="bodyHint"></div>
+      <div class="warnbox" id="w-body" hidden></div>
+      <div class="secfoot"><button class="btn" data-save="body">体の記録を保存</button></div>
     </div>
 
     <div class="sec" data-sec="meds" id="secMeds" hidden>
@@ -550,6 +691,14 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
       <div class="secfoot"><button class="btn" data-save="prep">朝支度を記録</button></div>
     </div>
 
+    <div class="sec" data-sec="hobby" id="secHobby" hidden>
+      <div class="sechead"><h3>趣味・自分の時間</h3><span class="secstate" id="st-hobby"></span></div>
+      <div id="hobbyRows"></div>
+      <input type="text" id="fHobbyMemo" placeholder="ひとことメモ（例：ギターで新しい曲を1曲通せた）" aria-label="趣味のメモ">
+      <div class="warnbox" id="w-hobby" hidden></div>
+      <div class="secfoot"><button class="btn ghost" id="hobbyClear">この日の時間を0にする</button><button class="btn" data-save="hobby">趣味の時間を記録</button></div>
+    </div>
+
     <div class="sec" data-sec="note">
       <div class="sechead"><h3>特記事項</h3><span class="secstate" id="st-note"></span></div>
       <div class="chips" id="noteChips" aria-label="項目を追加">
@@ -573,7 +722,7 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
     <div class="allsave">
       <div class="warnbox" id="w-all" hidden></div>
       <button class="btn big" id="fSaveAll">まとめて記録する</button>
-      <p class="hint">睡眠（寝支度と起床）と気力・体力が必須です。通勤・勤務時間・その他の時間・朝支度・特記事項は空欄でも記録できます。</p>
+      <p class="hint" id="allReq">睡眠（寝支度と起床）と気力・体力が必須です。通勤・勤務時間・その他の時間・朝支度・特記事項は空欄でも記録できます。</p>
     </div>
     <div class="actions">
       <button class="btn danger" id="fClear">この日の記録をすべて消す</button>
@@ -596,8 +745,16 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
     </section>
   </div>
   <div id="pageSettings" class="pagewrap setpage" hidden>
-    <div class="fhead sethead"><h3>設定</h3><select id="sgJump" class="jumpsel" aria-label="設定の項目へ移動"><option value="">項目へ移動…</option><option value="sg0">追加機能</option><option value="sg1">表示モード</option><option value="sg2">カレンダーに付けるマーク</option><option value="sg3">グラフの色</option><option value="sg4">背景</option><option value="sg5">よく使う値</option><option value="sg6">通勤先と勤務パターン</option></select><div class="hbtns"><button class="btn ghost" id="undoSettings" disabled>↶ 一つ前に戻す</button></div></div>
-    <details class="sgroup" id="sg0" open><summary>追加機能</summary><div class="sgbody">
+    <div class="fhead sethead"><h3>設定</h3><select id="sgJump" class="jumpsel" aria-label="設定の項目へ移動"><option value="">項目へ移動…</option><option value="sgName">アプリの名前</option><option value="sg0">使う機能</option><option value="sg1">画面の見え方</option><option value="sg2">カレンダーの印</option><option value="sg3">グラフの色</option><option value="sg4">背景</option><option value="sgText">文字の色</option><option value="sgTags">特記事項のボタン</option><option value="sg5">入力候補ボタン</option><option value="sgData">データの引き継ぎ</option><option value="sg6">通勤・勤務パターン</option></select><div class="hbtns"><button class="btn ghost" id="undoSettings" disabled>↶ 一つ前に戻す</button></div>
+      <div class="slotbar"><b>セーブスロット</b><select id="slotSel" aria-label="セーブスロット"></select></div>
+      <div class="slotbar" id="slotNameRow"><b>スロット名</b><input type="text" id="slotName" maxlength="16" placeholder="例：平日・夜勤期間・ダイエット中"></div>
+      <span class="hint" style="width:100%">設定はいま選んでいるスロットに自動で保存されます。スロットを切り替えると、そのスロットの設定（使う機能・候補・勤務パターン・見た目など）を読み込みます。記録したデータはどのスロットでも共通で、すべて見られます。</span></div>
+    <details class="sgroup" id="sgName"><summary><span class="sgt">アプリの名前<small>画面上部のタイトルと、その横の小さな説明</small></span></summary><div class="sgbody">
+      <label class="field"><span class="lbl">タイトル</span><input type="text" id="nmTitle" maxlength="20" placeholder="生活記録"></label>
+      <label class="field"><span class="lbl">横の小さな説明（空欄なら表示しません）</span><input type="text" id="nmSub" maxlength="30" placeholder="睡眠・支度・移動"></label>
+      <span class="hint">例：「わたしの毎日」「体調ノート」「シフト勤務ログ」など。ホーム画面に追加したときの名前は、追加するときに付け直せます。</span>
+    </div></details>
+    <details class="sgroup" id="sg0" open><summary><span class="sgt">使う機能<small>月経・お薬・体の記録・趣味・予定・日報の共有</small></span></summary><div class="sgbody">
       <p class="hint" style="margin-top:0">使うものにチェックを入れると、記録画面とカレンダーに表示されます。外すと隠れます（記録は消えません）。</p>
       <label class="markrow"><input type="checkbox" data-feat="period"><span>月経管理</span><span></span></label>
       <div class="feat" id="featPeriod" hidden>
@@ -605,11 +762,25 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
         <span class="hint">記録が2周期以上たまると、実際の平均から次の開始日を予測します。予測日はカレンダーに点線の枠で出ます。</span>
         <label class="setrow"><input type="checkbox" id="perOvu"> 排卵日の目安（次の開始予定の14日前）も表示する</label>
       </div>
+      <label class="markrow"><input type="checkbox" data-feat="body"><span>体の記録（体温・体重など）</span><span></span></label>
+      <div class="feat" id="featBody" hidden>
+        <span class="hint">記録したい項目にチェックを入れ、右で「どのページで記録するか」を選びます。月経管理をオンにすると、基礎体温は自動で加わります。</span>
+        <div class="exchecks" id="bodyPick"></div>
+        <div class="setrow">身長 <input type="number" id="bHeight" min="100" max="220" step="0.1" inputmode="decimal" placeholder="160"> cm　目標体重 <input type="number" id="bGoal" min="20" max="200" step="0.1" inputmode="decimal" placeholder="任意"> kg</div>
+        <span class="hint">身長を入れるとBMIを計算します。目標体重はグラフに点線で表示します。</span>
+      </div>
       <label class="markrow"><input type="checkbox" data-feat="meds"><span>お薬管理</span><span></span></label>
       <div class="feat" id="featMeds" hidden>
         <div id="medSet"></div>
         <button class="btn ghost sm" id="addMed">＋ お薬を追加</button>
+        <div class="setrow">記録するページ <select id="medsPageSel" style="width:auto"><option value="women">月経・婦人科</option><option value="health">健康・バイタル</option><option value="life">毎日の生活</option></select></div>
         <span class="hint">通院日は下の「定期的な予定・通院日」から登録できます。</span>
+      </div>
+      <label class="markrow"><input type="checkbox" data-feat="hobby"><span>趣味・自分の時間</span><span></span></label>
+      <div class="feat" id="featHobby" hidden>
+        <div id="hobbySet"></div>
+        <button class="btn ghost sm" id="addHobby">＋ 趣味を追加</button>
+        <span class="hint">趣味ごとに色と「1週間の目標時間」を決めておくと、記録画面の「趣味・自分の時間」ページで進み具合が見られます。目標なしでも使えます。</span>
       </div>
       <label class="markrow"><input type="checkbox" data-feat="share"><span>日報・テキストで共有</span><span></span></label>
       <div class="feat" id="featShare" hidden><span class="hint">「朝の日報をコピー」ボタンと「テキストでコピー」を表示します。職場や家族に記録を送る人向けです。</span></div>
@@ -620,23 +791,37 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
         <span class="hint">日付を1つずつ指定する方法と、「4週ごと」「毎月10日」「毎週月曜」などのくり返しの両方が使えます。</span>
       </div>
     </div></details>
-    <details class="sgroup" id="sg1"><summary>表示モード</summary><div class="sgbody">
+    <details class="sgroup" id="sg1"><summary><span class="sgt">画面の見え方<small>ライト／ダーク・明るさ・鮮やかさ・色合い</small></span></summary><div class="sgbody">
       <div class="opts" id="modeOpts">
       <button data-mode="system">端末に合わせる</button><button data-mode="light">ライト</button><button data-mode="dark">ダーク</button></div>
+      <div style="display:grid;gap:10px;margin-top:6px">
+        <div class="lookrow"><label for="lookBright">明るさ</label><input type="range" id="lookBright" min="70" max="130" step="5"><output id="lookBrightOut"></output></div>
+        <div class="lookrow"><label for="lookSat">鮮やかさ</label><input type="range" id="lookSat" min="0" max="200" step="10"><output id="lookSatOut"></output></div>
+        <div class="lookrow"><label for="lookHue">色合い</label><input type="range" id="lookHue" min="-180" max="180" step="10"><output id="lookHueOut"></output></div>
+        <span class="hint">画面全体（背景・カード・グラフ）の見え方を調整します。鮮やかさを0にすると白黒、色合いを動かすと全体の色味がずれます。</span>
+        <div><button class="btn ghost" id="resetFx">見え方を元に戻す</button></div>
+      </div>
     </div></details>
-    <details class="sgroup" id="sg2"><summary>カレンダーに付けるマーク</summary><div class="sgbody">
+    <details class="sgroup" id="sg2"><summary><span class="sgt">カレンダーの印<small>どの記録に点を付けるか・点の色</small></span></summary><div class="sgbody">
       <div id="markList"></div>
       <div class="marksub">特記事項の項目ごと（ボタンで入れた見出しを見分けます。「できなかった」などは白抜きの点になります）</div>
       <div id="noteMarkList"></div>
       <p class="hint">チェックした項目を記録した日に、その色の点が付きます。</p>
     </div></details>
-    <details class="sgroup" id="sg3"><summary>グラフの色</summary><div class="sgbody">
+    <details class="sgroup" id="sg3"><summary><span class="sgt">グラフの色<small>睡眠グラフの色</small></span></summary><div class="sgbody">
       <div class="colorrow"><span>睡眠グラフ</span><input type="color" id="colSleep"></div>
       <div style="margin-top:8px"><button class="btn ghost" id="resetColors">色を初期値に戻す</button></div>
     </div></details>
-    <details class="sgroup" id="sg4"><summary>背景</summary><div class="sgbody">
+    <details class="sgroup" id="sg4"><summary><span class="sgt">背景<small>色・画像・カードの透け具合</small></span></summary><div class="sgbody">
       <div class="opts" id="bgOpts"><button data-bg="none">標準</button><button data-bg="color">好きな色</button><button data-bg="image">画像</button></div>
-      <div class="colorrow" id="bgColorRow" hidden><span>背景色</span><input type="color" id="bgColor"></div>
+      <div id="bgColorRow" hidden style="display:grid;gap:8px;margin-top:8px">
+        <div class="swatches" id="bgSwatches" aria-label="背景の色を選ぶ"></div>
+        <details class="morecolors"><summary>パレットからもっと選ぶ</summary>
+          <div class="cgrid" id="bgGrid" aria-label="背景の色のパレット"></div>
+          <div class="hexrow"><input type="text" id="bgHex" placeholder="#3366aa" maxlength="7" autocapitalize="off" autocomplete="off" spellcheck="false" aria-label="色のコード"><button type="button" class="btn ghost" id="bgHexBtn">この色にする</button></div>
+          <div class="colorrow"><span>端末の色選択を使う</span><input type="color" id="bgColor"></div>
+        </details>
+      </div>
       <div id="bgImageRow" hidden style="margin-top:8px;display:grid;gap:6px">
         <input type="file" id="bgFile" accept="image/*">
         <span class="hint">選んだ画像は画面の縦横比に合わせて切り抜けます。</span>
@@ -644,25 +829,49 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
       <div id="bgLookRow" hidden style="margin-top:10px;display:grid;gap:8px">
         <div class="slider" style="grid-template-columns:6.5em 1fr 3.4em"><label for="cardAlpha">カードの濃さ</label><input type="range" id="cardAlpha" min="0" max="100" step="5"><output id="cardAlphaOut"></output></div>
         <div class="slider" style="grid-template-columns:6.5em 1fr 3.4em"><label for="cardBlur">ぼかし</label><input type="range" id="cardBlur" min="0" max="24" step="1"><output id="cardBlurOut"></output></div>
-        <span class="hint">濃さを下げるほど背景がよく見えます。文字が読みにくいときは、ぼかしを強めにすると見やすくなります。</span>
-        <div><button class="btn ghost" id="resetLook">初期値に戻す（濃さ84%・ぼかし14）</button></div>
-      </div>
-      <div style="margin-top:12px;display:grid;gap:8px">
-        <b style="font-size:.9rem">文字の色</b>
-        <div class="opts" id="txtOpts"><button data-tx="auto">背景に合わせて自動</button><button data-tx="theme">表示モードどおり</button><button data-tx="custom">好きな色</button></div>
-        <div class="colorrow" id="txtColorRow" hidden><span>文字色</span><input type="color" id="txtColor"></div>
-        <span class="hint" id="txtHint">自動にすると、背景とカードの濃さから明るさを計算して、読みやすい文字色（白系か黒系）に切り替えます。</span>
+        <span class="hint">濃さを下げるほど背景がよく見えます。ぼかしは最初0（画像がくっきり見える状態）です。</span>
+        <span class="hint note-blur" id="blurNote">※文字が読みにくいときは「ぼかし」を少し入れると、カードの後ろの画像がやわらいで読みやすくなります。</span>
+        <div><button class="btn ghost" id="resetLook">初期値に戻す（濃さ84%・ぼかし0）</button></div>
       </div>
     </div></details>
-    <details class="sgroup" id="sg5"><summary>よく使う値</summary><div class="sgbody">
+    <details class="sgroup" id="sgText"><summary><span class="sgt">文字の色<small>自動・表示モードどおり・好きな色</small></span></summary><div class="sgbody">
+      <div class="preview" id="colorPreview"><div class="pvcard"><b>10月21日(水)の記録</b><span>睡眠 7h30・気力 70%</span><small>見本の文字です</small></div></div>
+      <div class="opts" id="txtOpts"><button data-tx="auto">背景に合わせて自動</button><button data-tx="theme">表示モードどおり</button><button data-tx="custom">好きな色</button></div>
+      <div id="txtCustom" style="display:grid;gap:8px">
+        <b style="font-size:.88rem">好きな色を選ぶ <span class="hint" style="font-weight:400">（押すとその色に切り替わります）</span></b>
+        <div class="swatches" id="txtSwatches" aria-label="文字の色を選ぶ"></div>
+        <details class="morecolors"><summary>パレットからもっと選ぶ</summary>
+          <div class="cgrid" id="txtGrid" aria-label="文字の色のパレット"></div>
+          <div class="hexrow"><input type="text" id="txtHex" placeholder="#3366aa" maxlength="7" autocapitalize="off" autocomplete="off" spellcheck="false" aria-label="色のコード"><button type="button" class="btn ghost" id="txtHexBtn">この色にする</button></div>
+          <div class="colorrow"><span>端末の色選択を使う</span><input type="color" id="txtColor"></div>
+        </details>
+      </div>
+      <span class="hint" id="txtHint"></span>
+    </div></details>
+    <details class="sgroup" id="sgTags"><summary><span class="sgt">特記事項のボタン<small>ボタンの追加・削除・名前・答えの候補</small></span></summary><div class="sgbody">
+      <p class="hint" style="margin:0">特記事項の欄に並ぶボタンを、自分の生活に合わせて自由に作りかえられます。<br>こんなこともできます：「子どもの様子」「ペットの散歩」「通院メモ」「仕事の出来事」「天気と頭痛」など、よく書くことをボタンにしておくと、押すだけで見出しと答えが入ります。作ったボタンは「カレンダーの印」で色付きの点にもできます。</p>
+      <div id="tagSet"></div>
+      <div class="setrow"><button class="btn ghost sm" id="addTag">＋ ボタンを追加</button><button class="btn ghost sm" id="resetTags">初期状態に戻す</button></div>
+    </div></details>
+    <details class="sgroup" id="sg5"><summary><span class="sgt">入力候補ボタン<small>時刻・気力体力・朝支度・趣味の時間のワンタップ候補</small></span></summary><div class="sgbody">
       <div id="favList"></div>
       <p class="hint">記録画面の各欄の下にボタンとして並びます。×で消し、下の選択欄から選んで「＋ 追加」で増やせます（各7個まで。1週間分の曜日ごとに違う値も入れられます）。★付きは、これまでの記録で2回以上使った値で、自動で加わります。</p>
       <div><button class="btn ghost" id="resetFavs">初期値に戻す</button></div>
     </div></details>
-    <details class="sgroup" id="sg6"><summary>通勤先と勤務パターン</summary><div class="sgbody">
+    <details class="sgroup" id="sg6"><summary><span class="sgt">通勤・勤務パターン<small>通勤先ごとのシフトと時刻</small></span></summary><div class="sgbody">
       <p class="hint" style="margin-top:0">通勤先ごとに、早番・日勤・夜勤などの勤務パターンを登録できます。出発・到着・勤務開始・終了を一度入れておけば、記録画面でワンタップで入ります。帰りの通勤は行きと同じ時間として、帰宅予定を計算します。</p>
       <div id="slotList"></div>
       <button class="btn ghost" id="addSlot">＋ 通勤先を追加</button>
+    </div></details>
+    <details class="sgroup" id="sgData"><summary><span class="sgt">データの引き継ぎ<small>PCとスマホで同じ記録を見る・バックアップと復元</small></span></summary><div class="sgbody">
+      <div class="syncnote" id="syncNote"></div>
+      <b style="font-size:.9rem">バックアップ（記録と設定をまとめて保存）</b>
+      <div class="setrow"><button class="btn ghost" id="bkCopy">引き継ぎ用の文字をコピー</button><button class="btn ghost" id="bkFile">ファイルに保存</button></div>
+      <label class="setrow"><input type="checkbox" id="bkImg"> 背景画像も含める（容量が大きくなります）</label>
+      <b style="font-size:.9rem;margin-top:6px">復元（別の端末で読み込む）</b>
+      <textarea id="bkPaste" rows="3" placeholder="コピーした引き継ぎ用の文字をここに貼り付け" aria-label="引き継ぎ用の文字"></textarea>
+      <div class="setrow"><button class="btn ghost" id="bkFromText">貼り付けた文字から復元</button><label class="btn ghost" style="display:inline-flex;align-items:center">ファイルから復元<input type="file" id="bkFileIn" accept=".json,application/json,text/plain" hidden></label></div>
+      <div class="warnbox" id="bkWarn" hidden></div>
     </div></details>
   </div>
 </div>
@@ -691,7 +900,7 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 <div class="sheet" id="tablex" hidden>
   <div class="panel" role="dialog" aria-label="表に書き出す">
     <div class="fhead"><h3>表に書き出す</h3><button class="btn ghost" id="closeTable">閉じる</button></div>
-    <p class="hint" style="margin:0">日ごとの数値を表の形で書き出します。Googleスプレッドシートには「表をコピー」して貼り付け、Excelには「CSVファイルを保存」で開けます。月経・お薬は含みません。</p>
+    <p class="hint" style="margin:0">日ごとの数値を表の形で書き出します。Googleスプレッドシートには「表をコピー」して貼り付け、Excelには「CSVファイルを保存」で開けます。月経・お薬は含みません。体の記録は列のチェックで外せます。</p>
     <div><h4>期間</h4><div class="opts" id="tbRange"><button data-r="week">この週</button><button data-r="month">この月</button><button data-r="3m">直近3か月</button><button data-r="all">全期間</button></div></div>
     <div><h4>列</h4><div class="exchecks" id="tbCols"></div></div>
     <div class="tbwrap"><table id="tbPreview"></table></div>
@@ -724,26 +933,30 @@ const WD=['日','月','火','水','木','金','土'];
 const clone=o=>JSON.parse(JSON.stringify(o));
 const md=k=>{const d=parse(k);return (d.getMonth()+1)+'/'+d.getDate()+'('+WD[d.getDay()]+')'};
 
-const DEF={mode:'system',colors:{note:'#d9822b',prep:'#2f8f80',commute:'#a3519a',mood:'#b8941f',work:'#8a63c9',late:'#c74f6f',sleep:'#5b6fd6'},marks:{note:true,prep:false,commute:false,mood:false,work:false,late:true},slots:[],bg:{type:'none',color:'#c9d3e6',alpha:84,blur:14},text:{mode:'auto',color:'#1b2233'}};
-const MARKS=[['note','特記事項'],['prep','朝支度の時間'],['commute','通勤'],['mood','気力・体力'],['work','勤務'],['late','帰りが遅くなった日']];
+const DEF={mode:'system',colors:{note:'#d9822b',prep:'#2f8f80',commute:'#a3519a',mood:'#b8941f',work:'#8a63c9',late:'#c74f6f',hobby:'#2e9e6a',sleep:'#5b6fd6'},marks:{note:true,prep:false,commute:false,mood:false,work:false,late:true,hobby:true},slots:[],bg:{type:'none',color:'#c9d3e6',alpha:84,blur:0},appName:'生活記録',appSub:'睡眠・支度・移動',look:{bright:100,sat:100,hue:0},text:{mode:'auto',color:'#1b2233'}};
+const MARKS=[['note','特記事項'],['prep','朝支度の時間'],['commute','通勤'],['mood','気力・体力'],['work','勤務'],['late','帰りが遅くなった日'],['hobby','趣味の時間']];
 /* 特記事項の見出し（例「入浴：」）ごとのマーク */
-const NOTE_ITEMS=[...document.querySelectorAll('#noteChips [data-t]')].map(b=>({t:b.dataset.t.replace(/：$/,''),name:b.textContent}));
+const DEF_TAGS=[...document.querySelectorAll('#noteChips [data-t]')].map(b=>({t:b.dataset.t.replace(/：$/,''),name:b.textContent,o:b.dataset.o?b.dataset.o.split('|'):[]}));
+const NOTE_ITEMS=DEF_TAGS; /* 既定の項目（マークの初期値用） */
+const noteTags=()=>Array.isArray(S.settings.noteTags)?S.settings.noteTags:DEF_TAGS;
+const NEG_GENERIC=/できなかった|しなかった|していない|忘れ|なし$/;
 const NOTE_NEG={'入浴':/できなかった/,'歯みがき・身支度':/できなかった/,'家事':/できなかった/,'服薬':/飲み忘れ/,'運動':/していない/,'食事':/抜き|食欲がない/};
 const NOTE_COLORS=['#2b8fd6','#d9822b','#2f8f80','#8a63c9','#c74f6f','#4f9a3a','#b8941f','#5b6fd6','#a3519a','#3f7f9f','#c0672e','#7a7f2a','#6b5bd6','#888f9e','#9a6a4f','#d0443a','#2e9e6a','#c23b5a'];
+const nmOf=t=>S.settings.noteMarks[t]||(S.settings.noteMarks[t]={on:false,color:NOTE_COLORS[noteTags().findIndex(x=>x.t===t)%NOTE_COLORS.length]||'#5b6fd6'});
 const DEF_NM=Object.fromEntries(NOTE_ITEMS.map((it,i)=>[it.t,{on:it.t==='気になったこと',color:NOTE_COLORS[i%NOTE_COLORS.length]}]));
 function noteItems(note){const out={};if(!note)return out;
   note.split('\n').forEach(line=>{const m=line.match(/^\s*([^：:]+)[：:](.*)$/);if(!m)return;const t=m[1].trim();
-    if(!DEF_NM[t])return;const neg=NOTE_NEG[t]&&NOTE_NEG[t].test(m[2]);out[t]=out[t]===true||!neg;});
+    if(!noteTags().some(x=>x.t===t))return;const neg=NOTE_NEG[t]?NOTE_NEG[t].test(m[2]):NEG_GENERIC.test(m[2].trim());out[t]=out[t]===true||!neg;});
   return out;}
-const merge=s=>{s=s||{};const nm={};Object.keys(DEF_NM).forEach(k=>nm[k]={...DEF_NM[k],...((s.noteMarks||{})[k]||{})});
+const merge=s=>{s=s||{};const nm={};Object.keys(DEF_NM).forEach(k=>nm[k]={...DEF_NM[k],...((s.noteMarks||{})[k]||{})});Object.entries(s.noteMarks||{}).forEach(([k,v])=>{if(!nm[k])nm[k]={on:false,color:'#5b6fd6',...v}});
   if(s.nmv!==2){nm['入浴'].on=false;nm['気になったこと'].on=true} /* 既定のマークを「気になったこと」に置き換え */
-  return{...clone(DEF),...s,nmv:2,noteMarks:nm,features:{period:false,meds:false,events:false,share:false,...(s.features||{})},period:{cycle:28,len:5,ovu:false,...(s.period||{})},meds:Array.isArray(s.meds)?clone(s.meds):[],events:Array.isArray(s.events)?clone(s.events):[],colors:{...DEF.colors,...(s.colors||{})},marks:{...DEF.marks,...(s.marks||{})},bg:{...DEF.bg,...(s.bg||{})},text:{...DEF.text,...(s.text||{})},slots:Array.isArray(s.slots)?clone(s.slots):[]}};
-let S={days:{},settings:merge(),bgImage:null};
+  return{...clone(DEF),...s,nmv:2,noteMarks:nm,features:{period:false,meds:false,events:false,share:false,body:false,hobby:false,...(s.features||{})},body:{items:['wt','fat'],height:'',goal:'',...(s.body||{})},period:{cycle:28,len:5,ovu:false,...(s.period||{})},meds:Array.isArray(s.meds)?clone(s.meds):[],events:Array.isArray(s.events)?clone(s.events):[],colors:{...DEF.colors,...(s.colors||{})},marks:{...DEF.marks,...(s.marks||{})},bg:{...DEF.bg,...(s.bg||{})},text:{...DEF.text,...(s.text||{})},look:{...DEF.look,...(s.look||{})},hobbies:Array.isArray(s.hobbies)?clone(s.hobbies):[],slots:Array.isArray(s.slots)?clone(s.slots):[]}};
+let S={days:{},settings:merge(),bgImage:null,slots:null};
 let view='month', sel=ymd(new Date()), dirty=false, store=null;
 
 /* ---------- storage ---------- */
 const LS='nemuri-v1';
-try{const r=localStorage.getItem(LS);if(r){const o=JSON.parse(r);S.days=o.days||{};S.settings=merge(o.settings);S.bgImage=o.bgImage||null}}catch(e){}
+try{const r=localStorage.getItem(LS);if(r){const o=JSON.parse(r);S.days=o.days||{};S.settings=merge(o.settings);S.slots=o.slots||null;S.bgImage=o.bgImage||null}}catch(e){}
 function lsSave(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){toast('この端末に保存できませんでした（容量不足の可能性）')}}
 const queue={};
 function put(id,data){
@@ -760,7 +973,15 @@ function saveSettings(){
   const cur=JSON.stringify(S.settings);
   if(lastSettings&&lastSettings!==cur){settingsUndo.push(lastSettings);if(settingsUndo.length>30)settingsUndo.shift()}
   lastSettings=cur;const b=document.getElementById('undoSettings');if(b)b.disabled=!settingsUndo.length;
+  slotAutoSave();
   return put('settings',S.settings)}
+/* セーブスロット（10個）：設定一式を目的ごとに保存。記録データは共通 */
+const SLOT_N=10;
+function ensureSlots(){if(!S.slots||!Array.isArray(S.slots.list)){S.slots={active:0,list:[{name:'スロット1',settings:clone(S.settings),at:Date.now()}]}}
+  while(S.slots.list.length<SLOT_N)S.slots.list.push(null);return S.slots}
+let slotTimer2;
+function slotAutoSave(){const sl=ensureSlots(),i=sl.active;const cur=sl.list[i]||{name:'スロット'+(i+1)};cur.settings=clone(S.settings);cur.at=Date.now();sl.list[i]=cur;
+  clearTimeout(slotTimer2);slotTimer2=setTimeout(()=>put('slots',S.slots),800)}
 const saveBg=()=>put('bg',S.bgImage?{img:S.bgImage}:null);
 
 async function initStore(){
@@ -778,9 +999,9 @@ async function initStore(){
       }
       const days={};let st=null,bg=null,hs=[];
       snap.docs.forEach(d=>{const v=d.data();if(!v)return;
-        if(d.id==='hist')hs=clone(v.list||[]);else if(d.id==='settings')st=v;else if(d.id==='bg')bg=v.img||null;else if(d.id.startsWith('d-'))days[d.id.slice(2)]=clone(v);});
+        if(d.id==='slots')S.slots=clone(v);else if(d.id==='hist')hs=clone(v.list||[]);else if(d.id==='settings')st=v;else if(d.id==='bg')bg=v.img||null;else if(d.id.startsWith('d-'))days[d.id.slice(2)]=clone(v);});
       S.days=days;if(st){S.settings=merge(st);lastSettings=JSON.stringify(S.settings)}S.bgImage=bg;S.hist=hs;
-      applyLook();render(false);refreshClean();
+      applyLook();render(false);refreshClean();renderSlots();
     },()=>toast('同期が止まりました。ページを開き直してください'));
   }catch(e){store=null}
 }
@@ -789,12 +1010,16 @@ async function initStore(){
 function applyLook(){
   const st=S.settings,root=document.documentElement;
   if(st.mode==='system')delete root.dataset.mode;else root.dataset.mode=st.mode;
-  root.style.setProperty('--c-note',st.colors.note);root.style.setProperty('--c-prep',st.colors.prep);root.style.setProperty('--c-sleep',st.colors.sleep);root.style.setProperty('--c-commute',st.colors.commute);root.style.setProperty('--c-mood',st.colors.mood);root.style.setProperty('--c-work',st.colors.work);root.style.setProperty('--c-late',st.colors.late);
+  root.style.setProperty('--c-note',st.colors.note);root.style.setProperty('--c-prep',st.colors.prep);root.style.setProperty('--c-sleep',st.colors.sleep);root.style.setProperty('--c-commute',st.colors.commute);root.style.setProperty('--c-mood',st.colors.mood);root.style.setProperty('--c-work',st.colors.work);root.style.setProperty('--c-late',st.colors.late);root.style.setProperty('--c-hobby',st.colors.hobby);
   const L=$('#bgLayer');
-  root.style.setProperty('--card-a',(st.bg.alpha??84)+'%');root.style.setProperty('--card-blur',(st.bg.blur??14)+'px');
+  root.style.setProperty('--card-a',(st.bg.alpha??84)+'%');root.style.setProperty('--card-blur',(st.bg.blur??0)+'px');
   if(st.bg.type==='color'){L.hidden=false;L.style.backgroundImage='none';L.style.backgroundColor=st.bg.color;root.classList.add('has-bg')}
   else if(st.bg.type==='image'&&S.bgImage){L.hidden=false;L.style.backgroundColor='#000';L.style.backgroundImage='url("'+S.bgImage+'")';root.classList.add('has-bg')}
   else{L.hidden=true;root.classList.remove('has-bg')}
+  const lk=st.look||{bright:100,sat:100,hue:0};
+  root.style.setProperty('--fx',(lk.bright==100&&lk.sat==100&&!+lk.hue)?'none':'brightness('+lk.bright+'%) saturate('+lk.sat+'%) hue-rotate('+lk.hue+'deg)');
+  if($('#blurNote'))$('#blurNote').hidden=!(st.bg.type!=='none'&&!(+st.bg.blur));
+  $('#appName').textContent=st.appName||'生活記録';$('#appSub').textContent=st.appSub??'';$('#appSub').hidden=!st.appSub;document.title=st.appName||'生活記録';
   applyTextColor();
 }
 /* 文字色：自動（背景×カードの濃さから明るさを計算）／表示モードどおり／好きな色 */
@@ -802,16 +1027,28 @@ const hexLum=h=>{h=(h||'').trim();if(!/^#?[0-9a-f]{6}$/i.test(h))return null;h=h
 let imgLum=null;
 function measureImage(src,cb){const im=new Image();im.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=24;const x=c.getContext('2d');x.drawImage(im,0,0,24,24);const d=x.getImageData(0,0,24,24).data;let t=0;
   for(let i=0;i<d.length;i+=4)t+=hexLum('#'+[d[i],d[i+1],d[i+2]].map(v=>v.toString(16).padStart(2,'0')).join(''));cb(t/(d.length/4))}catch(e){cb(null)}};im.onerror=()=>cb(null);im.src=src}
+/* 文字と背景のコントラスト比（WCAGの考え方）。3未満の組み合わせは選べない */
+const MIN_CONTRAST=3,INK_LIGHT='#f3f5fb',INK_DARK='#151b2a';
+const contrastOf=(a,b)=>(Math.max(a,b)+.05)/(Math.min(a,b)+.05);
+function isDarkMode(st){if(st.mode==='dark')return true;if(st.mode==='light')return false;const t=document.documentElement.dataset.theme;
+  return t?t==='dark':!!(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)}
+const surfLum=st=>hexLum(isDarkMode(st)?'#181c27':'#ffffff');
+function effLumFor(st){const sl=surfLum(st);if(st.bg.type==='none'||(st.bg.type==='image'&&!S.bgImage))return sl;
+  const bl=st.bg.type==='color'?hexLum(st.bg.color):imgLum;if(bl==null)return null;const a=(st.bg.alpha??84)/100;return a*sl+(1-a)*bl}
+function textLumFor(st){const tx=st.text||{};if(tx.mode==='custom'&&tx.color)return hexLum(tx.color);if(tx.mode==='theme')return hexLum(isDarkMode(st)?'#e6e9f2':'#1b2233');return null}
+function contrastFor(st){const t=textLumFor(st),e=effLumFor(st);return t==null||e==null?null:contrastOf(t,e)}
+const readable=st=>{const c=contrastFor(st);return c==null||c>=MIN_CONTRAST};
+let textForced=false;
+function autoInk(eff){const root=document.documentElement,light=contrastOf(hexLum(INK_LIGHT),eff)>=contrastOf(hexLum(INK_DARK),eff);
+  root.style.setProperty('--ink',light?INK_LIGHT:INK_DARK);root.style.setProperty('--muted',light?'#c9cfdd':'#3f4a60')}
 function applyTextColor(){const st=S.settings,root=document.documentElement,tx=st.text||{mode:'auto'};
-  ['--ink','--muted'].forEach(v=>root.style.removeProperty(v));
-  if(tx.mode==='custom'&&tx.color){root.style.setProperty('--ink',tx.color);root.style.setProperty('--muted','color-mix(in srgb,'+tx.color+' 72%,transparent)');return}
-  if(tx.mode!=='auto'||st.bg.type==='none')return;
-  let bl=st.bg.type==='color'?hexLum(st.bg.color):imgLum;
-  if(bl==null&&st.bg.type==='image'&&S.bgImage){measureImage(S.bgImage,v=>{if(v!=null){imgLum=v;applyTextColor()}});return}
-  if(bl==null)return;
-  const sl=hexLum(getComputedStyle(root).getPropertyValue('--surface-solid'))??1,a=(st.bg.alpha??84)/100,eff=a*sl+(1-a)*bl;
-  if(eff<.32){root.style.setProperty('--ink','#f3f5fb');root.style.setProperty('--muted','#c9cfdd')}
-  else{root.style.setProperty('--ink','#151b2a');root.style.setProperty('--muted','#3f4a60')}}
+  ['--ink','--muted'].forEach(v=>root.style.removeProperty(v));textForced=false;
+  if(st.bg.type==='image'&&S.bgImage&&imgLum==null){measureImage(S.bgImage,v=>{if(v!=null){imgLum=v;applyTextColor();if(typeof renderTextSettings==='function')renderTextSettings()}})}
+  const eff=effLumFor(st);
+  if(tx.mode==='custom'&&tx.color){if(readable(st)){root.style.setProperty('--ink',tx.color);root.style.setProperty('--muted','color-mix(in srgb,'+tx.color+' 72%,transparent)')}else{textForced=true;if(eff!=null)autoInk(eff)}return}
+  if(tx.mode==='theme'){if(!readable(st)){textForced=true;if(eff!=null)autoInk(eff)}return}
+  if(st.bg.type==='none'||eff==null)return;
+  autoInk(eff)}
 
 /* ---------- quick record ---------- */
 function quickTargets(){const n=new Date();return{bed:ymd(n.getHours()>=12?addDays(n,1):n),wake:ymd(n)}}
@@ -894,10 +1131,10 @@ function occurs(ev,k){const ru=ev.rule||{},d=parse(k);
 const eventsOn=k=>FEAT().events?S.settings.events.filter(ev=>ev.name&&occurs(ev,k)):[];
 function cellHTML(k,cls){
   const d=parse(k),r=S.days[k]||{},s=sleepOf(k);
-  const mk=S.settings.marks,has={note:!!(r.note&&r.note.trim()),prep:r.prep!=null&&r.prep!=='',commute:!!(r.commute&&(r.commute.dep||r.commute.arr)),mood:r.ki!=null||r.tai!=null,work:!!(r.work&&(r.work.start||r.work.end)),late:homeInfo(r).late};
+  const mk=S.settings.marks,has={note:!!(r.note&&r.note.trim()),prep:r.prep!=null&&r.prep!=='',commute:!!(r.commute&&(r.commute.dep||r.commute.arr)),mood:r.ki!=null||r.tai!=null,work:!!(r.work&&(r.work.start||r.work.end)),late:homeInfo(r).late,hobby:FEAT().hobby&&hobbyTotal(r)>0};
   const ni=noteItems(r.note),nm=S.settings.noteMarks;
   const dots=MARKS.filter(([k])=>mk[k]&&has[k]).map(([k])=>'<i class="dot '+k+'"></i>').join('')+
-    NOTE_ITEMS.filter(it=>nm[it.t]&&nm[it.t].on&&ni[it.t]!==undefined).map(it=>'<i class="dot'+(ni[it.t]?'':' ring')+'" style="background:'+nm[it.t].color+';--rc:'+nm[it.t].color+'"></i>').join('');
+    noteTags().filter(it=>nmOf(it.t).on&&ni[it.t]!==undefined).map(it=>'<i class="dot'+(ni[it.t]?'':' ring')+'" style="background:'+nmOf(it.t).color+';--rc:'+nmOf(it.t).color+'"></i>').join('');
   const f=FEAT();let extra='',ms=f.meds?medStatus(r):null;
   if(ms)extra+='<i class="dot '+(ms.took>=ms.need?'med':'medp')+'"></i>';
   const evs=eventsOn(k);
@@ -925,9 +1162,9 @@ function renderCal(){
   }
   $('#cal').innerHTML=h;
   const on=MARKS.filter(([k])=>S.settings.marks[k]);
-  const onN=NOTE_ITEMS.filter(it=>S.settings.noteMarks[it.t]&&S.settings.noteMarks[it.t].on);
-  const lg=on.map(([k,n])=>'<span><i class="dot '+k+'"></i>'+n+'あり</span>').concat(onN.map(it=>'<span><i class="dot" style="background:'+S.settings.noteMarks[it.t].color+'"></i>'+esc(it.name)+'</span>'));
-  if(onN.some(it=>NOTE_NEG[it.t]))lg.push('<span><i class="dot ring" style="--rc:var(--muted)"></i>できなかった等</span>');
+  const onN=noteTags().filter(it=>nmOf(it.t).on);
+  const lg=on.map(([k,n])=>'<span><i class="dot '+k+'"></i>'+n+'あり</span>').concat(onN.map(it=>'<span><i class="dot" style="background:'+nmOf(it.t).color+'"></i>'+esc(it.name)+'</span>'));
+  if(onN.length)lg.push('<span><i class="dot ring" style="--rc:var(--muted)"></i>できなかった等</span>');
   const f=FEAT();
   if(f.period){lg.push('<span><i class="dot" style="background:color-mix(in srgb,var(--c-period) 40%,transparent);border-radius:3px"></i>生理</span>','<span><i class="dot" style="outline:1.5px dashed var(--c-period);background:transparent;border-radius:3px"></i>生理の予測</span>')}
   if(f.meds&&S.settings.meds.length)lg.push('<span><i class="dot med"></i>服薬すべて</span>','<span><i class="dot medp"></i>飲み忘れあり</span>');
@@ -941,6 +1178,19 @@ function shift(n){const d=parse(sel);
   else selectDate(ymd(addDays(d,view==='week'?7*n:n)));}
 $('#prev').onclick=()=>shift(-1);$('#next').onclick=()=>shift(1);
 $('#goToday').onclick=()=>selectDate(ymd(new Date()));
+let mainView='input';try{mainView=localStorage.getItem('nemuri-view')||'input'}catch(e){}
+function showView(v){mainView=v;try{localStorage.setItem('nemuri-view',v)}catch(e){}
+  document.querySelectorAll('#viewSeg [data-v]').forEach(b=>b.setAttribute('aria-selected',b.dataset.v===v));
+  document.querySelectorAll('#pageMain [data-view]').forEach(el=>el.classList.toggle('offview',el.dataset.view!==v));
+  if(v==='cal')setTimeout(()=>renderSelDay(),0);
+  window.scrollTo(0,0)}
+$('#viewSeg').addEventListener('click',e=>{const b=e.target.closest('[data-v]');if(b)showView(b.dataset.v)});
+$('#dPrev').onclick=()=>selectDate(ymd(addDays(parse(sel),-1)));
+$('#dNext').onclick=()=>selectDate(ymd(addDays(parse(sel),1)));
+function renderSelDay(){const r=S.days[sel],box=$('#selDay');if(!box)return;
+  const bits=r?['sleep','mood','work','home','hobby','note'].filter(x=>hasSec(r,x)).map(x=>SEC_NAME[x]+' '+secSummary(x,r)).slice(0,4):[];
+  box.innerHTML='<div><b>'+ymdJ(sel)+'</b><small>'+(bits.length?esc(bits.join('／')):'まだ記録がありません')+'</small></div><button type="button" class="btn" id="goInput">'+(r?'記録を見る':'この日を記録')+'</button>';
+  $('#goInput').onclick=()=>showView('input')}
 function selectDate(k){if(dirty&&k!==sel)toast('保存していない変更は破棄しました');sel=k;dirty=false;render(true)}
 
 /* ---------- sleep chart (timeline 18:00 → 12:00) ---------- */
@@ -994,6 +1244,30 @@ function lateList(ks){
 function avgTime(list){if(!list.length)return'—';const a=list.reduce((x,y)=>x+y,0)/list.length;return hm(Math.round(a)+18*60)}
 /* ---------- 数値パラメータの折れ線グラフ（単体・複合） ---------- */
 const clk=m=>m==null?null:((m-720)%1440+1440)%1440; /* 正午を0とした時刻 */
+/* ---------- 体の記録 ---------- */
+const BODY=[
+  {k:'bt',name:'基礎体温',unit:'℃',step:'0.01',min:34,max:42,ph:'36.50',dec:2},
+  {k:'wt',name:'体重',unit:'kg',step:'0.1',min:20,max:300,ph:'55.0',dec:1},
+  {k:'fat',name:'体脂肪率',unit:'%',step:'0.1',min:1,max:70,ph:'25.0',dec:1},
+  {k:'muscle',name:'筋肉量',unit:'kg',step:'0.1',min:5,max:150,ph:'40.0',dec:1},
+  {k:'temp',name:'体温（検温）',unit:'℃',step:'0.1',min:34,max:42,ph:'36.5',dec:1},
+  {k:'bp',name:'血圧',unit:'mmHg',bp:true},
+  {k:'pulse',name:'脈拍',unit:'回/分',step:'1',min:30,max:220,ph:'70',dec:0},
+  {k:'steps',name:'歩数',unit:'歩',step:'1',min:0,max:100000,ph:'8000',dec:0},
+  {k:'water',name:'水分',unit:'ml',step:'50',min:0,max:10000,ph:'1500',dec:0},
+  {k:'waist',name:'ウエスト',unit:'cm',step:'0.1',min:30,max:200,ph:'70.0',dec:1}];
+const bodyItemsAll=()=>{const st=S.settings.body||{},f=FEAT(),set=new Set(f.body?st.items||[]:[]);if(f.period)set.add('bt');return BODY.filter(b=>set.has(b.k))};
+/* 目的別ページ：毎日の生活／月経・婦人科／ダイエット・体型／健康・バイタル */
+const PAGES=[['life','毎日の生活'],['hobby','趣味・自分の時間'],['women','月経・婦人科'],['diet','ダイエット・体型'],['health','健康・バイタル']];
+const PURPOSE_DEF={bt:'women',wt:'diet',fat:'diet',muscle:'diet',waist:'diet',temp:'health',bp:'health',pulse:'health',steps:'health',water:'health'};
+const purposeOf=k=>((S.settings.body||{}).purpose||{})[k]||PURPOSE_DEF[k]||'health';
+const medsPage=()=>S.settings.medsPage||(FEAT().period?'women':'health');
+let formPage='life';try{formPage=localStorage.getItem('nemuri-page')||'life'}catch(e){}
+function pagesAvail(){const f=FEAT(),items=bodyItems(),has=pg=>items.some(b=>purposeOf(b.k)===pg);
+  return PAGES.filter(([k])=>k==='life'||(k==='hobby'&&f.hobby)||(k==='women'&&(f.period||has('women')||(f.meds&&medsPage()==='women')))||(k==='diet'&&has('diet'))||(k==='health'&&(has('health')||(f.meds&&medsPage()==='health'))))}
+const bodyItems=()=>bodyItemsAll();
+const pageBodyItems=()=>bodyItemsAll().filter(b=>purposeOf(b.k)===formPage);
+const bmi=wt=>{const h=+(S.settings.body||{}).height;return h>=100&&wt?wt/((h/100)**2):null};
 const PARAMS={
   ki:{name:'気力',unit:'pct',color:'var(--dawn)',get:(r)=>r.ki},
   tai:{name:'体力',unit:'pct',color:'var(--c-prep)',get:(r)=>r.tai},
@@ -1003,16 +1277,35 @@ const PARAMS={
   wake:{name:'起床',unit:'clock',color:'#2b8fd6',get:(r)=>clk(toMin(r.wake))},
   home:{name:'帰宅',unit:'clock',color:'var(--c-late)',get:(r)=>{const v=homeOf(r);return v==null?null:clk(v)}},
   commute:{name:'通勤（片道）',unit:'min',color:'#a3519a',get:(r)=>commLen(r.commute)},
-  prep:{name:'朝支度',unit:'min',color:'#4f9a3a',get:(r)=>r.prep==null||r.prep===''?null:+r.prep}};
-const KINDS={sleepLen:['sleepLen'],bedwake:['bed','wake'],ki:['ki'],tai:['tai'],mood:['ki','tai'],sleepMood:['sleepLen','ki','tai'],work:['work'],home:['home'],workHome:['work','home'],commute:['commute'],prep:['prep']};
-const KIND_NAME={sleep:'睡眠スケジュール',sleepLen:'睡眠時間',bedwake:'寝支度・起床の時刻',ki:'気力',tai:'体力',mood:'気力と体力',sleepMood:'睡眠時間と気力・体力',work:'勤務時間',home:'帰宅時刻',workHome:'勤務時間と帰宅時刻',commute:'通勤時間',prep:'朝支度の時間',custom:'組み合わせ'};
+  prep:{name:'朝支度',unit:'min',color:'#4f9a3a',get:(r)=>r.prep==null||r.prep===''?null:+r.prep},
+  hobby:{name:'趣味の時間',unit:'dur',color:'var(--c-hobby)',get:(r)=>{const t=hobbyTotal(r);return t>0?t:null}},
+  bt:{name:'基礎体温',unit:'temp',color:'#d9547a',get:(r)=>r.body&&r.body.bt},
+  wt:{name:'体重',unit:'kg',color:'#2b8fd6',get:(r)=>r.body&&r.body.wt},
+  fat:{name:'体脂肪率',unit:'fat',color:'#c0672e',get:(r)=>r.body&&r.body.fat},
+  bpH:{name:'血圧（上）',unit:'mmHg',color:'#c74f6f',get:(r)=>r.body&&r.body.bpH},
+  bpL:{name:'血圧（下）',unit:'mmHg',color:'#8a63c9',get:(r)=>r.body&&r.body.bpL},
+  pulse:{name:'脈拍',unit:'bpm',color:'#4f9a3a',get:(r)=>r.body&&r.body.pulse},
+  steps:{name:'歩数',unit:'steps',color:'#3f7f9f',get:(r)=>r.body&&r.body.steps},
+  water:{name:'水分',unit:'ml',color:'#2b8fd6',get:(r)=>r.body&&r.body.water},
+  waist:{name:'ウエスト',unit:'cm',color:'#9a6a4f',get:(r)=>r.body&&r.body.waist},
+  muscle:{name:'筋肉量',unit:'kg',color:'#4f9a3a',get:(r)=>r.body&&r.body.muscle},
+  temp:{name:'体温',unit:'temp',color:'#c0672e',get:(r)=>r.body&&r.body.temp},
+  bmi:{name:'BMI',unit:'bmi',color:'#6b5bd6',get:(r)=>{const x=r.body&&bmi(r.body.wt);return x?+x.toFixed(1):null}}};
+const KINDS={hobby:['hobby'],hobbyMood:['hobby','ki'],bt:['bt'],wtfat:['wt','fat'],wt:['wt'],wtmus:['wt','muscle'],bmi:['bmi'],temp:['temp'],bp:['bpH','bpL','pulse'],steps:['steps'],water:['water'],sleepLen:['sleepLen'],bedwake:['bed','wake'],ki:['ki'],tai:['tai'],mood:['ki','tai'],sleepMood:['sleepLen','ki','tai'],work:['work'],home:['home'],workHome:['work','home'],commute:['commute'],prep:['prep']};
+const KIND_NAME={hobby:'趣味の時間',hobbyMood:'趣味の時間と気力',bt:'基礎体温',wtfat:'体重と体脂肪率',wt:'体重',wtmus:'体重と筋肉量',bmi:'BMI',temp:'体温',bp:'血圧と脈拍',steps:'歩数',water:'水分',sleep:'睡眠スケジュール',sleepLen:'睡眠時間',bedwake:'寝支度・起床の時刻',ki:'気力',tai:'体力',mood:'気力と体力',sleepMood:'睡眠時間と気力・体力',work:'勤務時間',home:'帰宅時刻',workHome:'勤務時間と帰宅時刻',commute:'通勤時間',prep:'朝支度の時間',custom:'組み合わせ'};
 let chartKind='sleep',customSel=['sleepLen','ki'];
 try{const o=JSON.parse(localStorage.getItem('nemuri-chart')||'null');if(o){if(o.kind&&KIND_NAME[o.kind])chartKind=o.kind;if(Array.isArray(o.custom))customSel=o.custom.filter(k=>PARAMS[k])}}catch(e){}
 const saveChartPref=()=>{try{localStorage.setItem('nemuri-chart',JSON.stringify({kind:chartKind,custom:customSel}))}catch(e){}};
-const UNIT_FMT={pct:v=>v+'%',dur:v=>(v/60).toFixed(v%60?1:0)+'h',min:v=>v+'分',clock:v=>hm(v+720)};
-const fmtVal=(u,v)=>u==='dur'?Math.floor(v/60)+'h'+pad(Math.round(v%60)):u==='clock'?hm(Math.round(v)+720):Math.round(v)+(u==='pct'?'%':'分');
+const NUM_UNITS={bmi:['',1],temp:['℃',2],kg:['kg',1],fat:['%',1],mmHg:['',0],bpm:['',0],steps:['歩',0],ml:['ml',0],cm:['cm',1]};
+const UNIT_FMT={bmi:v=>v.toFixed(1),temp:v=>v.toFixed(1),kg:v=>v.toFixed(v%1?1:0),fat:v=>v.toFixed(0)+'%',mmHg:v=>v.toFixed(0),bpm:v=>v.toFixed(0),steps:v=>v>=1000?(v/1000).toFixed(v%1000?1:0)+'k':v.toFixed(0),ml:v=>v.toFixed(0),cm:v=>v.toFixed(0),pct:v=>v+'%',dur:v=>(v/60).toFixed(v%60?1:0)+'h',min:v=>v+'分',clock:v=>hm(v+720)};
+const fmtVal=(u,v)=>NUM_UNITS[u]?(+v).toFixed(NUM_UNITS[u][1])+NUM_UNITS[u][0]+(u==='mmHg'?'mmHg':u==='bpm'?'回/分':''):u==='dur'?Math.floor(v/60)+'h'+pad(Math.round(v%60)):u==='clock'?hm(Math.round(v)+720):Math.round(v)+(u==='pct'?'%':'分');
+function niceRange(vals,minSpan){if(!vals.length)return[0,1,[0,1]];let lo=Math.min(...vals),hi=Math.max(...vals);if(hi-lo<minSpan){const c=(hi+lo)/2;lo=c-minSpan/2;hi=c+minSpan/2}
+  const raw=(hi-lo)/4,mag=Math.pow(10,Math.floor(Math.log10(raw))),st=[1,2,2.5,5,10].map(x=>x*mag).find(x=>x>=raw);lo=Math.floor(lo/st)*st;hi=Math.ceil(hi/st)*st;
+  const t=[];for(let v=lo;v<=hi+st/2;v+=st)t.push(+v.toFixed(6));return[lo,hi,t]}
+const MIN_SPAN={temp:.6,kg:2,fat:4,mmHg:30,bpm:20,steps:2000,ml:500,cm:4};
 function unitRange(u,vals){
   if(u==='pct')return[0,100,[0,25,50,75,100]];
+  if(MIN_SPAN[u]!=null)return niceRange(vals,MIN_SPAN[u]);
   if(!vals.length)vals=[0];
   if(u==='dur'){const mx=Math.max(60,...vals);const top=Math.ceil(mx/120)*120;const st=top/4;return[0,top,[0,1,2,3,4].map(i=>i*st)]}
   if(u==='min'){const mx=Math.max(10,...vals);const step=mx<=40?10:mx<=80?20:mx<=150?30:60;const top=Math.ceil(mx/step)*step;const ticks=[];for(let t=0;t<=top;t+=step)ticks.push(t);return[0,top,ticks]}
@@ -1026,7 +1319,9 @@ function lineChart(ks,keys){
   const X=i=>pl+(n>1?i*iw/(n-1):iw/2),Y=(u,v)=>{const[a,b]=rng[u];return pt+ih-(v-a)/(b-a||1)*ih};
   let g='';const si=ks.indexOf(sel);
   if(si>=0){const bw=n>1?iw/(n-1):iw;g+='<rect class="selband" x="'+(X(si)-bw/2).toFixed(1)+'" y="'+pt+'" width="'+bw.toFixed(1)+'" height="'+ih+'"/>'}
+  if(FEAT().period&&keys.includes('bt')){const bw=n>1?iw/(n-1):iw;ks.forEach((d,i)=>{if(isPer(d))g+='<rect x="'+(X(i)-bw/2).toFixed(1)+'" y="'+pt+'" width="'+bw.toFixed(1)+'" height="'+ih+'" style="fill:var(--c-period);opacity:.14"/>'})}
   const L=units[0],R=units[1];
+  {const goal=+((S.settings.body||{}).goal);if(goal&&keys.includes('wt')&&rng.kg){const[a,b]=rng.kg;if(goal>=a&&goal<=b){const y=Y('kg',goal).toFixed(1);g+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'" style="stroke:#2b8fd6;stroke-dasharray:3 4;stroke-width:1.5"/><text x="'+(W-pr-2)+'" y="'+(+y-4)+'" text-anchor="end" style="fill:#2b8fd6">目標'+goal+'</text>'}}}
   rng[L][2].forEach(t=>{const y=Y(L,t).toFixed(1);g+='<line class="grid" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(pl-4)+'" y="'+(+y+3)+'" text-anchor="end">'+UNIT_FMT[L](t)+'</text>'});
   if(R)rng[R][2].forEach(t=>{const y=Y(R,t);g+='<text x="'+(W-pr+4)+'" y="'+(y+3).toFixed(1)+'">'+UNIT_FMT[R](t)+'</text>'});
   const every=n<=8?1:n<=16?2:5;
@@ -1040,15 +1335,20 @@ function lineChart(ks,keys){
   const has=ser.some(x=>x.vals.some(v=>v!=null));
   const leg=ser.map(x=>{const v=x.vals.filter(y=>y!=null),a=v.length?v.reduce((p,q)=>p+q,0)/v.length:null,sv=x.vals[ks.indexOf(sel)];
     return '<span><i style="background:'+x.color+(x.unit===R&&units.length>1?';background:repeating-linear-gradient(90deg,'+x.color+' 0 5px,transparent 5px 8px)':'')+'"></i>'+x.name+(units.length>1?(x.unit===L?'（左）':'（右）'):'')+' 平均 <b>'+(a==null?'—':fmtVal(x.unit,a))+'</b>'+(sv!=null?'・'+md(sel).replace(/\(.\)/,'')+' <b>'+fmtVal(x.unit,sv)+'</b>':'')+'</span>'}).join('');
-  return '<svg class="lc" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(ser.map(x=>x.name).join('と'))+'の推移">'+g+'</svg>'+(has?'':'<p class="empty" style="margin:0">この期間はまだ記録がありません。</p>')+'<div class="lcleg">'+leg+'</div>';
+  let extra='';if(keys.includes('bt')&&FEAT().period)extra+='<span><i style="background:var(--c-period);opacity:.35;height:10px"></i>生理の日</span>';
+  if(keys.includes('wt')){const lw=ser.find(x=>x.k==='wt').vals.filter(v=>v!=null);const b=lw.length?bmi(lw[lw.length-1]):null;if(b)extra+='<span>最新のBMI <b>'+b.toFixed(1)+'</b></span>'}
+  return '<svg class="lc" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(ser.map(x=>x.name).join('と'))+'の推移">'+g+'</svg>'+(has?'':'<p class="empty" style="margin:0">この期間はまだ記録がありません。</p>')+'<div class="lcleg">'+leg+extra+'</div>';
 }
 function renderCustomPick(){const box=$('#customPick');box.hidden=chartKind!=='custom';if(box.hidden)return;
   const us=[...new Set(customSel.map(k=>PARAMS[k].unit))];
-  box.innerHTML=Object.entries(PARAMS).map(([k,p])=>{const dis=!customSel.includes(k)&&us.length>=2&&!us.includes(p.unit);
+  const bodyOn=FEAT().body||FEAT().period,bodyKeys=['bt','wt','fat','bpH','bpL','pulse','steps','water','waist','muscle','temp','bmi'];
+  box.innerHTML=Object.entries(PARAMS).filter(([k])=>bodyOn||!bodyKeys.includes(k)).map(([k,p])=>{const dis=!customSel.includes(k)&&us.length>=2&&!us.includes(p.unit);
     return '<label'+(dis?' class="dis" title="単位の違う項目は2種類まで重ねられます"':'')+'><input type="checkbox" data-cp="'+k+'"'+(customSel.includes(k)?' checked':'')+(dis?' disabled':'')+'>'+p.name+'</label>'}).join('');}
 $('#chartKind').addEventListener('change',e=>{chartKind=e.target.value;saveChartPref();renderChart()});
 $('#customPick').addEventListener('change',e=>{const k=e.target.dataset.cp;if(!k)return;customSel=e.target.checked?[...customSel,k]:customSel.filter(x=>x!==k);saveChartPref();renderChart()});
 function renderChart(){
+  {const hk=document.getElementById('hobbyKinds');hk.hidden=hk.disabled=!FEAT().hobby;if(!FEAT().hobby&&(chartKind==='hobby'||chartKind==='hobbyMood'))chartKind='sleep'}
+  {const on=FEAT().body||FEAT().period,bk=document.getElementById('bodyKinds');bk.hidden=!on;bk.disabled=!on;if(!on&&KINDS[chartKind]&&KINDS[chartKind].some(k=>BODY.some(b=>k===b.k||k.startsWith('bp')||k==='pulse')))chartKind='sleep'}
   $('#chartKind').value=chartKind;renderCustomPick();
   if(chartKind!=='sleep')return renderLineView();
   const ks=rangeDays();let h='';
@@ -1085,6 +1385,7 @@ function dayParts(k){
   const r=S.days[k];if(!r)return null;
   const s=sleepOf(k),c=r.commute||{},a=toMin(c.dep),b=toMin(c.arr);
   const p={work:workLen(r),sleep:s&&s.len!=null?s.len:null,prep:r.prep!=null&&r.prep!==''?+r.prep:null,move:a!=null&&b!=null?((b-a+1440)%1440)*2:null,other:otherParts(r)};
+  if(FEAT().hobby&&r.hobby&&r.hobby.min){const o=p.other?{...p.other}:{};Object.entries(r.hobby.min).forEach(([id,m])=>{const h=S.settings.hobbies.find(x=>x.id===id);const n=h?h.name:'趣味';o[n]=(o[n]||0)+(+m||0)});if(Object.keys(o).length)p.other=o}
   return p.sleep==null&&p.prep==null&&p.move==null&&p.work==null&&!p.other?null:p;
 }
 function shareHTML(ks){
@@ -1135,13 +1436,28 @@ function fillSlots(cur){
 }
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 /* 各項目は独立して記録する：sleep / mood / commute / prep / note */
-const SEC={sleep:[F.bed,F.bedDay,F.wake,F.wakeDay],mood:[F.ki,F.tai],commute:[F.slot,F.slotName,F.dep,F.arr],work:[F.ws,F.we],home:[F.home,F.homeWhy],period:[],meds:[],other:[F.omemo],prep:[F.prep],note:[F.note]};
-const SEC_NAME={sleep:'睡眠',mood:'気力・体力',commute:'通勤',work:'勤務時間',home:'帰宅',period:'月経',meds:'お薬',other:'その他の時間',prep:'朝支度',note:'特記事項'};
-const SEC_KEYS={sleep:['bed','bedDay','wake','wakeDay'],mood:['ki','tai'],commute:['commute'],work:['work'],home:['home'],period:['period'],meds:['meds'],other:['other'],prep:['prep'],note:['note']};
+const SEC={sleep:[F.bed,F.bedDay,F.wake,F.wakeDay],mood:[F.ki,F.tai],commute:[F.slot,F.slotName,F.dep,F.arr],work:[F.ws,F.we],home:[F.home,F.homeWhy],hobby:[$('#fHobbyMemo')],period:[],meds:[],body:[],other:[F.omemo],prep:[F.prep],note:[F.note]};
+const SEC_NAME={sleep:'睡眠',mood:'気力・体力',commute:'通勤',work:'勤務時間',home:'帰宅',hobby:'趣味の時間',period:'月経',meds:'お薬',body:'体の記録',other:'その他の時間',prep:'朝支度',note:'特記事項'};
+const SEC_KEYS={sleep:['bed','bedDay','wake','wakeDay'],mood:['ki','tai'],commute:['commute'],work:['work'],home:['home'],hobby:['hobby'],period:['period'],meds:['meds'],body:['body'],other:['other'],prep:['prep'],note:['note']};
 const dirtySecs=new Set(),warnKeys={};
 let bedDayTouched=false;
-const hasSec=(r,sec)=>{if(!r)return false;return sec==='sleep'?!!(r.bed||r.wake):sec==='mood'?(r.ki!=null||r.tai!=null):sec==='commute'?!!r.commute:sec==='work'?!!r.work:sec==='home'?!!r.home:sec==='period'?!!r.period:sec==='meds'?!!(r.meds&&Object.values(r.meds).some(o=>Object.values(o).some(Boolean))):sec==='other'?!!r.other:sec==='prep'?r.prep!=null:!!r.note};
-function secState(sec){const el=$('#st-'+sec),r=S.days[sel];
+const hasSec=(r,sec)=>{if(!r)return false;return sec==='sleep'?!!(r.bed||r.wake):sec==='mood'?(r.ki!=null||r.tai!=null):sec==='commute'?!!r.commute:sec==='work'?!!r.work:sec==='home'?!!r.home:sec==='hobby'?!!r.hobby:sec==='period'?!!r.period:sec==='body'?!!(r.body&&Object.keys(r.body).length):sec==='meds'?!!(r.meds&&Object.values(r.meds).some(o=>Object.values(o).some(Boolean))):sec==='other'?!!r.other:sec==='prep'?r.prep!=null:!!r.note};
+function secSummary(sec,r){if(!r)return'';try{
+  if(sec==='sleep'){const x=sleepOf(sel);return (r.bed||'—')+'→'+(r.wake||'—')+(x&&x.len!=null?'（'+dur(x.len)+'）':'')}
+  if(sec==='mood')return '気力'+(r.ki??'—')+'%・体力'+(r.tai??'—')+'%';
+  if(sec==='commute'){const c=r.commute||{},sl=S.settings.slots.find(x=>x.id===c.slot);return (sl?sl.name+' ':'')+(c.dep||'—')+'→'+(c.arr||'—')}
+  if(sec==='work')return (r.work.pattern?r.work.pattern+' ':'')+(r.work.start||'—')+'〜'+(r.work.end||'—');
+  if(sec==='home'){const i=homeInfo(r);return i.actual!=null?hm(i.actual)+(i.diff>0?'（+'+i.diff+'分）':''):i.plan!=null?hm(i.plan)+'（予定）':''}
+  if(sec==='hobby')return durHM(hobbyTotal(r));
+  if(sec==='period')return r.period.flow?'生理中（'+r.period.flow+'）':'症状のみ';
+  if(sec==='meds'){const m=medStatus(r);return m?m.took+'/'+m.need+'回':''}
+  if(sec==='body')return Object.entries(r.body||{}).slice(0,3).map(([k,v])=>(PARAMS[k]?PARAMS[k].name:k)+v).join('・');
+  if(sec==='other')return ((r.other.items||[]).length?(r.other.items.length+'件'):'')+(r.other.memo?' メモ':'');
+  if(sec==='prep')return r.prep+'分';
+  if(sec==='note')return (r.note||'').split('\n')[0].slice(0,18);
+  }catch(e){}return''}
+function secState(sec){const el=$('#st-'+sec),r=S.days[sel];clearTimeout(secState.t);secState.t=setTimeout(renderSecTabs,0);
+  if(!dirtySecs.has(sec)&&hasSec(r,sec)){el.className='secstate saved';el.textContent=secSummary(sec,r)||'記録済み';return}
   el.className='secstate'+(dirtySecs.has(sec)?' dirty':hasSec(r,sec)?' saved':'');
   el.textContent=dirtySecs.has(sec)?'未記録の変更あり':hasSec(r,sec)?'記録済み':sec==='note'?'なし（空欄でOK）':sec==='period'?'なし':sec==='home'?(planOf(r||{})!=null?'予定どおりとして扱います':'未記録'):'未記録';}
 function headState(){$('#fState').textContent=S.days[sel]?'記録あり':'未記録'}
@@ -1162,18 +1478,23 @@ function fillSec(sec){
     $('#commuteTimes').hidden=!c.slot&&!c.dep;commuteHint();
   }else if(sec==='other'){const o=r.other||{};renderActRows(o.items||[]);F.omemo.value=o.memo||''}
   else if(sec==='work'){const w=r.work||{};F.ws.value=w.start||'';F.we.value=w.end||'';F.ws.dataset.pattern=w.pattern||'';workHint()}
-  else if(sec==='period'){const pr=r.period||{};perFlow=pr.flow||'';perSym=new Set(pr.sym||[]);renderPeriodForm()}
+  else if(sec==='hobby'){const h=r.hobby||{};hobbyState=clone(h.min||{});$('#fHobbyMemo').value=h.memo||'';renderHobbyForm()}
+  else if(sec==='period'){const pr=r.period||{};perFlow=pr.flow||'';perSym=new Set(pr.sym||[]);renderPeriodForm();renderPerLinks()}
+  else if(sec==='body'){bodyVals=clone(r.body||{});renderBodyForm()}
   else if(sec==='meds'){medsState=clone(r.meds||{});renderMedsForm()}
   else if(sec==='home'){const h=r.home||{};F.home.value=h.time||'';F.homeWhy.value=h.reason||'';homeCat=h.cat||'';renderWhy();homePlanHint()}
   else if(sec==='prep')F.prep.value=r.prep??'';
-  else{F.note.value=r.note||'';$('#noteOpts').hidden=true}
+  else{F.note.value=r.note||'';$('#noteOpts').hidden=true;renderNoteChips()}
   dirtySecs.delete(sec);dirty=dirtySecs.size>0;clearWarn(sec);secState(sec);
 }
 function fillForm(){
   const d=parse(sel);
   $('#fDate').textContent=(d.getMonth()+1)+'月'+d.getDate()+'日('+WD[d.getDay()]+')の記録';
   Object.keys(SEC).forEach(fillSec);headState();dirty=false;buildFormJump();renderPChips();$('#pSaveRow').hidden=true;
+  openFirstTodo();
 }
+function openFirstTodo(){const r=S.days[sel],vis=[...document.querySelectorAll('#form .sec')].filter(x=>!x.hidden);
+  const first=vis.find(x=>!hasSec(r,x.dataset.sec)&&x.dataset.sec!=='note'&&x.dataset.sec!=='home')||vis[0];vis.forEach(x=>setClosed(x,x!==first))}
 function refreshClean(){Object.keys(SEC).forEach(s=>{if(!dirtySecs.has(s))fillSec(s);else secState(s)});headState()}
 Object.entries(SEC).forEach(([sec,els])=>els.forEach(el=>{el.addEventListener('input',()=>markDirty(sec));el.addEventListener('change',()=>markDirty(sec))}));
 
@@ -1215,13 +1536,42 @@ function renderPeriodForm(){document.querySelectorAll('#flowOpts [data-flow]').f
 $('#flowOpts').addEventListener('click',e=>{const b=e.target.closest('[data-flow]');if(!b)return;perFlow=b.dataset.flow;renderPeriodForm();markDirty('period')});
 $('#symChips').addEventListener('click',e=>{const b=e.target.closest('[data-sym]');if(!b)return;const v=b.dataset.sym;perSym.has(v)?perSym.delete(v):perSym.add(v);renderPeriodForm();markDirty('period')});
 function renderMedsForm(){const meds=S.settings.meds;
-  $('#medRows').innerHTML=meds.length?meds.map(m=>'<div class="medrow" data-mid="'+m.id+'"><b>'+esc(m.name||'お薬')+'</b><div class="opts">'+(m.times||[]).map(t=>'<button type="button" data-t="'+t+'" aria-pressed="'+!!(medsState[m.id]&&medsState[m.id][t])+'">'+t+'</button>').join('')+'</div></div>').join(''):'<p class="hint" style="margin:0">設定タブの「追加機能」→「お薬管理」でお薬と飲むタイミングを登録してください。</p>';
+  $('#medRows').innerHTML=meds.length?meds.map(m=>'<div class="medrow" data-mid="'+m.id+'"><b>'+esc(m.name||'お薬')+'</b><div class="opts">'+(m.times||[]).map(t=>'<button type="button" data-t="'+t+'" aria-pressed="'+!!(medsState[m.id]&&medsState[m.id][t])+'">'+t+'</button>').join('')+'</div></div>').join(''):'<p class="hint" style="margin:0">設定タブの「使う機能」→「お薬管理」でお薬と飲むタイミングを登録してください。</p>';
   $('#medAll').hidden=!meds.length}
 $('#medRows').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;const id=b.closest('[data-mid]').dataset.mid,t=b.dataset.t;
   medsState[id]=medsState[id]||{};medsState[id][t]=!medsState[id][t];renderMedsForm();markDirty('meds')});
 $('#medAll').onclick=()=>{S.settings.meds.forEach(m=>{medsState[m.id]={};(m.times||[]).forEach(t=>medsState[m.id][t]=true)});renderMedsForm();markDirty('meds')};
-function applyFeatures(){const f=FEAT();$('#secPeriod').hidden=!f.period;$('#secMeds').hidden=!f.meds;$('#reportRow').hidden=!f.share;$('#openExport').hidden=!f.share;if($('#formJump'))buildFormJump()}
-const activeSec=sec=>sec==='period'?!!FEAT().period:sec==='meds'?!!FEAT().meds:true;
+let bodyVals={};
+function renderBodyForm(){const items=pageBodyItems(),box=$('#bodyFields');
+  $('#secBody h3').textContent={women:'基礎体温など',diet:'体重・体型',health:'バイタル'}[formPage]||'体の記録';
+  box.innerHTML=items.map(b=>b.bp?'<div class="bfield"><label>血圧（上／下）</label><div class="bp"><input type="number" inputmode="numeric" data-b="bpH" min="50" max="250" placeholder="120" value="'+(bodyVals.bpH??'')+'" aria-label="血圧（上）"><span>/</span><input type="number" inputmode="numeric" data-b="bpL" min="30" max="150" placeholder="80" value="'+(bodyVals.bpL??'')+'" aria-label="血圧（下）"></div><span class="sub">mmHg</span></div>':
+    '<div class="bfield"><label for="b_'+b.k+'">'+b.name+'</label><div class="inline"><input type="number" id="b_'+b.k+'" inputmode="'+(b.dec?'decimal':'numeric')+'" step="'+b.step+'" min="'+b.min+'" max="'+b.max+'" placeholder="'+b.ph+'" data-b="'+b.k+'" value="'+(bodyVals[b.k]??'')+'"><span>'+b.unit+'</span></div><span class="sub" id="bsub_'+b.k+'"></span></div>').join('');
+  updateBodySubs();
+  $('#bodyHint').textContent=items.length?'入れた項目だけ記録します。空欄の項目は記録しません。':'設定タブの「使う機能」→「体の記録」で、記録したい項目を選んでください。';}
+function updateBodySubs(){const prevOf=k=>{let d=parse(sel);for(let i=1;i<=31;i++){const r=S.days[ymd(addDays(d,-i))];if(r&&r.body&&r.body[k]!=null)return r.body[k]}return null};
+  pageBodyItems().forEach(b=>{if(b.bp)return;const el=document.getElementById('bsub_'+b.k);if(!el)return;const v=bodyVals[b.k],pv=prevOf(b.k);let t='';
+    if(v!=null&&v!==''&&pv!=null){const d=+v-pv;t='前回比 '+(d>0?'+':'')+d.toFixed(b.dec||0)}
+    if(b.k==='wt'&&v){const x=bmi(+v);if(x)t+=(t?'・':'')+'BMI '+x.toFixed(1)}
+    el.textContent=t})}
+$('#bodyFields').addEventListener('input',e=>{const k=e.target.dataset.b;if(!k)return;bodyVals[k]=e.target.value;updateBodySubs();markDirty('body')});
+function renderPerLinks(){const r=S.days[sel]||{},bt=r.body&&r.body.bt,ms=FEAT().meds?medStatus(r):null,L=[];
+  L.push('<button type="button" class="btn ghost sm" data-goto="body">基礎体温 '+(bt!=null?bt+'℃':'を記録')+'</button>');
+  if(FEAT().meds)L.push('<button type="button" class="btn ghost sm" data-goto="meds">服薬 '+(ms?ms.took+'/'+ms.need:'を記録')+'</button>');
+  else L.push('<span class="hint">ピルや鎮痛剤の服薬は「お薬管理」をオンにすると記録できます。</span>');
+  $('#perLinks').innerHTML=L.join('')}
+$('#perLinks').addEventListener('click',e=>{const b=e.target.closest('[data-goto]');if(!b)return;const se=document.querySelector('#form .sec[data-sec="'+b.dataset.goto+'"]');if(se){setClosed(se,false);se.scrollIntoView({block:'start',behavior:'smooth'})}});
+const SEC_PAGE=sec=>sec==='hobby'?'hobby':sec==='period'?'women':sec==='meds'?medsPage():sec==='body'?formPage:'life';
+function secVisible(sec){const f=FEAT();
+  if(sec==='hobby'&&!f.hobby)return false;if(sec==='period'&&!f.period)return false;if(sec==='meds'&&!f.meds)return false;if(sec==='body'&&!pageBodyItems().length)return false;
+  return SEC_PAGE(sec)===formPage}
+function renderPageSel(){const av=pagesAvail();if(!av.some(([k])=>k===formPage))formPage='life';
+  $('#pageSel').innerHTML=av.map(([k,n])=>'<option value="'+k+'"'+(k===formPage?' selected':'')+'>'+n+'</option>').join('');$('#pagePick').hidden=av.length<2}
+function applyFeatures(){const f=FEAT();renderPageSel();if(typeof renderHobbyCard==='function'&&$('#hobbyCard'))setTimeout(renderHobbyCard,0);
+  document.querySelectorAll('#form .sec').forEach(se=>se.hidden=!secVisible(se.dataset.sec));
+  $('#patternBar').hidden=formPage!=='life';
+  $('#allReq').textContent=formPage==='life'?'睡眠（寝支度と起床）と気力・体力が必須です。通勤・勤務時間・その他の時間・朝支度・特記事項は空欄でも記録できます。':'このページの欄をまとめて記録します。空欄の項目は記録しません。';
+  {const sig=formPage+'|'+pageBodyItems().map(b=>b.k).join(',');if(sig!==applyFeatures.sig){applyFeatures.sig=sig;renderBodyForm()}}$('#reportRow').hidden=!f.share;$('#openExport').hidden=!f.share;if($('#formJump'))buildFormJump()}
+const activeSec=sec=>secVisible(sec);
 function formRec(){return{work:{start:F.ws.value,end:F.we.value},commute:{dep:F.dep.value,arr:F.arr.value}}}
 function homePlanHint(){const r=formRec(),pl=planOf(r),c=commLen(r.commute),el=$('#homePlan');
   if(pl==null){el.innerHTML='勤務終了を入れると、帰宅予定を自動で計算します。';return}
@@ -1294,6 +1644,9 @@ function checkSec(sec){
       const m=actLen(it);if(m!=null&&m>16*60)warn.push('「'+it.name+'」が '+dur(m)+' になっています');});
     const tot=rows.reduce((t,it)=>t+(actLen(it)||0),0);if(tot>16*60)warn.push('その他の時間の合計が '+dur(tot)+' あります');
     if(!rows.length&&!F.omemo.value.trim()&&hasSec(S.days[sel],'other'))warn.push('空なので、この日のその他の時間の記録を消します');}
+  if(sec==='body'){bodyItems().forEach(b=>{const ks=b.bp?[['bpH',50,250,'血圧（上）'],['bpL',30,150,'血圧（下）']]:[[b.k,b.min,b.max,b.name]];
+      ks.forEach(([k,mn,mx,nm])=>{const v=bodyVals[k];if(v===''||v==null)return;const n=+v;if(!Number.isFinite(n))err.push(nm+'は数字で入れてください');else if(n<mn||n>mx)warn.push(nm+'が '+n+' になっています（ふつうは'+mn+'〜'+mx+'）')})});
+    if(bodyVals.bpH&&bodyVals.bpL&&+bodyVals.bpL>=+bodyVals.bpH)warn.push('血圧の下が上以上になっています。上下が逆かもしれません');}
   if(sec==='home'){const t=toMin(F.home.value),we=toMin(F.we.value)??toMin(((S.days[sel]||{}).work||{}).end);
     if(t!=null&&we!=null){const ab=t<we-360?t+1440:t;if(ab<we)warn.push('帰宅が勤務終了（'+hm(we)+'）より前になっています');else if(ab-we>8*60)warn.push('勤務終了から '+dur(ab-we)+' 後の帰宅になっています');}
     if(t==null&&!homeCat&&!F.homeWhy.value.trim()&&hasSec(S.days[sel],'home'))warn.push('空なので、この日の帰宅の記録を消します（予定どおりとして扱います）');}
@@ -1318,6 +1671,11 @@ function buildPatch(sec){
       const s=S.settings.slots.find(x=>x.id===slot);if(s&&!s.dep&&!s.arr){s.dep=F.dep.value;s.arr=F.arr.value;saveSettings()}}}
   if(sec==='other'){const items=readActRows(),memo=F.omemo.value.trim();if(items.length||memo)patch.other={items,memo}}
   if(sec==='work'&&(F.ws.value||F.we.value)){patch.work={start:F.ws.value,end:F.we.value};if(F.ws.dataset.pattern)patch.work.pattern=F.ws.dataset.pattern}
+  if(sec==='body'){const o={};const keep=new Set(bodyItems().flatMap(b=>b.bp?['bpH','bpL']:[b.k]));
+    Object.entries(bodyVals).forEach(([k,v])=>{if(v===''||v==null)return;const n=+v;if(!Number.isFinite(n))return;if(keep.has(k))o[k]=n});
+    const old=(S.days[sel]||{}).body||{};Object.entries(old).forEach(([k,v])=>{if(!keep.has(k)&&o[k]==null)o[k]=v}); /* 表示していない項目の記録は残す */
+    if(Object.keys(o).length)patch.body=o}
+  if(sec==='hobby'){const m={};Object.entries(hobbyState).forEach(([k,v])=>{if(+v>0)m[k]=Math.round(+v)});const memo=$('#fHobbyMemo').value.trim();if(Object.keys(m).length||memo)patch.hobby={min:m,memo}}
   if(sec==='period'&&(perFlow||perSym.size))patch.period={flow:perFlow,sym:[...perSym]};
   if(sec==='meds'){const o={};Object.entries(medsState).forEach(([id,t])=>{const tt={};Object.entries(t||{}).forEach(([k,v])=>{if(v)tt[k]=true});if(Object.keys(tt).length)o[id]=tt});if(Object.keys(o).length)patch.meds=o}
   if(sec==='home'){const h={};if(F.home.value)h.time=F.home.value;if(homeCat)h.cat=homeCat;if(F.homeWhy.value.trim())h.reason=F.homeWhy.value.trim();if(Object.keys(h).length)patch.home=h}
@@ -1331,7 +1689,7 @@ function saveSec(sec){
   const key=JSON.stringify(c.warn);
   if(c.warn.length&&warnKeys[sec]!==key){warnKeys[sec]=key;showWarn(sec,c.warn,'確認してください。よければもう一度押すと記録します');btn.textContent='このまま記録';return}
   const patch=buildPatch(sec);
-  if((sec==='period'&&!patch.period&&!hasSec(S.days[sel],'period'))||(sec==='meds'&&!patch.meds&&!hasSec(S.days[sel],'meds'))){dirtySecs.delete(sec);dirty=dirtySecs.size>0;fillSec(sec);toast('記録する内容がありません');return}
+  if((sec==='body'&&!patch.body&&!hasSec(S.days[sel],'body'))||(sec==='period'&&!patch.period&&!hasSec(S.days[sel],'period'))||(sec==='meds'&&!patch.meds&&!hasSec(S.days[sel],'meds'))){dirtySecs.delete(sec);dirty=dirtySecs.size>0;fillSec(sec);toast('記録する内容がありません');return}
   if(sec==='home'&&!patch.home&&!hasSec(S.days[sel],'home')){dirtySecs.delete(sec);dirty=dirtySecs.size>0;fillSec('home');toast('予定どおりの帰宅として扱います（記録は不要です）');return}
   if(sec==='note'&&!patch.note&&!hasSec(S.days[sel],'note')){dirtySecs.delete(sec);dirty=dirtySecs.size>0;fillSec('note');toast('特記事項なしとして扱います（記録は不要です）');return}
   const before=S.days[sel]?clone(S.days[sel]):null,next={...(before||{})};
@@ -1342,7 +1700,30 @@ function saveSec(sec){
   changed(sel,before,SEC_NAME[sec]+(removed?'を消去':'を記録'),md(sel)+'の'+SEC_NAME[sec]+(removed?'を消しました':'を記録しました'));
   dirtySecs.delete(sec);dirty=dirtySecs.size>0;
   render(false);refreshClean();
+  {const se=document.querySelector('#form .sec[data-sec="'+sec+'"]'),vis=[...document.querySelectorAll('#form .sec')].filter(x=>!x.hidden),i=vis.indexOf(se);
+   const nx=vis.slice(i+1).find(x=>!hasSec(S.days[sel],x.dataset.sec));if(se&&nx){openOnly(nx);setTimeout(()=>nx.scrollIntoView({block:'start',behavior:'smooth'}),60)}else if(se)setClosed(se,true)}
 }
+function renderNoteChips(){$('#noteChips').innerHTML=noteTags().filter(x=>x.t).map(x=>'<button type="button" data-t="'+esc(x.t)+'：" data-o="'+esc((x.o||[]).join('|'))+'">'+esc(x.name||x.t)+'</button>').join('')+'<button type="button" class="chipedit" data-edittags>✎ ボタンを編集</button>'}
+function editTags(){const L=clone(noteTags());S.settings.noteTags=L;return L}
+function renderTagSettings(){const L=noteTags();
+  $('#tagSet').innerHTML=L.map((x,i)=>'<div class="tagcard" data-ti="'+i+'"><div class="r1"><input type="text" data-tf="name" value="'+esc(x.name||'')+'" placeholder="ボタンの名前" aria-label="ボタンの名前"><button type="button" data-tmv="-1" aria-label="上へ"'+(i?'':' disabled')+'>↑</button><button type="button" data-tmv="1" aria-label="下へ"'+(i<L.length-1?'':' disabled')+'>↓</button><button type="button" class="xbtn" data-tdel aria-label="このボタンを削除">×</button></div>'+
+    '<label>記録される見出し<input type="text" data-tf="t" value="'+esc(x.t||'')+'" placeholder="例：子どもの様子"></label>'+
+    '<div class="tagans">'+(x.o||[]).map((a,j)=>'<span class="favchip">'+esc(a)+'<button type="button" data-adel="'+j+'" aria-label="'+esc(a)+'を消す">×</button></span>').join('')+'</div>'+
+    '<div class="tagadd"><input type="text" data-anew placeholder="答えの候補を追加（例：元気だった）" aria-label="答えの候補"><button type="button" class="btn ghost sm" data-aadd>＋ 追加</button></div></div>').join('')||'<p class="hint" style="margin:0">ボタンがありません。「＋ ボタンを追加」から作れます。</p>'}
+let tagTimer;const tagSave=()=>{clearTimeout(tagTimer);tagTimer=setTimeout(()=>{saveSettings();renderNoteChips();render(false)},500)};
+$('#tagSet').addEventListener('input',e=>{const c=e.target.closest('[data-ti]'),f=e.target.dataset.tf;if(!c||!f)return;const L=editTags(),x=L[+c.dataset.ti];
+  if(f==='t'){const old=x.t,nv=e.target.value.replace(/[：:]/g,'').trim();if(old&&nv&&S.settings.noteMarks[old]&&!S.settings.noteMarks[nv])S.settings.noteMarks[nv]={...S.settings.noteMarks[old]};x.t=nv}else x.name=e.target.value;tagSave()});
+$('#tagSet').addEventListener('click',e=>{const c=e.target.closest('[data-ti]');if(!c)return;const i=+c.dataset.ti;
+  const mv=e.target.closest('[data-tmv]');if(mv&&!mv.disabled){const L=editTags(),j=i+ +mv.dataset.tmv;[L[i],L[j]]=[L[j],L[i]];renderTagSettings();tagSave();return}
+  if(e.target.closest('[data-tdel]')){const b=e.target.closest('[data-tdel]');if(b.dataset.arm!=='1'){b.dataset.arm='1';b.textContent='消す';setTimeout(()=>{if(b.isConnected){b.dataset.arm='';b.textContent='×'}},3000);return}
+    const L=editTags();L.splice(i,1);renderTagSettings();tagSave();toast('ボタンを削除しました（これまでの記録の文章は残ります）');return}
+  const ad=e.target.closest('[data-adel]');if(ad){const L=editTags();L[i].o=(L[i].o||[]).filter((_,j)=>j!==+ad.dataset.adel);renderTagSettings();tagSave();return}
+  if(e.target.closest('[data-aadd]')){const inp=c.querySelector('[data-anew]'),v=inp.value.replace(/\|/g,'／').trim();if(!v){toast('答えの候補を入れてください');return}
+    const L=editTags();L[i].o=[...(L[i].o||[]),v].slice(0,10);renderTagSettings();tagSave()}});
+$('#tagSet').addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.matches('[data-anew]')){e.preventDefault();e.target.closest('[data-ti]').querySelector('[data-aadd]').click()}});
+$('#addTag').onclick=()=>{const L=editTags();L.push({t:'',name:'',o:[]});renderTagSettings();tagSave();setTimeout(()=>{const ins=document.querySelectorAll('#tagSet [data-tf=name]');if(ins.length)ins[ins.length-1].focus()},0)};
+$('#resetTags').onclick=()=>{S.settings.noteTags=null;renderTagSettings();saveSettings();renderNoteChips();render(false);toast('特記事項のボタンを初期状態に戻しました')};
+$('#noteChips').addEventListener('click',e=>{if(e.target.closest('[data-edittags]')){showPage('settings');const d=document.getElementById('sgTags');document.querySelectorAll('#pageSettings .sgroup').forEach(x=>x.open=x===d);setTimeout(()=>d.scrollIntoView({block:'start'}),50);return}});
 $('#noteChips').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;
   const ta=F.note,v=ta.value,ins=(v&&!v.endsWith('\n')?'\n':'')+b.dataset.t;
   ta.value=v+ins;markDirty('note');
@@ -1370,7 +1751,7 @@ let allKey='';
 function saveAll(){
   const btn=$('#fSaveAll'),secs=Object.keys(SEC).filter(activeSec);let errN=0,warnAll=[];
   secs.forEach(sec=>{$('#w-'+sec).hidden=true});
-  const req=[];if(!F.bed.value)req.push('寝支度を始めた時刻');if(!F.wake.value)req.push('起きた時刻');
+  const req=[];if(formPage==='life'){if(!F.bed.value)req.push('寝支度を始めた時刻');if(!F.wake.value)req.push('起きた時刻')}
   if(req.length){showWarn('sleep',[req.join('と')+'を入れてください'],'まとめて記録に必要です');errN++}
   secs.forEach(sec=>{const c=checkSec(sec);
     const w=c.warn;
@@ -1410,35 +1791,114 @@ $('#sgJump').addEventListener('change',e=>{const id=e.target.value;if(!id)return
   document.querySelectorAll('#pageSettings .sgroup').forEach(d=>d.open=d.id===id);
   const el=document.getElementById(id);requestAnimationFrame(()=>el.scrollIntoView({block:'start',behavior:'smooth'}));e.target.value=''});
 /* 記録フォームの項目ジャンプと追従バー */
-function buildFormJump(){const opts=[['','項目へ移動…']];
+const PAGE_CHART={hobby:'hobby',women:'bt',diet:'wtfat',health:'bp'};
+let chartByPage={};try{chartByPage=JSON.parse(localStorage.getItem('nemuri-pagechart')||'{}')}catch(e){}
+$('#pageSel').addEventListener('change',e=>{
+  chartByPage[formPage]=chartKind;formPage=e.target.value;try{localStorage.setItem('nemuri-page',formPage);localStorage.setItem('nemuri-pagechart',JSON.stringify(chartByPage))}catch(x){}
+  const want=chartByPage[formPage]||PAGE_CHART[formPage];if(want&&KIND_NAME[want])chartKind=want;
+  applyFeatures();renderChart();buildFormJump();document.getElementById('form').scrollIntoView({block:'start',behavior:'smooth'})});
+const TAB_LABEL={sleep:'睡眠',mood:'気力・体力',commute:'通勤',work:'勤務',home:'帰宅',other:'その他',prep:'朝支度',note:'特記事項',hobby:'趣味',period:'月経',meds:'お薬'};
+function renderSecTabs(){const box=$('#secTabs');if(!box)return;const r=S.days[sel];
+  const vis=[...document.querySelectorAll('#form .sec')].filter(x=>!x.hidden);
+  box.innerHTML=vis.map(se=>{const k=se.dataset.sec,open=!se.classList.contains('closed'),st=dirtySecs.has(k)?'dirty':hasSec(r,k)?'saved':'';
+    const lab=TAB_LABEL[k]||(se.querySelector('h3')||{}).textContent||k;
+    return '<button type="button" class="stab" role="tab" data-tab="'+k+'" aria-selected="'+open+'"><i class="sd '+st+'"></i>'+esc(lab)+'</button>'}).join('');
+  const on=box.querySelector('[aria-selected="true"]');if(on)box.scrollLeft=Math.max(0,on.offsetLeft-box.clientWidth/2+on.offsetWidth/2)}
+$('#secTabs').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(!b)return;const se=document.querySelector('#form .sec[data-sec="'+b.dataset.tab+'"]');if(!se)return;
+  openOnly(se);renderSecTabs();setTimeout(()=>se.scrollIntoView({block:'start',behavior:'smooth'}),30)});
+function buildFormJump(){setTimeout(renderSecTabs,0);const opts=[['','項目へ移動…']];
   if(!$('#patternBar').hidden)opts.push(['patternBar','勤務パターンで入力']);
   document.querySelectorAll('#form .sec').forEach(sec=>{if(sec.hidden)return;const h=sec.querySelector('h3');if(h)opts.push([sec.dataset.sec,h.textContent])});
   opts.push(['allsave','まとめて記録・消去']);
   $('#formJump').innerHTML=opts.map(([v,t])=>'<option value="'+v+'">'+esc(t)+'</option>').join('')}
 /* 記録欄の開閉（見出しをタップ）。状態はこの端末に保存 */
 let closedSecs=new Set();try{closedSecs=new Set(JSON.parse(localStorage.getItem('nemuri-closed')||'[]'))}catch(e){}
-function setClosed(se,c){se.classList.toggle('closed',c);c?closedSecs.add(se.dataset.sec):closedSecs.delete(se.dataset.sec);
+function openOnly(se){document.querySelectorAll('#form .sec').forEach(x=>{if(x!==se&&!x.classList.contains('closed'))setClosed(x,true)});setClosed(se,false)}
+function setClosed(se,c){se.classList.toggle('closed',c);clearTimeout(secState.t);secState.t=setTimeout(renderSecTabs,0);c?closedSecs.add(se.dataset.sec):closedSecs.delete(se.dataset.sec);
   const h=se.querySelector('.sechead');if(h)h.setAttribute('aria-expanded',!c);try{localStorage.setItem('nemuri-closed',JSON.stringify([...closedSecs]))}catch(e){}}
 document.querySelectorAll('#form .sec').forEach(se=>{const h=se.querySelector('.sechead');if(!h)return;h.setAttribute('role','button');h.tabIndex=0;
   if(closedSecs.has(se.dataset.sec))se.classList.add('closed');h.setAttribute('aria-expanded',!se.classList.contains('closed'));
-  const t=()=>setClosed(se,!se.classList.contains('closed'));h.addEventListener('click',t);h.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();t()}})});
+  const t=()=>{if(se.classList.contains('closed')){openOnly(se);setTimeout(()=>se.scrollIntoView({block:'start',behavior:'smooth'}),30)}else setClosed(se,true)};h.addEventListener('click',t);h.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();t()}})});
 $('#formJump').addEventListener('change',e=>{const v=e.target.value;if(!v)return;
-  {const se=document.querySelector('#form .sec[data-sec="'+v+'"]');if(se)setClosed(se,false)}
+  {const se=document.querySelector('#form .sec[data-sec="'+v+'"]');if(se)openOnly(se)}
   const el=v==='patternBar'?$('#patternBar'):v==='allsave'?document.querySelector('.allsave'):document.querySelector('#form .sec[data-sec="'+v+'"]');
   if(el)el.scrollIntoView({block:'start',behavior:'smooth'});e.target.value=''});
 $('#undoLast').onclick=()=>{const e=(S.hist||[])[0];if(!e){toast('戻せる変更はまだありません');return}undo(e)};
 $('#barSaveAll').onclick=()=>saveAll();
 const setHdr=()=>{const h=document.querySelector('header.top');if(h)document.documentElement.style.setProperty('--hdr',h.offsetHeight+'px')};
 setHdr();window.addEventListener('resize',setHdr);
+showView(mainView);
 
+const BG_SW=['#c9d3e6','#f0e8d0','#f6dfe4','#dcefe3','#e3dcf5','#fdf3c7','#d7ecf7','#8a9bb8','#3b4a6b','#2d3a2e','#4a2f3d','#14161f'];
+const TX_SW=['#151b2a','#3f4a60','#1f3f8a','#14533a','#6b1f3a','#5a3b00','#f3f5fb','#ffe9a8','#bfe3ff','#ffd1dc','#c8f2c2','#e0d4ff'];
+const swHTML=(list,cur,ok,attr)=>list.map(c=>{const can=ok(c),l=hexLum(c);return '<button type="button" class="sw" '+attr+'="'+c+'" style="background:'+c+';--swc:'+(l>.4?'#151b2a':'#fff')+'" aria-label="'+c+(can?'':'（文字が読めなくなるため選べません）')+'" aria-pressed="'+(String(cur).toLowerCase()===c)+'"'+(can?'':' disabled')+'></button>'}).join('');
+const hsl2hex=(h,sa,l)=>{sa/=100;l/=100;const k=n=>(n+h/30)%12,a=sa*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,9-k(n),1));return'#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('')};
+const GRID=(()=>{const hues=[0,18,32,45,60,95,140,170,195,215,245,285],rows=[[45,94],[60,84],[70,70],[70,55],[65,40],[55,26]],out=[];
+  rows.forEach(([sa,l])=>hues.forEach(h=>out.push(hsl2hex(h,sa,l))));for(let i=0;i<12;i++){const v=Math.round(255-i*(255/11));out.push('#'+[v,v,v].map(x=>x.toString(16).padStart(2,'0')).join(''))}return out})();
+function renderSwatches(){const st=S.settings;
+  if($('#bgGrid').closest('details').open)$('#bgGrid').innerHTML=swHTML(GRID,st.bg.color,c=>readable({...st,bg:{...st.bg,type:'color',color:c}}),'data-bgc');
+  if($('#txtGrid').closest('details').open)$('#txtGrid').innerHTML=swHTML(GRID,st.text.mode==='custom'?st.text.color:'',c=>readable({...st,text:{mode:'custom',color:c}}),'data-txc');
+  $('#bgSwatches').innerHTML=swHTML(BG_SW,st.bg.color,c=>readable({...st,bg:{...st.bg,type:'color',color:c}}),'data-bgc');
+  $('#txtSwatches').innerHTML=swHTML(TX_SW,st.text.mode==='custom'?st.text.color:'',c=>readable({...st,text:{mode:'custom',color:c}}),'data-txc');
+  const pv=$('#colorPreview'),card=pv.querySelector('.pvcard'),cs=getComputedStyle(document.documentElement);
+  pv.style.background=st.bg.type==='color'?st.bg.color:st.bg.type==='image'&&S.bgImage?'url("'+S.bgImage+'") center/cover':cs.getPropertyValue('--bg');
+  card.style.background=st.bg.type==='none'?cs.getPropertyValue('--surface-solid'):'color-mix(in srgb,'+cs.getPropertyValue('--surface-solid').trim()+' '+(st.bg.alpha??84)+'%,transparent)';
+  card.style.color=cs.getPropertyValue('--ink');}
+document.querySelectorAll('.morecolors').forEach(d=>d.addEventListener('toggle',()=>{if(d.open)renderSwatches()}));
+const normHex=v=>{v=(v||'').trim().replace(/^＃/,'#');if(!v.startsWith('#'))v='#'+v;if(/^#[0-9a-f]{3}$/i.test(v))v='#'+[...v.slice(1)].map(c=>c+c).join('');return /^#[0-9a-f]{6}$/i.test(v)?v.toLowerCase():null};
+function setBgColor(c){if(!readable({...S.settings,bg:{...S.settings.bg,type:'color',color:c}})){tooClose('その背景色');return false}
+  S.settings.bg.color=c;$('#bgColor').value=c;applyLook();renderSettings();renderTextSettings();saveSettings();return true}
+$('#bgColorRow').addEventListener('click',e=>{const b=e.target.closest('[data-bgc]');if(!b||b.disabled)return;setBgColor(b.dataset.bgc)});
+$('#txtCustom').addEventListener('click',e=>{const b=e.target.closest('[data-txc]');if(!b||b.disabled)return;
+  if(tryText({...S.settings.text,mode:'custom',color:b.dataset.txc},'その文字色'))saveSettings()});
+$('#bgHexBtn').onclick=()=>{const c=normHex($('#bgHex').value);if(!c){toast('色のコードは #3366aa のように6桁で入れてください');return}setBgColor(c)};
+$('#txtHexBtn').onclick=()=>{const c=normHex($('#txtHex').value);if(!c){toast('色のコードは #3366aa のように6桁で入れてください');return}if(tryText({...S.settings.text,mode:'custom',color:c},'その文字色'))saveSettings()};
 function renderTextSettings(){const tx=S.settings.text;document.querySelectorAll('#txtOpts [data-tx]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tx===tx.mode));
-  $('#txtColorRow').hidden=tx.mode!=='custom';$('#txtColor').value=tx.color||'#1b2233';
-  $('#txtHint').textContent=tx.mode==='auto'?(S.settings.bg.type==='none'?'背景が「標準」のときは表示モードどおりの色になります。背景を色や画像にすると自動で切り替わります。':'背景とカードの濃さから明るさを計算して、読みやすい文字色（白系か黒系）に切り替えます。'):tx.mode==='custom'?'選んだ色で文字を表示します。補足の文字は少し薄くなります。':'ライト・ダークの表示モードの文字色のままにします。'}
-$('#txtOpts').onclick=e=>{const b=e.target.closest('[data-tx]');if(!b)return;S.settings.text={...S.settings.text,mode:b.dataset.tx};applyLook();renderTextSettings();saveSettings()};
-$('#txtColor').addEventListener('input',e=>{S.settings.text={...S.settings.text,color:e.target.value,mode:'custom'};applyLook();renderTextSettings();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
-function renderFeatSettings(){renderTextSettings();const st=S.settings,f=st.features;
+  $('#txtCustom').hidden=false;$('#txtColor').value=tx.color||'#1b2233';renderSwatches();
+  const c=contrastFor(S.settings);$('#txtHint').style.color=textForced?'var(--danger)':'';
+  if(textForced){$('#txtHint').textContent='いまの背景では選んだ文字色が読みにくいため、読みやすい色で表示しています（見やすさ '+(c?c.toFixed(1):'—')+'／必要 '+MIN_CONTRAST+'以上）。';return}
+  $('#txtHint').textContent=(c!=null&&tx.mode!=='auto'?'見やすさ '+c.toFixed(1)+'（'+MIN_CONTRAST+'以上で読みやすい）。':'')+(tx.mode==='auto'?(S.settings.bg.type==='none'?'背景が「標準」のときは表示モードどおりの色になります。背景を色や画像にすると自動で切り替わります。':'背景とカードの濃さから明るさを計算して、読みやすい文字色（白系か黒系）に切り替えます。'):tx.mode==='custom'?'選んだ色で文字を表示します。補足の文字は少し薄くなります。':'ライト・ダークの表示モードの文字色のままにします。')}
+const tooClose=what=>toast(what+'は背景と近くて文字が読めなくなるため、選べません');
+function tryText(next,what,revert){const cand={...S.settings,text:next};if(!readable(cand)){tooClose(what);if(revert)revert();renderTextSettings();return false}
+  S.settings.text=next;applyLook();renderTextSettings();return true}
+$('#txtOpts').onclick=e=>{const b=e.target.closest('[data-tx]');if(!b)return;
+  if(b.dataset.tx==='custom'&&!readable({...S.settings,text:{mode:'custom',color:S.settings.text.color}})){
+    const eff=effLumFor(S.settings),best=TX_SW.slice().sort((x,y)=>contrastOf(hexLum(y),eff??1)-contrastOf(hexLum(x),eff??1))[0];
+    S.settings.text={mode:'custom',color:best};applyLook();renderTextSettings();saveSettings();toast('いまの背景で読みやすい色から始めます。下のパレットで好きな色を選んでください');return}
+  if(tryText({...S.settings.text,mode:b.dataset.tx},b.dataset.tx==='custom'?'その文字色':'表示モードの文字色'))saveSettings()};
+$('#txtColor').addEventListener('input',e=>{const prev=S.settings.text.color;
+  if(tryText({...S.settings.text,color:e.target.value,mode:'custom'},'その文字色',()=>{e.target.value=prev||'#1b2233'})){clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)}});
+/* ---------- データの引き継ぎ（バックアップ・復元） ---------- */
+function renderSyncNote(){$('#syncNote').innerHTML=store?
+  '<b>いまは自動で同期されています。</b><br>このページ（Claudeのリンク）は、同じClaudeアカウントでログインしていれば、PCでもスマホでも同じ記録・設定が表示されます。ID・パスワードを別に作る必要はありません。':
+  '<b>この画面では、記録はこの端末のブラウザの中だけに保存されています。</b><br>別の端末で同じ記録を見るには、下の「引き継ぎ用の文字をコピー」→ もう一方の端末で「貼り付けた文字から復元」をしてください。定期的にバックアップを取っておくと、ブラウザのデータを消したときも安心です。'}
+function backupObj(){const o={app:'seikatsu-kiroku',v:1,at:new Date().toISOString(),days:S.days,settings:S.settings,slots:S.slots||null,hist:S.hist||[]};if($('#bkImg').checked&&S.bgImage)o.bgImage=S.bgImage;return o}
+$('#bkCopy').onclick=()=>{const t=JSON.stringify(backupObj());
+  const ok=()=>toast('引き継ぎ用の文字をコピーしました（'+Math.round(t.length/1024)+'KB）。メモやメールで別の端末に送って貼り付けてください');
+  const fb=()=>{const ta=$('#bkPaste');ta.value=t;ta.focus();ta.select();let r=false;try{r=document.execCommand('copy')}catch(e){}r?ok():toast('自動でコピーできませんでした。下の欄の文字を全部選んでコピーしてください')};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb()};
+$('#bkFile').onclick=async()=>{const t=JSON.stringify(backupObj(),null,1),name='生活記録_バックアップ_'+ymd(new Date())+'.json';
+  let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
+  if(dl){try{await dl.save({filename:name,data:new Blob([t],{type:'application/json'})});toast('バックアップを保存しました')}catch(e){toast(e&&e.code==='declined'?'保存をやめました':'保存できませんでした。「引き継ぎ用の文字をコピー」をお使いください')}return}
+  if(window.claude){toast('この画面ではファイルを保存できません。「引き継ぎ用の文字をコピー」をお使いください');return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast('バックアップを保存しました')};
+let bkPending=null;
+function restoreFrom(text){let o;try{o=JSON.parse(text)}catch(e){showBk('読み込めませんでした。コピーした文字を最初から最後まで全部貼り付けてください。');return}
+  if(!o||o.app!=='seikatsu-kiroku'||typeof o.days!=='object'){showBk('生活記録のバックアップではないようです。');return}
+  const n=Object.keys(o.days).length;
+  if(bkPending!==text){bkPending=text;showBk('バックアップ（'+(o.at||'').slice(0,10)+'・記録'+n+'日分）を読み込みます。いまのこの端末の記録・設定は置き換わります。よければもう一度ボタンを押してください。');return}
+  bkPending=null;$('#bkWarn').hidden=true;
+  const before=Object.keys(S.days);S.days=clone(o.days);if(o.settings)S.settings=merge(o.settings);if(o.slots)S.slots=clone(o.slots);if(Array.isArray(o.hist))S.hist=clone(o.hist);if(o.bgImage)S.bgImage=o.bgImage;
+  if(store){before.forEach(k=>{if(!S.days[k])put('d-'+k,null)});Object.keys(S.days).forEach(saveDay);put('settings',S.settings);if(S.slots)put('slots',S.slots);put('hist',{list:S.hist||[]});if(o.bgImage)saveBg()}else lsSave();
+  lastSettings=JSON.stringify(S.settings);applyLook();render(true);renderSettings();renderFeatSettings();renderFavSettings();toast('復元しました（記録'+n+'日分）')}
+function showBk(m){const w=$('#bkWarn');w.textContent=m;w.hidden=false}
+$('#bkFromText').onclick=()=>{const t=$('#bkPaste').value.trim();if(!t){toast('引き継ぎ用の文字を貼り付けてください');return}restoreFrom(t)};
+$('#bkFileIn').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{bkPending=null;restoreFrom(String(rd.result));if(bkPending)toast('内容を確認して、もう一度「ファイルから復元」で同じファイルを選んでください')};rd.readAsText(f)});
+function renderFeatSettings(){renderSyncNote();renderTextSettings();renderSlots();$('#nmTitle').value=S.settings.appName||'生活記録';$('#nmSub').value=S.settings.appSub??'';renderTagSettings();renderLook();renderHobbySettings();$('#featHobby').hidden=!S.settings.features.hobby;const st=S.settings,f=st.features;
   document.querySelectorAll('[data-feat]').forEach(c=>c.checked=!!f[c.dataset.feat]);
-  $('#featPeriod').hidden=!f.period;$('#featShare').hidden=!f.share;$('#featMeds').hidden=!f.meds;$('#featEvents').hidden=!f.events;
+  $('#featPeriod').hidden=!f.period;$('#featBody').hidden=!f.body;
+  $('#bodyPick').innerHTML=BODY.map(b=>'<div class="bprow"><label><input type="checkbox" data-bp="'+b.k+'"'+((st.body.items||[]).includes(b.k)||(b.k==='bt'&&f.period)?' checked':'')+(b.k==='bt'&&f.period?' disabled':'')+'>'+b.name+'</label><select data-bpp="'+b.k+'" aria-label="'+b.name+'を記録するページ">'+PAGES.filter(([k])=>k!=='life').map(([k,n])=>'<option value="'+k+'"'+(purposeOf(b.k)===k?' selected':'')+'>'+n+'</option>').join('')+'</select></div>').join('');
+  $('#medsPageSel').value=medsPage();$('#bHeight').value=st.body.height||'';$('#bGoal').value=st.body.goal||'';$('#featShare').hidden=!f.share;$('#featMeds').hidden=!f.meds;$('#featEvents').hidden=!f.events;
   $('#perCycle').value=st.period.cycle;$('#perLen').value=st.period.len;$('#perOvu').checked=!!st.period.ovu;
   $('#medSet').innerHTML=st.meds.length?st.meds.map(m=>'<div class="setcard" data-mid="'+m.id+'"><div class="placehead"><input type="text" data-f="name" value="'+esc(m.name)+'" placeholder="お薬の名前" aria-label="お薬の名前"><button class="xbtn" data-delmed aria-label="削除">×</button></div><div class="opts">'+TIMINGS.map(t=>'<button type="button" data-tm="'+t+'" aria-pressed="'+(m.times||[]).includes(t)+'">'+t+'</button>').join('')+'</div></div>').join(''):'<p class="hint" style="margin:0">まだお薬がありません。</p>';
   const tsel=(ev)=>'<select data-f="type"><option value="dates"'+(ev.rule.type==='dates'?' selected':'')+'>日付を指定</option><option value="every"'+(ev.rule.type==='every'?' selected':'')+'>○日・○週・○か月ごと</option><option value="monthly"'+(ev.rule.type==='monthly'?' selected':'')+'>毎月○日</option><option value="weekly"'+(ev.rule.type==='weekly'?' selected':'')+'>毎週○曜日</option></select>';
@@ -1449,8 +1909,13 @@ function renderFeatSettings(){renderTextSettings();const st=S.settings,f=st.feat
     return '<div class="setrow opts wdpick">'+WD.map((w,i)=>'<button type="button" data-wd="'+i+'" aria-pressed="'+(ru.wd||[]).includes(i)+'">'+w+'</button>').join('')+'</div>'};
   $('#evSet').innerHTML=st.events.length?st.events.map(ev=>'<div class="setcard" data-eid="'+ev.id+'"><div class="placehead"><input type="text" data-f="name" value="'+esc(ev.name)+'" placeholder="予定の名前（例：〇〇クリニック）" aria-label="予定の名前"><button class="xbtn" data-delev aria-label="削除">×</button></div><div class="setrow">'+tsel(ev)+'<input type="time" data-f="time" value="'+(ev.time||'')+'" aria-label="時刻（任意）"><input type="color" data-f="color" value="'+(ev.color||'#5b6fd6')+'" aria-label="色"></div>'+body(ev)+'<div class="setrow"><span class="hint">終了日（任意）</span><input type="date" data-f="until" value="'+(ev.rule.until||'')+'"></div></div>').join(''):'<p class="hint" style="margin:0">まだ予定がありません。</p>';
 }
-document.querySelectorAll('[data-feat]').forEach(c=>c.addEventListener('change',()=>{S.settings.features={...S.settings.features,[c.dataset.feat]:c.checked};saveSettings();renderFeatSettings();render(false);refreshClean()}));
+document.querySelectorAll('[data-feat]').forEach(c=>c.addEventListener('change',()=>{S.settings.features={...S.settings.features,[c.dataset.feat]:c.checked};saveSettings();renderFeatSettings();if(typeof renderFavSettings==='function')renderFavSettings();render(false);refreshClean()}));
 let featTimer;const featSave=()=>{clearTimeout(featTimer);featTimer=setTimeout(()=>{saveSettings();render(false);refreshClean()},500)};
+$('#bodyPick').addEventListener('change',e=>{const pk=e.target.dataset.bpp;if(pk){S.settings.body={...S.settings.body,purpose:{...(S.settings.body.purpose||{}),[pk]:e.target.value}};featSave();return}
+  const k=e.target.dataset.bp;if(!k)return;const it=new Set(S.settings.body.items||[]);e.target.checked?it.add(k):it.delete(k);S.settings.body={...S.settings.body,items:BODY.map(b=>b.k).filter(x=>it.has(x))};featSave()});
+$('#medsPageSel').addEventListener('change',e=>{S.settings.medsPage=e.target.value;featSave()});
+$('#bHeight').addEventListener('change',e=>{const v=+e.target.value;S.settings.body={...S.settings.body,height:v>=100&&v<=220?v:''};e.target.value=S.settings.body.height;featSave()});
+$('#bGoal').addEventListener('change',e=>{const v=+e.target.value;S.settings.body={...S.settings.body,goal:v>=20&&v<=200?v:''};e.target.value=S.settings.body.goal;featSave()});
 $('#perCycle').addEventListener('change',e=>{S.settings.period.cycle=Math.min(45,Math.max(20,+e.target.value||28));e.target.value=S.settings.period.cycle;featSave()});
 $('#perLen').addEventListener('change',e=>{S.settings.period.len=Math.min(10,Math.max(2,+e.target.value||5));e.target.value=S.settings.period.len;featSave()});
 $('#perOvu').addEventListener('change',e=>{S.settings.period.ovu=e.target.checked;featSave()});
@@ -1480,7 +1945,7 @@ function renderSettings(){
   document.querySelectorAll('#modeOpts button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===st.mode));
   document.querySelectorAll('#bgOpts button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.bg===st.bg.type));
   $('#colSleep').value=st.colors.sleep;
-  $('#noteMarkList').innerHTML=NOTE_ITEMS.map(it=>{const m=st.noteMarks[it.t];return '<label class="markrow sub"><input type="checkbox" data-nmark="'+esc(it.t)+'"'+(m.on?' checked':'')+'><span>'+esc(it.name)+'</span><input type="color" data-nmcolor="'+esc(it.t)+'" value="'+m.color+'" aria-label="'+esc(it.name)+'のマークの色"></label>'}).join('');
+  $('#noteMarkList').innerHTML=noteTags().map(it=>{const m=nmOf(it.t);return '<label class="markrow sub"><input type="checkbox" data-nmark="'+esc(it.t)+'"'+(m.on?' checked':'')+'><span>'+esc(it.name)+'</span><input type="color" data-nmcolor="'+esc(it.t)+'" value="'+m.color+'" aria-label="'+esc(it.name)+'のマークの色"></label>'}).join('');
   $('#markList').innerHTML=MARKS.map(([k,n])=>'<label class="markrow"><input type="checkbox" data-mark="'+k+'"'+(st.marks[k]?' checked':'')+'><span>'+n+'</span><input type="color" data-mcolor="'+k+'" value="'+st.colors[k]+'" aria-label="'+n+'のマークの色"></label>').join('');
   $('#bgColorRow').hidden=st.bg.type!=='color';$('#bgImageRow').hidden=st.bg.type!=='image';$('#bgLookRow').hidden=st.bg.type==='none';
   $('#cardAlpha').value=st.bg.alpha;$('#cardAlphaOut').textContent=st.bg.alpha+'%';$('#cardBlur').value=st.bg.blur;$('#cardBlurOut').textContent=st.bg.blur;$('#bgColor').value=st.bg.color;
@@ -1490,20 +1955,30 @@ function renderSettings(){
     (s.shifts||[]).map(x=>'<div class="shift" data-sid="'+x.id+'"><div class="shead"><input type="text" data-f="name" value="'+esc(x.name)+'" placeholder="パターン名（早番・日勤・夜勤など）" aria-label="パターン名"><button class="xbtn" data-delshift aria-label="このパターンを削除">×</button></div><div class="stimes">'+tl('dep',x.dep,'出発')+tl('arr',x.arr,'到着')+tl('ws',x.ws,'勤務開始')+tl('we',x.we,'勤務終了')+'</div></div>').join('')+
     '<button class="btn ghost sm" data-addshift>＋ 勤務パターンを追加</button></div>').join(''):'<p class="hint">まだ通勤先がありません。</p>';
 }
-$('#modeOpts').onclick=e=>{const b=e.target.closest('[data-mode]');if(!b)return;S.settings.mode=b.dataset.mode;applyLook();renderSettings();saveSettings()};
+$('#modeOpts').onclick=e=>{const b=e.target.closest('[data-mode]');if(!b)return;S.settings.mode=b.dataset.mode;
+  if(!readable(S.settings)){S.settings.text={...S.settings.text,mode:'auto'};toast('この表示モードでは文字色が読みにくくなるため、文字色を「自動」に切り替えました')}
+  applyLook();renderSettings();renderTextSettings();saveSettings()};
 let colorTimer;
 [['#colSleep','sleep']].forEach(([id,k])=>$(id).addEventListener('input',e=>{S.settings.colors[k]=e.target.value;applyLook();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)}));
-$('#noteMarkList').addEventListener('change',e=>{const k=e.target.dataset.nmark;if(!k)return;S.settings.noteMarks[k].on=e.target.checked;saveSettings();render(false)});
-$('#noteMarkList').addEventListener('input',e=>{const k=e.target.dataset.nmcolor;if(!k)return;S.settings.noteMarks[k].color=e.target.value;render(false);clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
+$('#noteMarkList').addEventListener('change',e=>{const k=e.target.dataset.nmark;if(!k)return;nmOf(k).on=e.target.checked;saveSettings();render(false)});
+$('#noteMarkList').addEventListener('input',e=>{const k=e.target.dataset.nmcolor;if(!k)return;nmOf(k).color=e.target.value;render(false);clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
 $('#markList').addEventListener('change',e=>{const k=e.target.dataset.mark;if(!k)return;S.settings.marks[k]=e.target.checked;saveSettings();render(false)});
 $('#markList').addEventListener('input',e=>{const k=e.target.dataset.mcolor;if(!k)return;S.settings.colors[k]=e.target.value;applyLook();render(false);clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
 $('#resetColors').onclick=()=>{S.settings.colors=clone(DEF.colors);applyLook();renderSettings();saveSettings();render(false)};
 $('#bgOpts').onclick=e=>{const b=e.target.closest('[data-bg]');if(!b)return;
-  S.settings.bg.type=b.dataset.bg;applyLook();renderSettings();saveSettings();
+  if(!readable({...S.settings,bg:{...S.settings.bg,type:b.dataset.bg}})){toast('その背景は文字色と近くて文字が読めなくなるため、選べません。文字色を「自動」にすると選べます');return}
+  S.settings.bg.type=b.dataset.bg;applyLook();renderSettings();renderTextSettings();saveSettings();
   if(b.dataset.bg==='image'&&!S.bgImage)$('#bgFile').click();};
-[['#cardAlpha','alpha','%'],['#cardBlur','blur','']].forEach(([id,k,u])=>$(id).addEventListener('input',e=>{S.settings.bg[k]=+e.target.value;$(id+'Out').textContent=e.target.value+u;applyLook();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)}));
-$('#resetLook').onclick=()=>{S.settings.bg.alpha=84;S.settings.bg.blur=14;applyLook();renderSettings();saveSettings()};
-$('#bgColor').addEventListener('input',e=>{S.settings.bg.color=e.target.value;applyLook();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
+[['#cardAlpha','alpha','%'],['#cardBlur','blur','']].forEach(([id,k,u])=>$(id).addEventListener('input',e=>{
+  if(k==='alpha'&&!readable({...S.settings,bg:{...S.settings.bg,alpha:+e.target.value}})){e.target.value=S.settings.bg.alpha;tooClose('これ以上薄くすると文字色');return}
+  S.settings.bg[k]=+e.target.value;$(id+'Out').textContent=e.target.value+u;applyLook();renderTextSettings();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)}));
+function renderLook(){const lk=S.settings.look;$('#lookBright').value=lk.bright;$('#lookSat').value=lk.sat;$('#lookHue').value=lk.hue;
+  $('#lookBrightOut').textContent=lk.bright+'%';$('#lookSatOut').textContent=lk.sat+'%';$('#lookHueOut').textContent=(lk.hue>0?'+':'')+lk.hue+'°'}
+[['#lookBright','bright'],['#lookSat','sat'],['#lookHue','hue']].forEach(([id,k])=>$(id).addEventListener('input',e=>{S.settings.look={...S.settings.look,[k]:+e.target.value};renderLook();applyLook();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)}));
+$('#resetFx').onclick=()=>{S.settings.look={bright:100,sat:100,hue:0};renderLook();applyLook();saveSettings();toast('見え方を元に戻しました')};
+$('#resetLook').onclick=()=>{S.settings.bg.alpha=84;S.settings.bg.blur=0;applyLook();renderSettings();saveSettings()};
+$('#bgColor').addEventListener('input',e=>{if(!readable({...S.settings,bg:{...S.settings.bg,color:e.target.value}})){e.target.value=S.settings.bg.color;tooClose('その背景色');return}
+  S.settings.bg.color=e.target.value;setTimeout(()=>{renderTextSettings()},0);applyLook();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
 $('#addSlot').onclick=()=>{S.settings.slots.push({id:'s'+Date.now().toString(36),name:'新しい通勤先',dep:'08:00',arr:'08:45',shifts:[{id:'h'+Date.now().toString(36),name:'日勤',dep:'08:00',arr:'08:45',ws:'09:00',we:'18:00'}]});renderSettings();saveSettings();fillSlots(F.slot.value);renderPChips()};
 let slotTimer;
 $('#slotList').addEventListener('input',e=>{const pl=e.target.closest('.place');if(!pl||!e.target.dataset.f)return;const s=S.settings.slots.find(x=>x.id===pl.dataset.id);if(!s)return;
@@ -1550,7 +2025,9 @@ $('#cropOk').onclick=()=>{
     for(const q of [0.82,0.7,0.6]){url=cv.toDataURL('image/jpeg',q);if(url.length<230000)break}
     if(url.length<230000)break;W=Math.round(W*0.8);
   }
-  S.bgImage=url;imgLum=null;S.settings.bg.type='image';closeSheet('#crop');applyLook();renderSettings();saveSettings();saveBg();
+  S.bgImage=url;imgLum=null;S.settings.bg.type='image';S.settings.bg.blur=0;closeSheet('#crop');
+  setTimeout(()=>toast('背景を変更しました。文字が読みにくいときは「ぼかし」を入れてみてください'),400);
+  measureImage(url,v=>{imgLum=v;if(!readable(S.settings)){S.settings.text={...S.settings.text,mode:'auto'};saveSettings();toast('画像の明るさが文字色と近いため、文字色を「自動」に切り替えました')}applyLook();renderTextSettings()});applyLook();renderSettings();saveSettings();saveBg();
   toast('背景を変更しました');
 };
 
@@ -1560,7 +2037,7 @@ let tt;function toast(m,act){const t=$('#toast'),b=$('#toastBtn');$('#toastMsg')
   t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,act?7000:2600)}
 
 /* ---------- 変更履歴と取り消し ---------- */
-const describe=r=>{if(!r)return'記録なし';const a=[];if(r.period&&r.period.flow)a.push('生理');if(r.meds)a.push('お薬');if(r.home)a.push('帰宅'+(r.home.time?' '+r.home.time:'')+(r.home.cat?'（'+r.home.cat+'）':''));
+const describe=r=>{if(!r)return'記録なし';const a=[];if(r.hobby&&hobbyTotal(r)>0)a.push('趣味'+hobbyTotal(r)+'分');if(r.body&&Object.keys(r.body).length)a.push('体の記録');if(r.period&&r.period.flow)a.push('生理');if(r.meds)a.push('お薬');if(r.home)a.push('帰宅'+(r.home.time?' '+r.home.time:'')+(r.home.cat?'（'+r.home.cat+'）':''));
   if(r.bed)a.push('寝支度 '+r.bed);if(r.wake)a.push('起床 '+r.wake);if(r.ki!=null)a.push('気力'+r.ki+'%');if(r.tai!=null)a.push('体力'+r.tai+'%');
   if(r.commute&&(r.commute.dep||r.commute.arr))a.push('通勤 '+(r.commute.dep||'?')+'→'+(r.commute.arr||'?'));if(r.other)a.push('その他'+((r.other.items||[]).length?(r.other.items.length+'件'):'メモ'));if(r.work&&(r.work.start||r.work.end))a.push('勤務 '+(r.work.start||'?')+'〜'+(r.work.end||'?'));if(r.prep!=null)a.push('支度'+r.prep+'分');if(r.note)a.push('メモあり');
   return a.join('・')||'記録なし'};
@@ -1584,7 +2061,7 @@ function renderHist(){
   $('#histList').innerHTML=L.length?L.map(e=>'<div class="hitem"><b>'+md(e.k)+'の記録：'+esc(e.what)+'</b><small>'+fmtAt(e.at)+'　変更前：'+esc(describe(e.before))+'</small><small>変更後：'+esc(describe(e.after))+'</small><button class="btn ghost" data-undo="'+e.id+'">この変更を取り消す</button></div>').join(''):'<p class="empty">まだ変更はありません。</p>';
 }
 /* ---------- テキストでコピー（Googleフォーム等への貼り付け用） ---------- */
-const EX_ITEMS=[['sleep','睡眠'],['mood','気力・体力'],['commute','通勤'],['work','勤務'],['home','帰宅'],['prep','朝支度'],['other','その他の時間'],['note','特記事項'],['period','月経'],['meds','お薬']];
+const EX_ITEMS=[['sleep','睡眠'],['mood','気力・体力'],['commute','通勤'],['work','勤務'],['home','帰宅'],['prep','朝支度'],['other','その他の時間'],['hobby','趣味'],['note','特記事項'],['period','月経'],['meds','お薬']];
 let ex={range:'day',items:Object.fromEntries(EX_ITEMS.map(([k])=>[k,k!=='period'&&k!=='meds'])),empty:false,summary:true};
 try{const o=JSON.parse(localStorage.getItem('nemuri-export')||'null');if(o)ex={...ex,...o,items:{...ex.items,...(o.items||{})}}}catch(e){}
 const saveEx=()=>{try{localStorage.setItem('nemuri-export',JSON.stringify(ex))}catch(e){}};
@@ -1608,6 +2085,7 @@ function dayText(k){
     if(o.memo)L.push('その他メモ：'+o.memo.replace(/\n/g,' ／ '))}
   if(it.period&&r.period&&(r.period.flow||(r.period.sym||[]).length))L.push('月経：'+(r.period.flow?'生理中（'+r.period.flow+'）':'')+((r.period.sym||[]).length?' 症状：'+r.period.sym.join('、'):''));
   if(it.meds&&r.meds){const ms=medStatus(r);if(ms)L.push('お薬：'+ms.took+'／'+ms.need+'回'+(ms.took<ms.need?'（飲み忘れあり）':''))}
+  if(it.hobby!==false&&r.hobby&&hobbyTotal(r)>0)L.push('趣味：'+hobbyText(r)+(r.hobby.memo?'（'+r.hobby.memo+'）':''));
   if(it.note&&r.note&&r.note.trim())L.push('特記事項：'+r.note.trim().split('\n').map(x=>x.trim()).filter(Boolean).join(' ／ '));
   if(L.length===1)return ex.empty?L.concat('（選んだ項目の記録なし）'):null;
   return L;
@@ -1689,7 +2167,10 @@ const TB_COLS=[['date','日付',k=>k],['wd','曜日',k=>WD[parse(k).getDay()]],
   ['workH','勤務時間(時間)',(k,r)=>{const v=workLen(r);return v!=null?(v/60).toFixed(2):''}],
   ['homePlan','帰宅予定',(k,r)=>{const v=homeInfo(r).plan;return v!=null?hm(v):''}],['home','帰宅',(k,r)=>{const v=homeInfo(r).actual;return v!=null?hm(v):''}],
   ['late','遅れ(分)',(k,r)=>{const d=homeInfo(r).diff;return d!=null?d:''}],['why','帰宅の理由',(k,r)=>{const i=homeInfo(r);return[i.cat,i.reason].filter(Boolean).join(' / ')}],
-  ['prep','朝支度(分)',(k,r)=>r.prep??''],['note','特記事項',(k,r)=>(r.note||'').replace(/\n/g,' / ')]];
+  ['prep','朝支度(分)',(k,r)=>r.prep??''],
+  ['bt','基礎体温(℃)',(k,r)=>(r.body||{}).bt??''],['wt','体重(kg)',(k,r)=>(r.body||{}).wt??''],['bmi','BMI',(k,r)=>{const x=bmi((r.body||{}).wt);return x?x.toFixed(1):''}],['fat','体脂肪率(%)',(k,r)=>(r.body||{}).fat??''],['waist','ウエスト(cm)',(k,r)=>(r.body||{}).waist??''],['bpH','血圧上',(k,r)=>(r.body||{}).bpH??''],['bpL','血圧下',(k,r)=>(r.body||{}).bpL??''],['pulse','脈拍',(k,r)=>(r.body||{}).pulse??''],['steps','歩数',(k,r)=>(r.body||{}).steps??''],['water','水分(ml)',(k,r)=>(r.body||{}).water??''],
+  ['hobby','趣味(分)',(k,r)=>{const t=hobbyTotal(r);return t>0?t:''}],['hobbyDetail','趣味の内訳',(k,r)=>r.hobby?hobbyText(r):''],
+  ['note','特記事項',(k,r)=>(r.note||'').replace(/\n/g,' / ')]];
 let tb={range:'month',cols:Object.fromEntries(TB_COLS.map(([k])=>[k,true]))};
 try{const o=JSON.parse(localStorage.getItem('nemuri-table')||'null');if(o)tb={range:o.range||'month',cols:{...tb.cols,...(o.cols||{})}}}catch(e){}
 const saveTb=()=>{try{localStorage.setItem('nemuri-table',JSON.stringify(tb))}catch(e){}};
@@ -1697,10 +2178,11 @@ function tbDays(){const d=parse(sel),today=new Date();
   if(tb.range==='week'){const st=addDays(d,-d.getDay());return[...Array(7)].map((_,i)=>ymd(addDays(st,i)))}
   if(tb.range==='month'){const n=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();return[...Array(n)].map((_,i)=>ymd(new Date(d.getFullYear(),d.getMonth(),i+1)))}
   let st=tb.range==='3m'?addDays(today,-90):parse(Object.keys(S.days).sort()[0]||ymd(today));const out=[];for(let x=st;ymd(x)<=ymd(today);x=addDays(x,1))out.push(ymd(x));return out}
-function tbData(){const cols=TB_COLS.filter(([k])=>tb.cols[k]);const rows=tbDays().map(k=>{const r=S.days[k]||{};return cols.map(([, ,f])=>String(f(k,r)??''))});
+const TB_BODY=['bt','wt','bmi','fat','waist','bpH','bpL','pulse','steps','water'];const tbAvail=()=>TB_COLS.filter(([k])=>!TB_BODY.includes(k)||FEAT().body||FEAT().period);
+function tbData(){const cols=tbAvail().filter(([k])=>tb.cols[k]);const rows=tbDays().map(k=>{const r=S.days[k]||{};return cols.map(([, ,f])=>String(f(k,r)??''))});
   return{head:cols.map(c=>c[1]),rows}}
 function renderTable(){document.querySelectorAll('#tbRange [data-r]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.r===tb.range));
-  $('#tbCols').innerHTML=TB_COLS.map(([k,n])=>'<label><input type="checkbox" data-tc="'+k+'"'+(tb.cols[k]?' checked':'')+'>'+n+'</label>').join('');
+  $('#tbCols').innerHTML=tbAvail().map(([k,n])=>'<label><input type="checkbox" data-tc="'+k+'"'+(tb.cols[k]?' checked':'')+'>'+n+'</label>').join('');
   const{head,rows}=tbData();$('#tbPreview').innerHTML='<thead><tr>'+head.map(h=>'<th>'+esc(h)+'</th>').join('')+'</tr></thead><tbody>'+rows.slice(0,62).map(r=>'<tr>'+r.map(c=>'<td>'+esc(c)+'</td>').join('')+'</tr>').join('')+'</tbody>';
   $('#tbCount').textContent=rows.length+'日分・'+head.length+'列'+(rows.length>62?'（プレビューは62日まで）':'')}
 $('#openTable').onclick=()=>{tb.range=view==='week'?'week':'month';renderTable();openSheet('#tablex')};
@@ -1718,6 +2200,23 @@ $('#tbCsv').onclick=async()=>{const{head,rows}=tbData();const q=c=>/[",\n]/.test
   if(dl){try{await dl.save({filename:name,data:new Blob([csv],{type:'text/csv'})});toast('CSVファイルを保存しました')}catch(e){toast(e&&e.code==='declined'?'保存をやめました':'保存できませんでした。「表をコピー」をお使いください')}return}
   if(window.claude){toast('この画面ではファイルを保存できません。「表をコピー」をお使いください');return}
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast('CSVファイルを保存しました')};
+function slotLabel(x,i){return (i+1)+'：'+(x?(x.name||'スロット'+(i+1)):'（空き）')}
+function renderSlots(){const sl=ensureSlots();const opts=sl.list.map((x,i)=>'<option value="'+i+'"'+(i===sl.active?' selected':'')+'>'+esc(slotLabel(x,i))+'</option>').join('');
+  $('#slotSel').innerHTML=opts;$('#slotQuick').innerHTML=sl.list.map((x,i)=>x||i===sl.active?'<option value="'+i+'"'+(i===sl.active?' selected':'')+'>'+esc(x?(x.name||'スロット'+(i+1)):'スロット'+(i+1))+'</option>':'').join('');
+  $('#slotQuick').hidden=sl.list.filter(Boolean).length<2;
+  const cur=sl.list[sl.active];$('#slotName').value=cur?cur.name||'':''}
+function switchSlot(i){const sl=ensureSlots();if(i===sl.active)return;
+  slotAutoSave();const target=sl.list[i];
+  if(target&&target.settings){S.settings=merge(target.settings);toast('「'+(target.name||'スロット'+(i+1))+'」を読み込みました（記録データは共通です）')}
+  else{sl.list[i]={name:'スロット'+(i+1),settings:clone(S.settings),at:Date.now()};toast('スロット'+(i+1)+'を作りました。いまの設定をコピーしています。名前を付けておくと便利です')}
+  sl.active=i;lastSettings=JSON.stringify(S.settings);settingsUndo.length=0;$('#undoSettings').disabled=true;
+  put('settings',S.settings);put('slots',S.slots);
+  applyLook();render(true);if(!$('#pageSettings').hidden)openSettingsPage();renderSlots()}
+$('#slotSel').addEventListener('change',e=>switchSlot(+e.target.value));
+$('#slotQuick').addEventListener('change',e=>switchSlot(+e.target.value));
+$('#slotName').addEventListener('change',e=>{const sl=ensureSlots(),cur=sl.list[sl.active];cur.name=e.target.value.trim()||'スロット'+(sl.active+1);put('slots',S.slots);renderSlots();toast('スロット名を「'+cur.name+'」にしました')});
+$('#nmTitle').addEventListener('change',e=>{S.settings.appName=e.target.value.trim()||'生活記録';e.target.value=S.settings.appName;applyLook();saveSettings()});
+$('#nmSub').addEventListener('change',e=>{S.settings.appSub=e.target.value.trim();applyLook();saveSettings()});
 $('#openHist').onclick=()=>{renderHist();openSheet('#hist')};
 $('#closeHist').onclick=()=>closeSheet('#hist');
 $('#hist').addEventListener('click',e=>{if(e.target.id==='hist'){closeSheet('#hist');return}
@@ -1743,7 +2242,40 @@ function renderUpcoming(){
   $('#upList').innerHTML=items.length?items.slice(0,12).map(it=>{const dd=dDiff(today,it.k);
     return '<div class="up"><span class="ud">'+md(it.k)+'</span><span class="ul"><i style="background:'+it.c+'"></i>'+esc(it.t)+'</span><span class="ua">'+(it.a?esc(it.a)+'　':'')+(dd===0?'今日':dd===1?'明日':dd>0?dd+'日後':'')+'</span></div>'}).join(''):'<p class="empty" style="margin:0">これから60日の予定はありません。</p>';
 }
-function render(withForm){PM=periodModel();applyFeatures();renderUpcoming();renderQuick();renderCal();renderChart();if(withForm)fillForm();if(page==='status')renderStatus();renderFavs()}
+/* ---------- 趣味・自分の時間 ---------- */
+let hobbyState={};
+const hobbyTotal=r=>r&&r.hobby&&r.hobby.min?Object.values(r.hobby.min).reduce((a,b)=>a+(+b||0),0):0;
+const hobbyText=r=>Object.entries((r.hobby||{}).min||{}).filter(([,m])=>m>0).map(([id,m])=>{const h=S.settings.hobbies.find(x=>x.id===id);return(h?h.name:'趣味')+' '+m+'分'}).join('、');
+const durHM=m=>m>=60?Math.floor(m/60)+'時間'+(m%60?m%60+'分':''):m+'分';
+function renderHobbyForm(){const hs=S.settings.hobbies;
+  $('#hobbyRows').innerHTML=hs.length?hs.map(h=>{const v=+hobbyState[h.id]||0;return '<div class="hrow" data-hid="'+h.id+'"><div class="hh"><b><i style="background:'+(h.color||'#2e9e6a')+'"></i>'+esc(h.name||'趣味')+'</b><span class="hint">'+(h.goal?'週の目標 '+durHM(h.goal):'')+'</span></div>'+
+    '<div class="hstep"><button type="button" data-hd="-15" aria-label="15分減らす">−</button><output>'+durHM(v)+'</output><button type="button" data-hd="15" aria-label="15分増やす">＋</button></div>'+
+    '<div class="hadd">'+favList('hobby').map(m=>'<button type="button" data-hset="'+m+'">'+durHM(m)+'</button>').join('')+'</div></div>'}).join(''):'<p class="hint" style="margin:0">設定タブの「使う機能」→「趣味・自分の時間」で、趣味を登録してください（例：読書・ゲーム・ギター・散歩）。</p>'}
+$('#hobbyRows').addEventListener('click',e=>{const row=e.target.closest('[data-hid]');if(!row)return;const id=row.dataset.hid;let v=+hobbyState[id]||0;
+  const d=e.target.closest('[data-hd]'),st=e.target.closest('[data-hset]');if(d)v=Math.max(0,Math.min(1440,v+ +d.dataset.hd));else if(st)v=+st.dataset.hset;else return;
+  hobbyState[id]=v;renderHobbyForm();markDirty('hobby')});
+$('#hobbyClear').onclick=()=>{hobbyState={};renderHobbyForm();markDirty('hobby')};
+function renderHobbyCard(){const f=FEAT(),card=$('#hobbyCard');card.hidden=!f.hobby||formPage!=='hobby';
+  if(card.hidden)return;
+  if(!S.settings.hobbies.length){$('#hobbyTitle').textContent='趣味・自分の時間';$('#hobbySum').innerHTML='<p class="hint" style="margin:0">設定タブの「使う機能」→「趣味・自分の時間」で趣味を登録すると、週ごとの合計や目標の進み具合がここに出ます。</p>';return}
+  const d=parse(sel),wk=[...Array(7)].map((_,i)=>ymd(addDays(d,i-d.getDay()))),mo=[...Array(new Date(d.getFullYear(),d.getMonth()+1,0).getDate())].map((_,i)=>ymd(new Date(d.getFullYear(),d.getMonth(),i+1)));
+  const sum=(ks,id)=>ks.reduce((a,k)=>{const r=S.days[k];return a+(r&&r.hobby&&r.hobby.min?(id?+r.hobby.min[id]||0:hobbyTotal(r)):0)},0);
+  let streak=0;for(let x=parse(ymd(new Date()));;x=addDays(x,-1)){const r=S.days[ymd(x)];if(r&&hobbyTotal(r)>0)streak++;else if(ymd(x)===ymd(new Date()))continue;else break;if(streak>999)break}
+  const wkDays=wk.filter(k=>hobbyTotal(S.days[k])>0).length;
+  $('#hobbyTitle').textContent='趣味・自分の時間（'+md(wk[0])+'〜'+md(wk[6])+'の週）';
+  $('#hobbySum').innerHTML='<div class="hsum"><div><span>この週の合計</span><b>'+durHM(sum(wk))+'</b></div><div><span>この週にできた日</span><b>'+wkDays+'/7日</b></div><div><span>'+(d.getMonth()+1)+'月の合計</span><b>'+durHM(sum(mo))+'</b></div><div><span>連続記録</span><b>'+streak+'日</b></div></div>'+
+    '<div class="hgoal">'+S.settings.hobbies.map(h=>{const v=sum(wk,h.id),g=+h.goal||0,pc=g?Math.min(100,Math.round(v/g*100)):0;
+      return '<div class="hg"><div class="top"><b><i style="background:'+(h.color||'#2e9e6a')+'"></i>'+esc(h.name||'趣味')+'</b><span>'+durHM(v)+(g?' / 目標 '+durHM(g)+'（'+pc+'%）'+(v>=g?' 達成':''):'')+'</span></div>'+(g?'<div class="bar2" role="img" aria-label="目標の'+pc+'%"><u style="width:'+pc+'%;background:'+(h.color||'#2e9e6a')+'"></u></div>':'')+'</div>'}).join('')+'</div>';
+}
+function renderHobbySettings(){const hs=S.settings.hobbies;const goals=[0,30,60,90,120,180,240,300,360,480,600,720];
+  $('#hobbySet').innerHTML=hs.length?hs.map(h=>'<div class="hset" data-hid="'+h.id+'"><div class="r1"><input type="text" data-hf="name" value="'+esc(h.name)+'" placeholder="趣味の名前（例：読書）" aria-label="趣味の名前"><input type="color" data-hf="color" value="'+(h.color||'#2e9e6a')+'" aria-label="色"><button class="xbtn" data-hdel aria-label="削除">×</button></div>'+
+    '<label class="setrow">1週間の目標 <select data-hf="goal" style="width:auto">'+goals.map(g=>'<option value="'+g+'"'+((+h.goal||0)===g?' selected':'')+'>'+(g?durHM(g):'なし')+'</option>').join('')+'</select></label></div>').join(''):'<p class="hint" style="margin:0">まだ趣味がありません。</p>'}
+const HOBBY_COLORS=['#2e9e6a','#2b8fd6','#c0672e','#8a63c9','#c74f6f','#b8941f','#3f7f9f'];
+$('#addHobby').onclick=()=>{const hs=S.settings.hobbies;hs.push({id:'y'+Date.now().toString(36),name:'',color:HOBBY_COLORS[hs.length%HOBBY_COLORS.length],goal:0});renderHobbySettings();featSave()};
+$('#hobbySet').addEventListener('input',e=>{const c=e.target.closest('[data-hid]');if(!c)return;const h=S.settings.hobbies.find(x=>x.id===c.dataset.hid),f=e.target.dataset.hf;if(!h||!f)return;h[f]=f==='goal'?+e.target.value:e.target.value;featSave()});
+$('#hobbySet').addEventListener('change',e=>{const c=e.target.closest('[data-hid]');if(!c)return;const h=S.settings.hobbies.find(x=>x.id===c.dataset.hid),f=e.target.dataset.hf;if(h&&f==='goal'){h.goal=+e.target.value;featSave()}});
+$('#hobbySet').addEventListener('click',e=>{const c=e.target.closest('[data-hid]');if(!c||!e.target.closest('[data-hdel]'))return;S.settings.hobbies=S.settings.hobbies.filter(x=>x.id!==c.dataset.hid);renderHobbySettings();featSave()});
+function render(withForm){if($('#slotQuick')&&!render.sl){render.sl=1;setTimeout(renderSlots,0)}PM=periodModel();setTimeout(renderSelDay,0);applyFeatures();renderUpcoming();renderHobbyCard();renderQuick();renderCal();renderChart();if(withForm)fillForm();if(page==='status')renderStatus();renderFavs()}
 
 /* ---------- よく使う値（候補ボタン） ---------- */
 const FAV={
@@ -1753,7 +2285,8 @@ const FAV={
   tai:{name:'体力',type:'pct',def:[30,50,70,80],get:r=>r.tai},
   ws:{name:'勤務開始',type:'time',def:['08:30','09:00','10:00'],get:r=>r.work&&r.work.start},
   we:{name:'勤務終了',type:'time',def:['17:30','18:00','19:00'],get:r=>r.work&&r.work.end},
-  prep:{name:'朝支度(分)',type:'num',def:[15,20,30,45],get:r=>r.prep}};
+  prep:{name:'朝支度(分)',type:'num',def:[15,20,30,45],get:r=>r.prep},
+  hobby:{name:'趣味の時間',type:'hmin',def:[15,30,60,90,120],get:()=>null}};
 const favList=k=>{const v=(S.settings.favs||{})[k];return Array.isArray(v)?v:FAV[k].def};
 function frequent(k){const cnt={};Object.values(S.days).forEach(r=>{const v=r&&FAV[k].get(r);if(v==null||v==='')return;cnt[v]=(cnt[v]||0)+1});
   return Object.entries(cnt).filter(([,n])=>n>=2).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([v])=>FAV[k].type==='time'?v:+v)}
@@ -1778,13 +2311,13 @@ document.getElementById('form').addEventListener('click',e=>{const b=e.target.cl
   else if(k==='prep'){F.prep.value=v;markDirty('prep')}
   renderFavs();});
 document.getElementById('form').addEventListener('input',e=>{if(e.target.closest('.sec'))renderFavs()});
-const favUnit=f=>f.type==='pct'?'%':f.type==='num'?'分':'';
+const favUnit=f=>f.type==='pct'?'%':f.type==='num'||f.type==='hmin'?'分':'';
 function favPicker(k,f){
   if(f.type==='time')return '<input type="time" data-favin="'+k+'" aria-label="'+f.name+'に追加する時刻">';
-  const vals=f.type==='pct'?[...Array(21)].map((_,i)=>i*5):[...Array(36)].map((_,i)=>(i+1)*5);
-  return '<select data-favin="'+k+'" aria-label="'+f.name+'に追加する値">'+vals.map(v=>'<option value="'+v+'"'+(v===(f.type==='pct'?50:30)?' selected':'')+'>'+v+favUnit(f)+'</option>').join('')+'</select>'}
+  const vals=f.type==='pct'?[...Array(21)].map((_,i)=>i*5):f.type==='hmin'?[...Array(32)].map((_,i)=>(i+1)*15):[...Array(36)].map((_,i)=>(i+1)*5);
+  return '<select data-favin="'+k+'" aria-label="'+f.name+'に追加する値">'+vals.map(v=>'<option value="'+v+'"'+(v===(f.type==='pct'?50:f.type==='hmin'?60:30)?' selected':'')+'>'+(f.type==='hmin'?durHM(v):v+favUnit(f))+'</option>').join('')+'</select>'}
 function renderFavSettings(){
-  $('#favList').innerHTML=Object.entries(FAV).map(([k,f])=>{const list=favList(k);
+  $('#favList').innerHTML=Object.entries(FAV).filter(([k])=>k!=='hobby'||FEAT().hobby).map(([k,f])=>{const list=favList(k);
     return '<div class="favrow"><div class="favhead"><b>'+f.name+'</b><span class="hint">'+list.length+'/'+FAV_MAX+'</span></div>'+
       '<div class="favchips">'+(list.length?list.map((v,i)=>'<span class="favchip">'+v+favUnit(f)+'<button type="button" data-favdel="'+k+'" data-i="'+i+'" aria-label="'+v+favUnit(f)+'を消す">×</button></span>').join(''):'<span class="hint">候補なし</span>')+'</div>'+
       '<div class="favadd">'+favPicker(k,f)+'<button type="button" class="btn ghost" data-favadd="'+k+'"'+(list.length>=FAV_MAX?' disabled':'')+'>＋ 追加</button></div></div>'}).join('');
