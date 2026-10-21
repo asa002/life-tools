@@ -278,15 +278,17 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .lcleg span{display:inline-flex;align-items:center;gap:5px}
 .lcleg i{width:14px;height:3px;border-radius:2px;display:inline-block}
 .lcleg b{color:var(--ink);font-family:var(--mono);font-weight:500}
-.sgroup{border:1px solid var(--line);border-radius:12px;background:var(--surface-solid);scroll-margin-top:72px}
+.sgroup{border:1px solid var(--line);border-radius:12px;background:var(--surface);backdrop-filter:blur(var(--card-blur));-webkit-backdrop-filter:blur(var(--card-blur));scroll-margin-top:72px}
 .sgroup>summary{padding:12px 14px;font-weight:700;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-size:.92rem}
 .sgroup>summary::-webkit-details-marker{display:none}
 .sgroup>summary::after{content:"＋";color:var(--muted);font-weight:400}
 .sgroup[open]>summary::after{content:"－"}
 .sgroup[open]>summary{border-bottom:1px solid var(--line);margin-bottom:10px}
 .sgbody{padding:0 14px 14px;display:grid;gap:8px}
-#settings .panel{gap:8px}
-#settings .panel>.fhead{flex-wrap:wrap;align-items:center}
+.setpage{gap:8px}
+.sethead{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px));z-index:4;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--surface-solid);border:1px solid var(--line);box-shadow:0 6px 12px -10px rgba(0,0,0,.35)}
+.sethead h3{margin:0;font-size:1rem}
+.setpage .sgroup{scroll-margin-top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px) + 70px)}
 .jumpsel{width:auto;flex:1 1 9em;min-width:0;padding:6px 8px;font-size:.85rem;background:var(--surface-2)}
 .formbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px));z-index:4;display:flex;gap:6px;align-items:center;margin:0 -14px;padding:8px 14px;background:var(--surface);backdrop-filter:blur(var(--card-blur));-webkit-backdrop-filter:blur(var(--card-blur));border-block:1px solid var(--line)}
 :root:not(.has-bg) .formbar{background:var(--surface-solid)}
@@ -317,7 +319,7 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .chips button:active{background:color-mix(in srgb,var(--accent) 15%,transparent)}
 #fNote{min-height:150px}
 .pagewrap{display:flex;flex-direction:column;gap:14px}
-.tabs{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line);margin-top:-6px}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--line);margin-top:-6px}
 .tabs button{border:0;background:transparent;padding:10px 0;color:var(--muted);font-weight:500;border-bottom:2px solid transparent;margin-bottom:-1px}
 .tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent);font-weight:700}
 .has-bg .tabs{background:var(--surface);border-radius:12px 12px 0 0}
@@ -364,11 +366,12 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
   <header class="top">
     <h1 class="brand">生活記録 <small>睡眠・支度・移動</small></h1>
     <div class="hbtns"><button class="iconbtn" id="openHist" aria-label="変更履歴"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></svg></button>
-    <button class="iconbtn" id="openSettings" aria-label="設定"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1A1.7 1.7 0 0 0 4.6 9a1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
+</div>
   </header>
   <nav class="tabs" role="tablist" aria-label="画面">
     <button role="tab" data-page="main" aria-selected="true">記録</button>
     <button role="tab" data-page="status" aria-selected="false">記録状況</button>
+    <button role="tab" data-page="settings" aria-selected="false">設定</button>
   </nav>
   <div id="pageMain" class="pagewrap">
 
@@ -468,7 +471,7 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
     <div class="patternbar" id="patternBar">
       <h3>勤務パターンでまとめて入力</h3>
       <div class="pchips" id="pChips"></div>
-      <div class="hint" id="pHint">設定（⚙）の「通勤先と勤務パターン」で一度登録しておくと、ここを押すだけで通勤と勤務の時間が入ります。</div>
+      <div class="hint" id="pHint">設定タブの「通勤先と勤務パターン」で一度登録しておくと、ここを押すだけで通勤と勤務の時間が入ります。</div>
       <div class="secfoot" id="pSaveRow" hidden><button class="btn" id="pSave">通勤・勤務・帰宅をまとめて記録</button></div>
     </div>
 
@@ -572,11 +575,8 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
       <p class="hint">記録を始めた日から昨日までを数えています。今日はまだ途中なので含めません。期間を押すと、その日の記録画面を開きます。</p>
     </section>
   </div>
-</div>
-
-<div class="sheet" id="settings" hidden>
-  <div class="panel" role="dialog" aria-label="設定">
-    <div class="fhead"><h3>設定</h3><select id="sgJump" class="jumpsel" aria-label="設定の項目へ移動"><option value="">項目へ移動…</option><option value="sg0">追加機能</option><option value="sg1">表示モード</option><option value="sg2">カレンダーに付けるマーク</option><option value="sg3">グラフの色</option><option value="sg4">背景</option><option value="sg5">よく使う値</option><option value="sg6">通勤先と勤務パターン</option></select><div class="hbtns"><button class="btn ghost" id="undoSettings" disabled>↶ 一つ前に戻す</button><button class="btn" id="closeSettings">閉じる</button></div></div>
+  <div id="pageSettings" class="pagewrap setpage" hidden>
+    <div class="fhead sethead"><h3>設定</h3><select id="sgJump" class="jumpsel" aria-label="設定の項目へ移動"><option value="">項目へ移動…</option><option value="sg0">追加機能</option><option value="sg1">表示モード</option><option value="sg2">カレンダーに付けるマーク</option><option value="sg3">グラフの色</option><option value="sg4">背景</option><option value="sg5">よく使う値</option><option value="sg6">通勤先と勤務パターン</option></select><div class="hbtns"><button class="btn ghost" id="undoSettings" disabled>↶ 一つ前に戻す</button></div></div>
     <details class="sgroup" id="sg0" open><summary>追加機能</summary><div class="sgbody">
       <p class="hint" style="margin-top:0">使うものにチェックを入れると、記録画面とカレンダーに表示されます。外すと隠れます（記録は消えません）。</p>
       <label class="markrow"><input type="checkbox" data-feat="period"><span>月経管理</span><span></span></label>
@@ -1160,7 +1160,7 @@ function renderPeriodForm(){document.querySelectorAll('#flowOpts [data-flow]').f
 $('#flowOpts').addEventListener('click',e=>{const b=e.target.closest('[data-flow]');if(!b)return;perFlow=b.dataset.flow;renderPeriodForm();markDirty('period')});
 $('#symChips').addEventListener('click',e=>{const b=e.target.closest('[data-sym]');if(!b)return;const v=b.dataset.sym;perSym.has(v)?perSym.delete(v):perSym.add(v);renderPeriodForm();markDirty('period')});
 function renderMedsForm(){const meds=S.settings.meds;
-  $('#medRows').innerHTML=meds.length?meds.map(m=>'<div class="medrow" data-mid="'+m.id+'"><b>'+esc(m.name||'お薬')+'</b><div class="opts">'+(m.times||[]).map(t=>'<button type="button" data-t="'+t+'" aria-pressed="'+!!(medsState[m.id]&&medsState[m.id][t])+'">'+t+'</button>').join('')+'</div></div>').join(''):'<p class="hint" style="margin:0">設定（⚙）の「追加機能」→「お薬管理」でお薬と飲むタイミングを登録してください。</p>';
+  $('#medRows').innerHTML=meds.length?meds.map(m=>'<div class="medrow" data-mid="'+m.id+'"><b>'+esc(m.name||'お薬')+'</b><div class="opts">'+(m.times||[]).map(t=>'<button type="button" data-t="'+t+'" aria-pressed="'+!!(medsState[m.id]&&medsState[m.id][t])+'">'+t+'</button>').join('')+'</div></div>').join(''):'<p class="hint" style="margin:0">設定タブの「追加機能」→「お薬管理」でお薬と飲むタイミングを登録してください。</p>';
   $('#medAll').hidden=!meds.length}
 $('#medRows').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;const id=b.closest('[data-mid]').dataset.mid,t=b.dataset.t;
   medsState[id]=medsState[id]||{};medsState[id][t]=!medsState[id][t];renderMedsForm();markDirty('meds')});
@@ -1350,10 +1350,9 @@ $('#undoSettings').onclick=()=>{const prev=settingsUndo.pop();if(!prev)return;
   S.settings=merge(JSON.parse(prev));lastSettings=JSON.stringify(S.settings);put('settings',S.settings);
   $('#undoSettings').disabled=!settingsUndo.length;
   applyLook();renderSettings();renderFeatSettings();renderFavSettings();render(false);refreshClean();toast('設定を一つ前に戻しました')};
-$('#openSettings').onclick=()=>{if(lastSettings==null)lastSettings=JSON.stringify(S.settings);renderSettings();renderFeatSettings();renderFavSettings();openSheet('#settings')};
-$('#closeSettings').onclick=()=>closeSheet('#settings');
+function openSettingsPage(){if(lastSettings==null)lastSettings=JSON.stringify(S.settings);renderSettings();renderFeatSettings();renderFavSettings()}
 $('#sgJump').addEventListener('change',e=>{const id=e.target.value;if(!id)return;
-  document.querySelectorAll('#settings .sgroup').forEach(d=>d.open=d.id===id);
+  document.querySelectorAll('#pageSettings .sgroup').forEach(d=>d.open=d.id===id);
   const el=document.getElementById(id);requestAnimationFrame(()=>el.scrollIntoView({block:'start',behavior:'smooth'}));e.target.value=''});
 /* 記録フォームの項目ジャンプと追従バー */
 function buildFormJump(){const opts=[['','項目へ移動…']];
@@ -1368,7 +1367,7 @@ $('#undoLast').onclick=()=>{const e=(S.hist||[])[0];if(!e){toast('戻せる変�
 $('#barSaveAll').onclick=()=>saveAll();
 const setHdr=()=>{const h=document.querySelector('header.top');if(h)document.documentElement.style.setProperty('--hdr',h.offsetHeight+'px')};
 setHdr();window.addEventListener('resize',setHdr);
-$('#settings').addEventListener('click',e=>{if(e.target.id==='settings')closeSheet('#settings')});
+
 function renderFeatSettings(){const st=S.settings,f=st.features;
   document.querySelectorAll('[data-feat]').forEach(c=>c.checked=!!f[c.dataset.feat]);
   $('#featPeriod').hidden=!f.period;$('#featMeds').hidden=!f.meds;$('#featEvents').hidden=!f.events;
@@ -1686,8 +1685,8 @@ $('#resetFavs').onclick=()=>{S.settings.favs={};renderFavSettings();saveSettings
 let page='main',gapKind='any';
 function showPage(p){page=p;
   document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.page===p));
-  $('#pageMain').hidden=p!=='main';$('#pageStatus').hidden=p!=='status';
-  if(p==='status')renderStatus();window.scrollTo(0,0);}
+  $('#pageMain').hidden=p!=='main';$('#pageStatus').hidden=p!=='status';$('#pageSettings').hidden=p!=='settings';
+  if(p==='status')renderStatus();if(p==='settings')openSettingsPage();window.scrollTo(0,0);}
 document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
 $('#gapKind').onclick=e=>{const b=e.target.closest('[data-kind]');if(!b)return;gapKind=b.dataset.kind;renderStatus()};
 const ymdJ=k=>{const d=parse(k);return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日('+WD[d.getDay()]+')'};
