@@ -423,6 +423,53 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 @keyframes spot{50%{outline-color:transparent}}
 @media (prefers-reduced-motion: reduce){.spot{animation:none}}
 .firsttip{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 10%,var(--surface-solid));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));font-size:.86rem}
+.gperiod{display:grid;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.gnav{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:6px;align-items:center}
+.gpick{display:grid;gap:2px;justify-items:center}
+.gpick input{text-align:center;font-weight:700;max-width:14em}
+.gpick b{font-size:.78rem;font-weight:500;color:var(--muted)}
+.grange{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.grange label{display:grid;gap:2px;font-size:.75rem;color:var(--muted)}
+.gquick{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
+.gquick button{border:1px solid var(--line);background:var(--surface-2);border-radius:16px;padding:5px 12px;min-height:36px;font-size:.82rem;color:var(--ink)}
+.tline{display:grid;gap:3px;margin-top:14px}
+.tline h3{margin:0 0 4px;font-size:.78rem;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.tlaxis,.tlrow{display:grid;grid-template-columns:4.2em minmax(0,1fr);gap:8px;align-items:center}
+.tlaxis>div{position:relative;height:14px;font-family:var(--mono);font-size:.6rem;color:var(--muted)}
+.tlaxis i{position:absolute;transform:translateX(-50%);font-style:normal}
+.tlaxis i:first-child{transform:none}.tlaxis i:last-child{transform:translateX(-100%)}
+.tlrow .lab{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.tlrow.sel .lab{color:var(--ink);font-weight:700}
+.tltrack{position:relative;height:12px;border-radius:4px;background:repeating-linear-gradient(90deg,var(--line) 0 1px,transparent 1px calc(100%/8)),var(--surface-2);overflow:hidden}
+.tltrack.big{height:22px;border-radius:6px}
+.tltrack i{position:absolute;top:0;bottom:0}
+.tltypical{display:grid;gap:4px;margin-top:10px}
+.tltypical b{font-size:.82rem}
+.hat{display:grid;grid-template-columns:auto minmax(0,9em);gap:8px;align-items:center;font-size:.76rem;color:var(--muted)}
+.gtop{display:grid;grid-template-columns:auto 44px minmax(0,1fr) 44px;gap:6px;align-items:center}
+.gmode{width:auto;max-width:7.5em;font-weight:700;min-height:44px}
+.glabel{border:1px solid var(--line);background:var(--surface-2);border-radius:10px;min-height:44px;display:grid;align-content:center;justify-items:center;line-height:1.25;color:var(--ink);cursor:pointer;padding:2px 6px;min-width:0}
+.glabel b{font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.glabel small{font-size:.68rem;color:var(--muted)}
+.gpickrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.gpickrow input{width:auto;flex:1;min-width:10em}
+.gtabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.gtabs button{border:1px solid var(--line);background:transparent;border-radius:12px;padding:8px 6px;min-height:52px;display:grid;gap:1px;font-weight:700;color:var(--ink);cursor:pointer}
+.gtabs button small{font-weight:400;font-size:.68rem;color:var(--muted)}
+.gtabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.gtabs button[aria-selected="true"] small{color:var(--accent-ink);opacity:.85}
+.gfoot{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.tstats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:6px}
+.tstats div{background:var(--surface-2);border-radius:10px;padding:6px 8px;display:grid}
+.tstats span{font-size:.64rem;color:var(--muted)}.tstats b{font-family:var(--mono);font-weight:500;font-size:.92rem}
+.tlrow.pad .lab{opacity:.6}.tlrow.pad .tltrack{opacity:.55}
+.panels{display:grid;gap:2px}
+.panel1{display:grid;gap:0}
+.phead{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.78rem;padding-left:4px}
+.phead span{display:inline-flex;align-items:center;gap:5px;color:var(--muted)}
+.phead i{width:10px;height:3px;border-radius:2px;display:inline-block}
+.phead b{color:var(--ink);font-family:var(--mono);font-weight:600}
+.phead em{font-style:normal;font-family:var(--mono);font-size:.72rem;margin-left:3px;color:var(--muted)}
 .charthead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
 .charthead h2{margin:0}
 .btn.sm{padding:6px 12px;font-size:.82rem;min-height:38px}
@@ -557,8 +604,8 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
   </section>
 
   <section data-view="cal" class="card">
-    <div class="seg" role="group" aria-label="表示">
-      <button data-view="day">日</button><button data-view="week">週</button><button data-view="month">月</button>
+    <div class="seg" role="group" aria-label="表示" id="spanSeg">
+      <button data-span="day">日</button><button data-span="week">週</button><button data-span="month">月</button>
     </div>
     <div class="nav">
       <b id="navLabel"></b>
@@ -581,17 +628,32 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
   </section>
 
   <section data-view="graph" class="card">
-    <div class="charthead"><select id="chartKind" class="kindsel" aria-label="グラフの種類">
-        <optgroup label="睡眠"><option value="sleep">睡眠スケジュール（帯）</option><option value="sleepLen">睡眠時間</option><option value="bedwake">寝支度・起床の時刻</option></optgroup>
-        <optgroup label="気力・体力"><option value="ki">気力</option><option value="tai">体力</option><option value="mood">気力と体力</option><option value="sleepMood">睡眠時間と気力・体力</option></optgroup>
-        <optgroup label="仕事・生活"><option value="work">勤務時間</option><option value="home">帰宅時刻</option><option value="workHome">勤務時間と帰宅時刻</option><option value="commute">通勤時間（片道）</option><option value="prep">朝支度の時間</option></optgroup>
-        <optgroup label="趣味" id="hobbyKinds"><option value="hobby">趣味の時間</option><option value="hobbyMood">趣味の時間と気力</option></optgroup>
-        <optgroup label="体の記録" id="bodyKinds"><option value="bt">基礎体温</option><option value="wtfat">体重と体脂肪率</option><option value="wt">体重</option><option value="wtmus">体重と筋肉量</option><option value="bmi">BMI</option><option value="temp">体温</option><option value="bp">血圧と脈拍</option><option value="steps">歩数</option><option value="water">水分</option></optgroup>
+    <div class="gperiod" id="gPeriod">
+      <div class="gtop">
+        <select id="gMode" class="gmode" aria-label="グラフの期間"><option value="week">週</option><option value="month">月</option><option value="range">期間を指定</option></select>
+        <button type="button" class="secnav" id="gPrev" aria-label="前の期間">‹</button>
+        <button type="button" class="glabel" id="gLabelBtn" aria-label="期間を選ぶ"><b id="gLabel"></b><small id="gInfo"></small></button>
+        <button type="button" class="secnav" id="gNext" aria-label="次の期間">›</button>
+      </div>
+      <div class="gpickrow" id="gPickRow" hidden><input type="month" id="gMonth" aria-label="表示する月"><input type="date" id="gWeek" aria-label="この日を含む週を表示"><button type="button" class="btn ghost sm" id="gThis">今週・今月に戻る</button></div>
+      <div class="grange" id="gRangeBox" hidden>
+        <label><span>開始</span><input type="date" id="gFrom"></label><label><span>終了</span><input type="date" id="gTo"></label>
+        <div class="gquick"><button type="button" data-gq="7">直近7日</button><button type="button" data-gq="30">直近30日</button><button type="button" data-gq="90">直近3か月</button><button type="button" data-gq="180">直近半年</button></div>
+      </div>
+    </div>
+    <div class="gtabs" role="tablist" aria-label="グラフの種類">
+      <button type="button" role="tab" data-gt="time">時間帯<small>睡眠・勤務・移動など</small></button>
+      <button type="button" role="tab" data-gt="num">数値<small>気力・体力・体の記録</small></button>
+    </div>
+    <div class="charthead" id="numCtl" hidden><select id="chartKind" class="kindsel" aria-label="数値のグラフの種類">
+        <optgroup label="気力・体力"><option value="mood">気力と体力</option><option value="ki">気力</option><option value="tai">体力</option></optgroup>
+        <optgroup label="体の記録" id="bodyKinds"><option value="bodyAll">体型をまとめて見る</option><option value="vitalAll">バイタルをまとめて見る</option><option value="bt">基礎体温</option><option value="wtfat">体重と体脂肪率</option><option value="wt">体重</option><option value="wtmus">体重と筋肉量</option><option value="bmi">BMI</option><option value="temp">体温</option><option value="bp">血圧と脈拍</option><option value="steps">歩数</option><option value="water">水分</option></optgroup>
         <optgroup label="自由に組み合わせ"><option value="custom">選んだ項目を重ねる…</option></optgroup>
-      </select><div class="hbtns"><button class="btn ghost sm" id="openTable" title="Googleスプレッドシート・Excel用">表に書き出す</button><button class="btn ghost sm" id="openExport">テキストでコピー</button></div></div>
+      </select></div>
     <div class="exchecks" id="customPick" hidden></div>
-    <h2 id="chartTitle" class="vh">睡眠スケジュール</h2>
+    <h2 id="chartTitle" class="vh">グラフ</h2>
     <div id="chart"></div>
+    <div class="gfoot"><button class="btn ghost sm" id="openTable" title="Googleスプレッドシート・Excel用">表に書き出す</button><button class="btn ghost sm" id="openExport">テキストでコピー</button></div>
   </section>
 
   <section data-view="input" class="card form" id="form">
@@ -693,7 +755,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
 
     <div class="sec" data-sec="other">
       <div class="sechead"><h3>その他の時間</h3><span class="secstate" id="st-other"></span></div>
-      <div class="hint">睡眠・通勤・勤務・朝支度以外に何をしていたかを書けます。時間を入れると割合のグラフに出ます。</div>
+      <div class="hint">睡眠・通勤・勤務・朝支度以外に何をしていたかを書けます。開始・終了の時刻を入れると、グラフ・分析の「1日のタイムライン」の該当する時間帯に表示されます。</div>
       <div id="otherRows" class="orows"></div>
       <div class="chips" id="actChips" aria-label="活動の候補"><button type="button" data-act="家事">家事</button><button type="button" data-act="食事">食事</button><button type="button" data-act="入浴">入浴</button><button type="button" data-act="趣味">趣味</button><button type="button" data-act="勉強">勉強</button><button type="button" data-act="運動">運動</button><button type="button" data-act="買い物">買い物</button><button type="button" data-act="家族・友人">家族・友人</button><button type="button" data-act="スマホ・動画">スマホ・動画</button><button type="button" data-act="休憩・ゴロゴロ">休憩</button><button type="button" data-act="通院">通院</button></div>
       <div><button type="button" class="btn ghost" id="addAct">＋ 行を追加</button></div>
@@ -1120,6 +1182,7 @@ $('#qWakeBtn').onclick=()=>quickSave('wake','#qWake',quickTargets().wake);
 
 /* ---------- calendar ---------- */
 function rangeDays(){
+  if(mainView==='graph')return graphDays();
   const d=parse(sel);
   if(view==='day')return[sel];
   if(view==='week'){const st=addDays(d,-d.getDay());return[...Array(7)].map((_,i)=>ymd(addDays(st,i)))}
@@ -1182,7 +1245,7 @@ function cellHTML(k,cls){
 }
 function renderCal(){
   const d=parse(sel);let h='';
-  document.querySelectorAll('.seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.view===view));
+  document.querySelectorAll('#spanSeg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.span===view));
   const head='<div class="grid">'+['日','月','火','水','木','金','土'].map((w,i)=>'<div class="wd'+(i===0?' sun':i===6?' sat':'')+'">'+w+'</div>').join('');
   if(view==='month'){
     $('#navLabel').textContent=d.getFullYear()+'年'+(d.getMonth()+1)+'月';
@@ -1209,7 +1272,7 @@ function renderCal(){
   $('#legend').innerHTML=lg.length?lg.join(''):'<span>マークは非表示です（設定で選べます）</span>';
 }
 $('#cal').addEventListener('click',e=>{const b=e.target.closest('[data-k]');if(!b)return;selectDate(b.dataset.k)});
-document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{view=b.dataset.view;render(false)});
+document.querySelectorAll('#spanSeg button').forEach(b=>b.onclick=()=>{view=b.dataset.span;render(false)});
 function shift(n){const d=parse(sel);
   if(view==='month'){const x=new Date(d.getFullYear(),d.getMonth()+n,1);selectDate(ymd(x))}
   else selectDate(ymd(addDays(d,view==='week'?7*n:n)));}
@@ -1251,7 +1314,7 @@ function renderLineView(){
   if(!keys.length)h='<p class="empty">重ねたい項目にチェックを入れてください。</p>';
   else h=lineChart(ks,keys)+(view==='day'?'<p class="hint" style="margin:4px 0 0">日表示では、選んだ日までの14日間を表示しています。</p>':'');
   const rk=rangeDays();
-  $('#chart').innerHTML=h+(view==='day'?'':'')+workTimeline(rk)+lateList(rk)+shareHTML(rk);
+  $('#chart').innerHTML=h+timelineHTML(rk)+lateList(rk);
 }
 function avgHome(rs){const v=rs.map(homeOf).filter(x=>x!=null);if(!v.length)return'—';return hm(Math.round(v.reduce((a,b)=>a+b,0)/v.length))}
 /* 勤務と帰宅のタイムライン：6:00 → 翌2:00 */
@@ -1328,9 +1391,9 @@ const PARAMS={
   muscle:{name:'筋肉量',unit:'kg',color:'#4f9a3a',get:(r)=>r.body&&r.body.muscle},
   temp:{name:'体温',unit:'temp',color:'#c0672e',get:(r)=>r.body&&r.body.temp},
   bmi:{name:'BMI',unit:'bmi',color:'#6b5bd6',get:(r)=>{const x=r.body&&bmi(r.body.wt);return x?+x.toFixed(1):null}}};
-const KINDS={hobby:['hobby'],hobbyMood:['hobby','ki'],bt:['bt'],wtfat:['wt','fat'],wt:['wt'],wtmus:['wt','muscle'],bmi:['bmi'],temp:['temp'],bp:['bpH','bpL','pulse'],steps:['steps'],water:['water'],sleepLen:['sleepLen'],bedwake:['bed','wake'],ki:['ki'],tai:['tai'],mood:['ki','tai'],sleepMood:['sleepLen','ki','tai'],work:['work'],home:['home'],workHome:['work','home'],commute:['commute'],prep:['prep']};
-const KIND_NAME={hobby:'趣味の時間',hobbyMood:'趣味の時間と気力',bt:'基礎体温',wtfat:'体重と体脂肪率',wt:'体重',wtmus:'体重と筋肉量',bmi:'BMI',temp:'体温',bp:'血圧と脈拍',steps:'歩数',water:'水分',sleep:'睡眠スケジュール',sleepLen:'睡眠時間',bedwake:'寝支度・起床の時刻',ki:'気力',tai:'体力',mood:'気力と体力',sleepMood:'睡眠時間と気力・体力',work:'勤務時間',home:'帰宅時刻',workHome:'勤務時間と帰宅時刻',commute:'通勤時間',prep:'朝支度の時間',custom:'組み合わせ'};
-let chartKind='sleep',customSel=['sleepLen','ki'];
+const KINDS={bodyAll:['wt','fat','muscle','bmi','waist'],vitalAll:['temp','bpH','bpL','pulse','steps','water'],hobby:['hobby'],hobbyMood:['hobby','ki'],bt:['bt'],wtfat:['wt','fat'],wt:['wt'],wtmus:['wt','muscle'],bmi:['bmi'],temp:['temp'],bp:['bpH','bpL','pulse'],steps:['steps'],water:['water'],sleepLen:['sleepLen'],bedwake:['bed','wake'],ki:['ki'],tai:['tai'],mood:['ki','tai'],sleepMood:['sleepLen','ki','tai'],work:['work'],home:['home'],workHome:['work','home'],commute:['commute'],prep:['prep']};
+const KIND_NAME={bodyAll:'体型をまとめて（体重・体脂肪率・筋肉量・BMI・ウエスト）',vitalAll:'バイタルをまとめて',hobby:'趣味の時間',hobbyMood:'趣味の時間と気力',bt:'基礎体温',wtfat:'体重と体脂肪率',wt:'体重',wtmus:'体重と筋肉量',bmi:'BMI',temp:'体温',bp:'血圧と脈拍',steps:'歩数',water:'水分',sleep:'睡眠スケジュール',sleepLen:'睡眠時間',bedwake:'寝支度・起床の時刻',ki:'気力',tai:'体力',mood:'気力と体力',sleepMood:'睡眠時間と気力・体力',work:'勤務時間',home:'帰宅時刻',workHome:'勤務時間と帰宅時刻',commute:'通勤時間',prep:'朝支度の時間',custom:'組み合わせ'};
+let chartKind='mood',customSel=['ki','tai'];
 try{const o=JSON.parse(localStorage.getItem('nemuri-chart')||'null');if(o){if(o.kind&&KIND_NAME[o.kind])chartKind=o.kind;if(Array.isArray(o.custom))customSel=o.custom.filter(k=>PARAMS[k])}}catch(e){}
 const saveChartPref=()=>{try{localStorage.setItem('nemuri-chart',JSON.stringify({kind:chartKind,custom:customSel}))}catch(e){}};
 const NUM_UNITS={bmi:['',1],temp:['℃',2],kg:['kg',1],fat:['%',1],mmHg:['',0],bpm:['',0],steps:['歩',0],ml:['ml',0],cm:['cm',1]};
@@ -1361,12 +1424,12 @@ function lineChart(ks,keys){
   {const goal=+((S.settings.body||{}).goal);if(goal&&keys.includes('wt')&&rng.kg){const[a,b]=rng.kg;if(goal>=a&&goal<=b){const y=Y('kg',goal).toFixed(1);g+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'" style="stroke:#2b8fd6;stroke-dasharray:3 4;stroke-width:1.5"/><text x="'+(W-pr-2)+'" y="'+(+y-4)+'" text-anchor="end" style="fill:#2b8fd6">目標'+goal+'</text>'}}}
   rng[L][2].forEach(t=>{const y=Y(L,t).toFixed(1);g+='<line class="grid" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(pl-4)+'" y="'+(+y+3)+'" text-anchor="end">'+UNIT_FMT[L](t)+'</text>'});
   if(R)rng[R][2].forEach(t=>{const y=Y(R,t);g+='<text x="'+(W-pr+4)+'" y="'+(y+3).toFixed(1)+'">'+UNIT_FMT[R](t)+'</text>'});
-  const every=n<=8?1:n<=16?2:5;
-  ks.forEach((d,i)=>{const dd=parse(d);if(i%every&&i!==n-1)return;g+='<text x="'+X(i).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle"'+(d===sel?' style="fill:var(--ink);font-weight:700"':'')+'>'+(n<=8?(dd.getMonth()+1)+'/'+dd.getDate():dd.getDate())+'</text>'});
+  const every=n<=8?1:n<=16?2:n<=45?5:n<=100?10:30;
+  ks.forEach((d,i)=>{const dd=parse(d);if((i%every&&i!==n-1)||(i!==n-1&&every>1&&n-1-i<every*0.7))return;g+='<text x="'+X(i).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle"'+(d===sel?' style="fill:var(--ink);font-weight:700"':'')+'>'+(n<=8||dd.getDate()===1||i===0?(dd.getMonth()+1)+'/'+dd.getDate():dd.getDate())+'</text>'});
   ser.forEach((x,si2)=>{if(!units.includes(x.unit))return;let path='',pts='',area='';let seg=[];
     const flush=()=>{if(seg.length>1){path+='M'+seg.map(p=>p.join(',')).join('L');if(ser.length===1)area+='M'+seg[0][0]+','+(pt+ih)+'L'+seg.map(p=>p.join(',')).join('L')+'L'+seg[seg.length-1][0]+','+(pt+ih)+'Z'}seg=[]};
     x.vals.forEach((v,i)=>{if(v==null){flush();return}const p=[X(i).toFixed(1),Y(x.unit,v).toFixed(1)];seg.push(p);
-      pts+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(ks[i]===sel?4:2.6)+'" style="fill:'+x.color+';stroke:var(--surface-solid);stroke-width:1.2"><title>'+md(ks[i])+' '+x.name+' '+fmtVal(x.unit,v)+'</title></circle>'});flush();
+      pts+='<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+(ks[i]===sel?4:n>45?1.5:2.6)+'" style="fill:'+x.color+';stroke:var(--surface-solid);stroke-width:1.2"><title>'+md(ks[i])+' '+x.name+' '+fmtVal(x.unit,v)+'</title></circle>'});flush();
     if(area)g+='<path d="'+area+'" style="fill:'+x.color+';opacity:.12"/>';
     g+='<path d="'+path+'" style="fill:none;stroke:'+x.color+';stroke-width:2;stroke-linejoin:round;stroke-linecap:round'+(x.unit===R&&units.length>1?';stroke-dasharray:5 3':'')+'"/>'+pts});
   const has=ser.some(x=>x.vals.some(v=>v!=null));
@@ -1376,14 +1439,88 @@ function lineChart(ks,keys){
   if(keys.includes('wt')){const lw=ser.find(x=>x.k==='wt').vals.filter(v=>v!=null);const b=lw.length?bmi(lw[lw.length-1]):null;if(b)extra+='<span>最新のBMI <b>'+b.toFixed(1)+'</b></span>'}
   return '<svg class="lc" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(ser.map(x=>x.name).join('と'))+'の推移">'+g+'</svg>'+(has?'':'<p class="empty" style="margin:0">この期間はまだ記録がありません。</p>')+'<div class="lcleg">'+leg+extra+'</div>';
 }
+/* 単位の違う項目をまとめて見る：単位ごとに小さなグラフを縦に並べ、日付の軸はそろえる */
+function panelChart(ks,keys){
+  const groups=[];keys.forEach(k=>{const u=PARAMS[k].unit,pair=k==='bpH'||k==='bpL';let g=pair?groups.find(x=>x.bp):null;if(!g){g={u,keys:[],bp:pair};groups.push(g)}g.keys.push(k)}); /* 1項目1グラフ（血圧の上下だけ同じグラフ） */
+  const W=360,pl=40,pr=12,n=ks.length,iw=W-pl-pr,X=i=>pl+(n>1?i*iw/(n-1):iw/2),si=ks.indexOf(sel),bw=n>1?iw/(n-1):iw;
+  const every=n<=8?1:n<=16?2:n<=45?5:n<=100?10:30;
+  let any=false;
+  const out=groups.map((gr,gi)=>{const last=gi===groups.length-1,H=last?112:92,pt=8,pb=last?22:6,ih=H-pt-pb;
+    const ser=gr.keys.map(k=>({k,...PARAMS[k],vals:ks.map(d=>{const r=S.days[d];if(!r)return null;const v=PARAMS[k].get(r,d);return v==null||Number.isNaN(+v)?null:+v})}));
+    const all=ser.flatMap(x=>x.vals.filter(v=>v!=null));if(all.length)any=true;
+    let[a,b,ticks]=unitRange(gr.u,all);if(gr.u!=='pct'&&all.length){const lo=Math.min(...all),hi=Math.max(...all),m=(hi-lo)*0.15||Math.max(.5,Math.abs(hi)*0.02);a=lo-m;b=hi+m;ticks=[a+(b-a)*0.15,(a+b)/2,b-(b-a)*0.15]}
+    const Y=v=>pt+ih-(v-a)/(b-a||1)*ih;let g='';
+    if(si>=0)g+='<rect class="selband" x="'+(X(si)-bw/2).toFixed(1)+'" y="'+pt+'" width="'+bw.toFixed(1)+'" height="'+ih+'"/>';
+    const tdec=gr.u==='pct'||gr.u==='steps'||gr.u==='ml'||gr.u==='mmHg'||gr.u==='bpm'?0:(b-a)<3?2:1;ticks.forEach(t=>{const y=Y(t).toFixed(1);g+='<line class="grid" x1="'+pl+'" x2="'+(W-pr)+'" y1="'+y+'" y2="'+y+'"/><text x="'+(pl-4)+'" y="'+(+y+3)+'" text-anchor="end">'+(+t).toFixed(tdec)+'</text>'});
+    if(last)ks.forEach((d,i)=>{const dd=parse(d);if((i%every&&i!==n-1)||(i!==n-1&&every>1&&n-1-i<every*0.7))return;g+='<text x="'+X(i).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle"'+(d===sel?' style="fill:var(--ink);font-weight:700"':'')+'>'+(n<=8||dd.getDate()===1||i===0?(dd.getMonth()+1)+'/'+dd.getDate():dd.getDate())+'</text>'});
+    ser.forEach(x=>{let path='',pts='',seg=[];const flush=()=>{if(seg.length>1)path+='M'+seg.map(q=>q.join(',')).join('L');seg=[]};
+      x.vals.forEach((v,i)=>{if(v==null)return;const q=[X(i).toFixed(1),Y(v).toFixed(1)];seg.push(q);pts+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="'+(ks[i]===sel?3.6:n>45?1.4:2.3)+'" style="fill:'+x.color+';stroke:var(--surface-solid);stroke-width:1"><title>'+md(ks[i])+' '+x.name+' '+fmtVal(x.unit,v)+'</title></circle>'});flush();
+      g+='<path d="'+path+'" style="fill:none;stroke:'+x.color+';stroke-width:2;stroke-linejoin:round;stroke-linecap:round"/>'+pts});
+    const head=ser.map(x=>{const v=x.vals.filter(y=>y!=null),f=v[0],l=v[v.length-1],d=v.length>1?l-f:null,dec=(NUM_UNITS[x.unit]||['',1])[1];
+      return '<span><i style="background:'+x.color+'"></i>'+x.name+' <b>'+(l==null?'—':fmtVal(x.unit,l))+'</b>'+(d!=null?'<em class="'+(d>0?'up':d<0?'down':'')+'">'+(d>0?'+':'')+d.toFixed(dec)+'</em>':'')+'</span>'}).join('');
+    return '<div class="panel1"><div class="phead">'+head+'</div><svg class="lc" viewBox="0 0 '+W+' '+H+'" role="img" aria-label="'+esc(ser.map(x=>x.name).join('と'))+'の推移">'+g+'</svg></div>'}).join('');
+  return '<div class="panels">'+out+'</div>'+(any?'<p class="hint" style="margin:4px 0 0">項目ごとに見やすい目盛りで表示し、日付の位置はすべてそろえています。太字は期間内の最新の値、その横は期間の最初からの増減です。記録のない日は前後の点をつないでいます。</p>':'<p class="empty" style="margin:0">この期間はまだ記録がありません。</p>')}
 function renderCustomPick(){const box=$('#customPick');box.hidden=chartKind!=='custom';if(box.hidden)return;
   const us=[...new Set(customSel.map(k=>PARAMS[k].unit))];
   const bodyOn=FEAT().body||FEAT().period,bodyKeys=['bt','wt','fat','bpH','bpL','pulse','steps','water','waist','muscle','temp','bmi'];
-  box.innerHTML=Object.entries(PARAMS).filter(([k])=>bodyOn||!bodyKeys.includes(k)).map(([k,p])=>{const dis=!customSel.includes(k)&&us.length>=2&&!us.includes(p.unit);
-    return '<label'+(dis?' class="dis" title="単位の違う項目は2種類まで重ねられます"':'')+'><input type="checkbox" data-cp="'+k+'"'+(customSel.includes(k)?' checked':'')+(dis?' disabled':'')+'>'+p.name+'</label>'}).join('');}
+  box.innerHTML=Object.entries(PARAMS).filter(([k,p])=>NUM_UNITS_OK(p.unit)&&(bodyOn||!bodyKeys.includes(k))).map(([k,p])=>{const dis=false;
+    return '<label'+(dis?' class="dis"':'')+'><input type="checkbox" data-cp="'+k+'"'+(customSel.includes(k)?' checked':'')+(dis?' disabled':'')+'>'+p.name+'</label>'}).join('');}
 $('#chartKind').addEventListener('change',e=>{chartKind=e.target.value;saveChartPref();renderChart()});
 $('#customPick').addEventListener('change',e=>{const k=e.target.dataset.cp;if(!k)return;customSel=e.target.checked?[...customSel,k]:customSel.filter(x=>x!==k);saveChartPref();renderChart()});
-function renderChart(){
+/* ---------- グラフの期間（週・月・任意の期間。月をまたいでもOK） ---------- */
+/* ---------- グラフ：期間（週は日〜土、月は前月最終日〜翌月1日まで1枚で）とタブ（時間帯／数値） ---------- */
+let G={mode:'week',anchor:ymd(new Date()),from:ymd(addDays(new Date(),-29)),to:ymd(new Date())};
+try{const o=JSON.parse(localStorage.getItem('nemuri-gperiod2')||'null');if(o&&o.mode)G={...G,...o}}catch(e){}
+const saveG=()=>{try{localStorage.setItem('nemuri-gperiod2',JSON.stringify(G))}catch(e){}};
+let gTab='time';try{gTab=localStorage.getItem('nemuri-gtab')||'time'}catch(e){}
+function monthCore(a){const n=new Date(a.getFullYear(),a.getMonth()+1,0).getDate();return[...Array(n)].map((_,i)=>ymd(new Date(a.getFullYear(),a.getMonth(),i+1)))}
+function graphDays(){const a=parse(G.anchor);
+  if(G.mode==='week'){const st=addDays(a,-a.getDay());return[...Array(7)].map((_,i)=>ymd(addDays(st,i)))}
+  if(G.mode==='range'){let f=G.from,t=G.to;if(f>t)[f,t]=[t,f];const out=[];for(let x=parse(f);ymd(x)<=t&&out.length<732;x=addDays(x,1))out.push(ymd(x));return out}
+  const c=monthCore(a);return[ymd(addDays(parse(c[0]),-1)),...c,ymd(addDays(parse(c[c.length-1]),1))]} /* 月の前後1日を含めて、月をまたぐ睡眠も1枚で見られる */
+const isPad=k=>G.mode==='month'&&k.slice(0,7)!==G.anchor.slice(0,7);
+function renderGPeriod(){const ks=graphDays(),a=parse(G.anchor);
+  $('#gMode').value=G.mode;$('#gRangeBox').hidden=G.mode!=='range';
+  ['#gPrev','#gNext','#gLabelBtn'].forEach(id=>$(id).hidden=G.mode==='range');if(G.mode==='range')$('#gPickRow').hidden=true;
+  $('#gMonth').hidden=G.mode!=='month';$('#gWeek').hidden=G.mode!=='week';
+  $('#gMonth').value=a.getFullYear()+'-'+pad(a.getMonth()+1);$('#gWeek').value=G.anchor;$('#gFrom').value=G.from;$('#gTo').value=G.to;
+  const core=ks.filter(k=>!isPad(k)),rec=core.filter(k=>S.days[k]).length;
+  const s0=parse(ks[0]),s6=parse(ks[6]);$('#gLabel').textContent=G.mode==='week'?(s0.getMonth()+1)+'/'+s0.getDate()+'〜'+(s0.getMonth()===s6.getMonth()?'':(s6.getMonth()+1)+'/')+s6.getDate():a.getFullYear()+'年'+(a.getMonth()+1)+'月';
+  $('#gInfo').textContent='記録 '+rec+'/'+core.length+'日';
+  document.querySelectorAll('.gtabs [data-gt]').forEach(b=>b.setAttribute('aria-selected',b.dataset.gt===gTab))}
+$('#gMode').addEventListener('change',e=>{if(e.target.value==='range'&&G.mode!=='range'){const ks=graphDays();G.from=ks[0];G.to=ks[ks.length-1]}G.mode=e.target.value;saveG();renderChart()});
+$('#gPrev').onclick=()=>{const a=parse(G.anchor);G.anchor=ymd(G.mode==='week'?addDays(a,-7):new Date(a.getFullYear(),a.getMonth()-1,1));saveG();renderChart()};
+$('#gNext').onclick=()=>{const a=parse(G.anchor);G.anchor=ymd(G.mode==='week'?addDays(a,7):new Date(a.getFullYear(),a.getMonth()+1,1));saveG();renderChart()};
+$('#gLabelBtn').onclick=()=>{$('#gPickRow').hidden=!$('#gPickRow').hidden};
+$('#gThis').onclick=()=>{G.anchor=ymd(new Date());saveG();$('#gPickRow').hidden=true;renderChart()};
+$('#gMonth').addEventListener('change',e=>{if(!e.target.value)return;G.anchor=e.target.value+'-01';saveG();$('#gPickRow').hidden=true;renderChart()});
+$('#gWeek').addEventListener('change',e=>{if(!e.target.value)return;G.anchor=e.target.value;saveG();$('#gPickRow').hidden=true;renderChart()});
+[['#gFrom','from'],['#gTo','to']].forEach(([id,k])=>$(id).addEventListener('change',e=>{if(!e.target.value)return;G[k]=e.target.value;if(G.from>G.to){const t=G.from;G.from=G.to;G.to=t}saveG();renderChart()}));
+document.querySelector('#gRangeBox .gquick').addEventListener('click',e=>{const b=e.target.closest('[data-gq]');if(!b)return;G.to=ymd(new Date());G.from=ymd(addDays(new Date(),-(+b.dataset.gq-1)));saveG();renderChart()});
+document.querySelector('.gtabs').addEventListener('click',e=>{const b=e.target.closest('[data-gt]');if(!b)return;gTab=b.dataset.gt;try{localStorage.setItem('nemuri-gtab',gTab)}catch(x){}renderChart()});
+const NUM_KINDS=['bodyAll','vitalAll','mood','ki','tai','bt','wtfat','wt','wtmus','bmi','temp','bp','steps','water','custom'];
+const NUM_UNITS_OK=u=>!['dur','clock','min'].includes(u);
+function timeStats(ks){const core=ks.filter(k=>!isPad(k)),ss=core.map(sleepOf).filter(Boolean),rs=core.map(k=>S.days[k]).filter(Boolean);
+  const bs=ss.map(x=>off(x.ba)).filter(v=>v!=null),ws=ss.map(x=>off(x.wa)).filter(v=>v!=null);
+  const wst=rs.map(r=>r.work&&toMin(r.work.start)).filter(v=>v!=null),avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
+  const late=rs.filter(r=>homeInfo(r).late).length;
+  return '<div class="tstats"><div><span>平均寝支度</span><b>'+avgTime(bs)+'</b></div><div><span>平均起床</span><b>'+avgTime(ws)+'</b></div><div><span>平均帰宅</span><b>'+avgHome(rs)+'</b></div><div><span>遅く帰った日</span><b>'+late+'日</b></div></div>'}
+function renderGraph(){renderGPeriod();const ks=graphDays(),sv=view;view=ks.length<=9?'week':'month';
+  try{
+    if(gTab==='time'){$('#numCtl').hidden=true;$('#customPick').hidden=true;$('#chartTitle').textContent='時間帯';
+      $('#chart').innerHTML=timeStats(ks)+timelineHTML(ks)+lateList(ks.filter(k=>!isPad(k)))}
+    else{$('#numCtl').hidden=false;
+      {const on=FEAT().body||FEAT().period,bk=document.getElementById('bodyKinds');bk.hidden=bk.disabled=!on;if(!on&&!['mood','ki','tai','custom'].includes(chartKind))chartKind='mood'}
+      if(!NUM_KINDS.includes(chartKind))chartKind='mood';$('#chartKind').value=chartKind;renderCustomPick();
+      const keys=(chartKind==='custom'?customSel:KINDS[chartKind]).filter(k=>PARAMS[k]&&NUM_UNITS_OK(PARAMS[k].unit));
+      $('#chartTitle').textContent=KIND_NAME[chartKind];
+      let kk=keys;if(chartKind==='bodyAll'||chartKind==='vitalAll'){const on=new Set(bodyItems().flatMap(b=>b.bp?['bpH','bpL']:[b.k]));if((S.settings.body||{}).height&&on.has('wt'))on.add('bmi');
+        kk=keys.filter(k=>on.has(k)||ks.some(d=>{const r=S.days[d];return r&&PARAMS[k].get(r,d)!=null}))}
+      const nu=new Set(kk.map(k=>PARAMS[k].unit)).size;
+      $('#chart').innerHTML=!kk.length?'<p class="empty">'+(chartKind==='custom'?'重ねたい項目にチェックを入れてください。':'設定の「使う機能」→「体の記録」で項目を選んで記録すると、ここにまとめて表示されます。')+'</p>':(chartKind==='bodyAll'||chartKind==='vitalAll'||nu>2)?panelChart(ks,kk):lineChart(ks,kk)}
+  }finally{view=sv}}
+function renderChart(){if(mainView==='graph')return renderGraph();}
+function renderChartInner(){
   {const hk=document.getElementById('hobbyKinds');hk.hidden=hk.disabled=!FEAT().hobby;if(!FEAT().hobby&&(chartKind==='hobby'||chartKind==='hobbyMood'))chartKind='sleep'}
   {const on=FEAT().body||FEAT().period,bk=document.getElementById('bodyKinds');bk.hidden=!on;bk.disabled=!on;if(!on&&KINDS[chartKind]&&KINDS[chartKind].some(k=>BODY.some(b=>k===b.k||k.startsWith('bp')||k==='pulse')))chartKind='sleep'}
   $('#chartKind').value=chartKind;renderCustomPick();
@@ -1397,9 +1534,9 @@ function renderChart(){
     const m=v=>v==null?'—':v+'%';
     h+='<div class="meters"><div class="meter"><span>気力</span><i><u style="width:'+(r.ki||0)+'%"></u></i><span class="mono">'+m(r.ki)+'</span></div><div class="meter"><span>体力</span><i class="tai"><u style="width:'+(r.tai||0)+'%"></u></i><span class="mono">'+m(r.tai)+'</span></div></div>';
     if(!r.bed&&!r.wake)h+='<p class="empty">この日の睡眠はまだ記録がありません。上の「記録」か下のフォームから入れられます。</p>';
-    h+=workTimeline([sel])+lateList([sel]);
+    h+=lateList([sel]);
   }else{
-    h='<div class="chart'+(view==='month'?' month':'')+'">'+axis+ks.map(k=>{const d=parse(k);return rowHTML(k,view==='week'?md(k):d.getDate()+' '+WD[d.getDay()])}).join('')+'</div>';
+    h='<div class="chart'+(view==='month'?' month':'')+'">'+axis+ks.map(k=>{const d=parse(k);return rowHTML(k,view==='week'||(ks.length>31||ks[0].slice(0,7)!==ks[ks.length-1].slice(0,7))&&d.getDate()===1||(ks.length>31||ks[0].slice(0,7)!==ks[ks.length-1].slice(0,7))&&k===ks[0]?md(k):d.getDate()+' '+WD[d.getDay()])}).join('')+'</div>';
     const ss=ks.map(sleepOf).filter(Boolean),lens=ss.map(s=>s.len).filter(v=>v!=null);
     const bs=ss.map(s=>off(s.ba)).filter(v=>v!=null),ws=ss.map(s=>off(s.wa)).filter(v=>v!=null);
     const rs=ks.map(k=>S.days[k]).filter(Boolean),avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length):null;
@@ -1407,9 +1544,9 @@ function renderChart(){
     const prep=avg(rs.map(r=>r.prep).filter(v=>v!=null&&v!==''));
     const wk=avg(rs.map(workLen).filter(v=>v!=null));
     h+='<div class="stats"><div><span>平均睡眠枠</span><b>'+(lens.length?dur(avg(lens)):'—')+'</b></div><div><span>平均寝支度</span><b>'+avgTime(bs)+'</b></div><div><span>平均起床</span><b>'+avgTime(ws)+'</b></div><div><span>平均 気力/体力</span><b>'+(ki??'—')+' / '+(tai??'—')+'</b></div><div><span>平均朝支度</span><b>'+(prep!=null?prep+'分':'—')+'</b></div><div><span>平均勤務時間</span><b>'+(wk!=null?dur(wk):'—')+'</b></div><div><span>平均帰宅</span><b>'+avgHome(rs)+'</b></div><div><span>遅く帰った日</span><b>'+rs.filter(r=>homeInfo(r).late).length+'日</b></div></div>';
-    h+=workTimeline(ks)+lateList(ks);
+    h+=lateList(ks);
   }
-  $('#chart').innerHTML=h+shareHTML(ks);
+  $('#chart').innerHTML=h+timelineHTML(ks);
 }
 /* 1日(24h)のうち 睡眠・支度・移動(往復)・勤務・その他の活動 の割合 */
 const ACT_COLORS=['#2b8fd6','#c74f6f','#4f9a3a','#c0672e','#3f7f9f','#9a6a4f','#6b5bd6','#7a7f2a','#d0443a','#2e9e6a'];
@@ -1425,6 +1562,39 @@ function dayParts(k){
   if(FEAT().hobby&&r.hobby&&r.hobby.min){const o=p.other?{...p.other}:{};Object.entries(r.hobby.min).forEach(([id,m])=>{const h=S.settings.hobbies.find(x=>x.id===id);const n=h?h.name:'趣味';o[n]=(o[n]||0)+(+m||0)});if(Object.keys(o).length)p.other=o}
   return p.sleep==null&&p.prep==null&&p.move==null&&p.work==null&&!p.other?null:p;
 }
+/* ---------- 1日のタイムライン（0時〜24時のどこで何をしていたか） ---------- */
+const TL_KINDS={sleep:['睡眠','var(--c-sleep)'],prep:['朝支度','var(--c-prep)'],move:['移動','var(--dawn)'],work:['勤務','var(--c-work)'],late:['帰りの遅れ','var(--c-late)']};
+function daySegs(k){const out=[],add=(a,b,kind,label,color)=>{if(a==null||b==null)return;a=Math.max(0,a);b=Math.min(1440,b);if(b>a)out.push({a,b,kind,label:label||TL_KINDS[kind]?.[0]||kind,color:color||TL_KINDS[kind]?.[1]})};
+  const r=S.days[k]||{},nk=ymd(addDays(parse(k),1)),pk=ymd(addDays(parse(k),-1)),rn=S.days[nk],rp=S.days[pk];
+  const sl=x=>{const s=sleepOf(x);return s&&s.ba!=null&&s.wa!=null&&s.wa>s.ba?s:null};
+  {const s=sl(k);if(s)add(s.ba,s.wa,'sleep')}                       /* 前夜〜今朝の睡眠 */
+  {const s=rn&&sl(nk);if(s)add(s.ba+1440,s.wa+1440,'sleep')}         /* 今夜の寝支度〜 */
+  const span=(a,b)=>{if(a==null||b==null)return null;if(b<a)b+=1440;return[a,b]};
+  const dep=toMin((r.commute||{}).dep),arr=toMin((r.commute||{}).arr);
+  if(r.prep!=null&&r.prep!==''){const p=+r.prep;if(dep!=null)add(dep-p,dep,'prep');else{const w=toMin(r.wake);if(w!=null)add(w,w+p,'prep')}}
+  {const c=span(dep,arr);if(c)add(c[0],c[1],'move')}
+  if(r.work){const a=toMin(r.work.start),we=workEndAbs(r.work);if(a!=null&&we!=null){add(a,we,'work');const i=homeInfo(r);
+    if(i.plan!=null&&i.plan>we)add(we,i.plan,'move','移動');if(i.actual!=null&&i.plan!=null&&i.actual>i.plan)add(i.plan,i.actual,'late')}}
+  if(rp&&rp.work){const we=workEndAbs(rp.work);if(we!=null&&we>1440){add(0,we-1440,'work');const i=homeInfo(rp);if(i.plan!=null&&i.plan>we)add(we-1440,i.plan-1440,'move','移動')}} /* 前日からの夜勤 */
+  if(r.other&&Array.isArray(r.other.items))r.other.items.forEach(it=>{const c=span(toMin(it.start),toMin(it.end));if(c)add(c[0],c[1],'act',it.name||'その他',actColor(it.name||'その他'))});
+  if(FEAT().hobby&&r.hobby&&r.hobby.min)Object.entries(r.hobby.min).forEach(([id,m])=>{const at=toMin((r.hobby.at||{})[id]);const h=S.settings.hobbies.find(x=>x.id===id);if(at!=null&&m>0)add(at,at+(+m),'act',h?h.name:'趣味',h&&h.color||'var(--c-hobby)')});
+  return out}
+function timelineHTML(ks){
+  const rows=ks.map(k=>({k,segs:daySegs(k)})),any=rows.some(x=>x.segs.length);
+  const pc=m=>(m/1440*100).toFixed(2)+'%',lab=k=>{const d=parse(k);return ks.length<=7||d.getDate()===1||k===ks[0]?md(k):d.getDate()+' '+WD[d.getDay()]};
+  const legend={};rows.forEach(x=>x.segs.forEach(s=>legend[s.label]=s.color));
+  let h='<div class="tline"><h3>1日のタイムライン（0時〜24時）</h3>';
+  if(!any)return h+'<p class="empty" style="margin:0">睡眠・通勤・勤務・その他の時間などを時刻つきで記録すると、24時間のどこで何をしていたかが並んで表示されます。</p></div>';
+  h+='<div class="tlaxis"><span></span><div>'+[0,3,6,9,12,15,18,21,24].map(t=>'<i style="left:'+pc(t*60)+'">'+t+'</i>').join('')+'</div></div>';
+  h+=rows.map(x=>'<div class="tlrow'+(x.k===sel?' sel':'')+(typeof isPad==='function'&&isPad(x.k)?' pad':'')+'"><span class="lab">'+lab(x.k)+'</span><div class="tltrack">'+x.segs.map(s=>'<i style="left:'+pc(s.a)+';width:'+pc(s.b-s.a)+';background:'+s.color+'" title="'+esc(s.label)+' '+hm(s.a)+'〜'+hm(s.b)+'"></i>').join('')+'</div></div>').join('');
+  /* よくある1日：30分ごとに一番多かった過ごし方（その割合の濃さ） */
+  const slots=[...Array(48)].map(()=>({})),rec=rows.filter(x=>x.segs.length);
+  rec.forEach(x=>x.segs.forEach(sg=>{for(let i=Math.floor(sg.a/30);i<Math.ceil(sg.b/30);i++){if(i>=0&&i<48)slots[i][sg.label]=(slots[i][sg.label]||0)+1}}));
+  if(rec.length>=3){h+='<div class="tltypical"><b>よくある1日（記録した'+rec.length+'日の傾向）</b><div class="tlrow"><span class="lab">傾向</span><div class="tltrack big">'+slots.map((o,i)=>{const e=Object.entries(o).sort((a,b)=>b[1]-a[1])[0];if(!e)return'';const r=e[1]/rec.length;
+      return '<i style="left:'+pc(i*30)+';width:'+pc(30)+';background:'+legend[e[0]]+';opacity:'+(0.25+0.75*r).toFixed(2)+'" title="'+hm(i*30)+'〜 '+esc(e[0])+'（'+Math.round(r*100)+'%の日）"></i>'}).join('')+'</div></div>'+
+      '<div class="tlaxis"><span></span><div>'+[0,6,12,18,24].map(t=>'<i style="left:'+pc(t*60)+'">'+t+'</i>').join('')+'</div></div><span class="hint">色が濃いほど、その時間にその過ごし方をしていた日が多いことを表します。</span></div>'}
+  h+='<div class="legend">'+Object.entries(legend).map(([n,c])=>'<span><i class="dot" style="background:'+c+';border-radius:3px"></i>'+esc(n)+'</span>').join('')+'</div>';
+  return h+'<p class="hint" style="margin:4px 0 0">前の晩の睡眠は0時から、その日の夜の寝支度からは24時まで表示します。朝支度は出発の直前（通勤がない日は起床の直後）に置いています。</p></div>'}
 function shareHTML(ks){
   const ps=ks.map(dayParts).filter(Boolean);
   const title=view==='day'?'1日の時間の割合':'1日あたりの時間の割合（記録した'+ps.length+'日の平均）';
@@ -1515,7 +1685,7 @@ function fillSec(sec){
     $('#commuteTimes').hidden=!c.slot&&!c.dep;commuteHint();
   }else if(sec==='other'){const o=r.other||{};renderActRows(o.items||[]);F.omemo.value=o.memo||''}
   else if(sec==='work'){const w=r.work||{};F.ws.value=w.start||'';F.we.value=w.end||'';F.ws.dataset.pattern=w.pattern||'';workHint()}
-  else if(sec==='hobby'){const h=r.hobby||{};hobbyState=clone(h.min||{});$('#fHobbyMemo').value=h.memo||'';renderHobbyForm()}
+  else if(sec==='hobby'){const h=r.hobby||{};hobbyState=clone(h.min||{});hobbyAt=clone(h.at||{});$('#fHobbyMemo').value=h.memo||'';renderHobbyForm()}
   else if(sec==='period'){const pr=r.period||{};perFlow=pr.flow||'';perSym=new Set(pr.sym||[]);renderPeriodForm();renderPerLinks()}
   else if(sec==='body'){bodyVals=clone(r.body||{});renderBodyForm()}
   else if(sec==='meds'){medsState=clone(r.meds||{});renderMedsForm()}
@@ -1712,7 +1882,7 @@ function buildPatch(sec){
     Object.entries(bodyVals).forEach(([k,v])=>{if(v===''||v==null)return;const n=+v;if(!Number.isFinite(n))return;if(keep.has(k))o[k]=n});
     const old=(S.days[sel]||{}).body||{};Object.entries(old).forEach(([k,v])=>{if(!keep.has(k)&&o[k]==null)o[k]=v}); /* 表示していない項目の記録は残す */
     if(Object.keys(o).length)patch.body=o}
-  if(sec==='hobby'){const m={};Object.entries(hobbyState).forEach(([k,v])=>{if(+v>0)m[k]=Math.round(+v)});const memo=$('#fHobbyMemo').value.trim();if(Object.keys(m).length||memo)patch.hobby={min:m,memo}}
+  if(sec==='hobby'){const m={};Object.entries(hobbyState).forEach(([k,v])=>{if(+v>0)m[k]=Math.round(+v)});const memo=$('#fHobbyMemo').value.trim();const at={};Object.keys(m).forEach(k=>{if(hobbyAt[k])at[k]=hobbyAt[k]});if(Object.keys(m).length||memo)patch.hobby={min:m,at,memo}}
   if(sec==='period'&&(perFlow||perSym.size))patch.period={flow:perFlow,sym:[...perSym]};
   if(sec==='meds'){const o={};Object.entries(medsState).forEach(([id,t])=>{const tt={};Object.entries(t||{}).forEach(([k,v])=>{if(v)tt[k]=true});if(Object.keys(tt).length)o[id]=tt});if(Object.keys(o).length)patch.meds=o}
   if(sec==='home'){const h={};if(F.home.value)h.time=F.home.value;if(homeCat)h.cat=homeCat;if(F.homeWhy.value.trim())h.reason=F.homeWhy.value.trim();if(Object.keys(h).length)patch.home=h}
@@ -1828,11 +1998,11 @@ $('#sgJump').addEventListener('change',e=>{const id=e.target.value;if(!id)return
   document.querySelectorAll('#pageSettings .sgroup').forEach(d=>d.open=d.id===id);
   const el=document.getElementById(id);requestAnimationFrame(()=>el.scrollIntoView({block:'start',behavior:'smooth'}));e.target.value=''});
 /* 記録フォームの項目ジャンプと追従バー */
-const PAGE_CHART={hobby:'hobby',women:'bt',diet:'wtfat',health:'bp'};
+const PAGE_CHART={hobby:'hobby',women:'bt',diet:'bodyAll',health:'vitalAll'};
 let chartByPage={};try{chartByPage=JSON.parse(localStorage.getItem('nemuri-pagechart')||'{}')}catch(e){}
 $('#pageSel').addEventListener('change',e=>{
   chartByPage[formPage]=chartKind;formPage=e.target.value;try{localStorage.setItem('nemuri-page',formPage);localStorage.setItem('nemuri-pagechart',JSON.stringify(chartByPage))}catch(x){}
-  const want=chartByPage[formPage]||PAGE_CHART[formPage];if(want&&KIND_NAME[want])chartKind=want;
+  const want=chartByPage[formPage]||PAGE_CHART[formPage];if(want&&KIND_NAME[want]){if(NUM_KINDS.includes(want)){chartKind=want;gTab='num'}else gTab='time'}
   applyFeatures();renderChart();buildFormJump();document.getElementById('form').scrollIntoView({block:'start',behavior:'smooth'})});
 const TAB_LABEL={sleep:'睡眠',mood:'気力・体力',commute:'通勤',work:'勤務',home:'帰宅',other:'その他',prep:'朝支度',note:'特記事項',hobby:'趣味',period:'月経',meds:'お薬'};
 /* 記録する項目の切り替え：プルダウン＋前後ボタン（PCでもスマホでも全項目を選べる） */
@@ -2324,17 +2494,19 @@ function renderUpcoming(){
     return '<div class="up"><span class="ud">'+md(it.k)+'</span><span class="ul"><i style="background:'+it.c+'"></i>'+esc(it.t)+'</span><span class="ua">'+(it.a?esc(it.a)+'　':'')+(dd===0?'今日':dd===1?'明日':dd>0?dd+'日後':'')+'</span></div>'}).join(''):'<p class="empty" style="margin:0">これから60日の予定はありません。</p>';
 }
 /* ---------- 趣味・自分の時間 ---------- */
-let hobbyState={};
+let hobbyState={},hobbyAt={};
 const hobbyTotal=r=>r&&r.hobby&&r.hobby.min?Object.values(r.hobby.min).reduce((a,b)=>a+(+b||0),0):0;
 const hobbyText=r=>Object.entries((r.hobby||{}).min||{}).filter(([,m])=>m>0).map(([id,m])=>{const h=S.settings.hobbies.find(x=>x.id===id);return(h?h.name:'趣味')+' '+m+'分'}).join('、');
 const durHM=m=>m>=60?Math.floor(m/60)+'時間'+(m%60?m%60+'分':''):m+'分';
 function renderHobbyForm(){const hs=S.settings.hobbies;
   $('#hobbyRows').innerHTML=hs.length?hs.map(h=>{const v=+hobbyState[h.id]||0;return '<div class="hrow" data-hid="'+h.id+'"><div class="hh"><b><i style="background:'+(h.color||'#2e9e6a')+'"></i>'+esc(h.name||'趣味')+'</b><span class="hint">'+(h.goal?'週の目標 '+durHM(h.goal):'')+'</span></div>'+
     '<div class="hstep"><button type="button" data-hd="-15" aria-label="15分減らす">−</button><output>'+durHM(v)+'</output><button type="button" data-hd="15" aria-label="15分増やす">＋</button></div>'+
-    '<div class="hadd">'+favList('hobby').map(m=>'<button type="button" data-hset="'+m+'">'+durHM(m)+'</button>').join('')+'</div></div>'}).join(''):'<p class="hint" style="margin:0">設定タブの「使う機能」→「趣味・自分の時間」で、趣味を登録してください（例：読書・ゲーム・ギター・散歩）。</p>'}
+    '<div class="hadd">'+favList('hobby').map(m=>'<button type="button" data-hset="'+m+'">'+durHM(m)+'</button>').join('')+'</div>'+
+    '<label class="hat"><span>何時から（任意・タイムラインに表示）</span><input type="time" data-hat="'+h.id+'" value="'+(hobbyAt[h.id]||'')+'"></label></div>'}).join(''):'<p class="hint" style="margin:0">設定タブの「使う機能」→「趣味・自分の時間」で、趣味を登録してください（例：読書・ゲーム・ギター・散歩）。</p>'}
 $('#hobbyRows').addEventListener('click',e=>{const row=e.target.closest('[data-hid]');if(!row)return;const id=row.dataset.hid;let v=+hobbyState[id]||0;
   const d=e.target.closest('[data-hd]'),st=e.target.closest('[data-hset]');if(d)v=Math.max(0,Math.min(1440,v+ +d.dataset.hd));else if(st)v=+st.dataset.hset;else return;
   hobbyState[id]=v;renderHobbyForm();markDirty('hobby')});
+$('#hobbyRows').addEventListener('input',e=>{const k=e.target.dataset.hat;if(!k)return;hobbyAt[k]=e.target.value;markDirty('hobby')});
 $('#hobbyClear').onclick=()=>{hobbyState={};renderHobbyForm();markDirty('hobby')};
 function renderHobbyCard(){const f=FEAT(),card=$('#hobbyCard');card.hidden=!f.hobby||formPage!=='hobby';
   if(card.hidden)return;
