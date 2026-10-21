@@ -490,6 +490,12 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .wdata>summary::after{content:"＋";position:absolute;right:0;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700}
 .wdata[open]>summary::after{content:"－"}
 .wdata>summary b{font-size:.92rem}.wdata>summary small{font-size:.78rem;color:var(--muted)}
+.wchead{position:relative;padding-right:48px}.wchelp{position:absolute;top:0;right:0}
+.wtopics{background:color-mix(in srgb,var(--accent) 7%,var(--surface-solid))}
+.wtlist{display:grid;gap:6px;padding:0 0 12px}.wtlist .htopic{margin:0}
+.wtlist .htopic .go{justify-self:start}
+.wtflow{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:.8rem;font-weight:700;color:var(--accent);margin:0 0 4px}
+.wtflow span{padding:3px 8px;border-radius:999px;background:color-mix(in srgb,var(--accent) 12%,transparent)}
 .wdatabox{padding:0 0 12px}.wdatabox label.setrow{flex-wrap:nowrap;align-items:flex-start}.wdatabox label.setrow input{flex:none;margin-top:3px}.wdatabox .sgbody{display:grid;gap:8px;padding:0}
 .wclinks{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
 .wclinks button{border:0;background:transparent;color:var(--accent);font-weight:600;padding:8px 10px;cursor:pointer;min-height:40px}
@@ -1159,7 +1165,9 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
 
 <div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wcTitle">
   <div class="wcard">
-    <div class="wchead"><small id="wcHello"></small><h2 id="wcTitle"></h2><span id="wcDate"></span></div>
+    <div class="wchead"><small id="wcHello"></small><h2 id="wcTitle"></h2><span id="wcDate"></span><button type="button" class="iconbtn helpbtn wchelp" id="wcHelpBtn" aria-label="このページの使い方" title="このページの使い方">？</button></div>
+    <details class="wdata wtopics" id="wcTopics"><summary><b>このページの使い方（トピックス）</b><small>操作の流れと、困ったときの手順を見られます</small></summary>
+      <div class="wtlist" id="wcTopicList"></div></details>
     <div class="wstep" id="wcSlotStep"><b>セーブデータ</b><div class="wslot"><select id="wcSlot" aria-label="使うセーブデータ"></select><button type="button" class="btn ghost" id="wcNewBtn">＋ 新しく作る</button></div>
       <div class="wnew" id="wcNew" hidden><input type="text" id="wcNewName" maxlength="16" placeholder="名前（例：仕事の日・ダイエット中）" aria-label="新しいセーブデータの名前">
         <div class="wchips" id="wcNewBase"><button type="button" data-nb="blank" aria-pressed="true">まっさらな設定で</button><button type="button" data-nb="copy" aria-pressed="false">いまの設定をコピー</button></div>
@@ -2805,6 +2813,7 @@ const HELP=[
  ['自分好みにする',[
   ['名前や見た目を変えたい','「設定 → アプリの名前」でタイトルを変えられます。「画面の見え方」「背景」「文字の色」で明るさ・背景画像・文字色を変えられます。','settings',null,'#sgName'],
   ['間違えて操作した・前の画面に戻りたい','画面右下の「↶ 戻る」で、記録・設定・セーブデータの切り替え・画面の移動を1つずつ戻せます。戻しすぎたら「↷ 進む」でやり直せます（パソコンでは Ctrl＋Z／Ctrl＋Y、Macは ⌘＋Z／⌘＋Y）。ようこそ画面での操作も戻せます。上のアプリ名を押すと、ようこそ画面をもう一度開けます。','main',null,'#uhBar'],
+  ['ようこそ画面の使い方を見たい','ようこそ画面の右上の「？」か「このページの使い方（トピックス）」を押すと、記録までの流れや、セーブデータ・引き継ぎ・戻るボタンの使い方が見られます。ようこそ画面は、記録画面の上のアプリ名を押すといつでも開けます。','main',null,'.brand'],
   ['ホーム画面やデスクトップから開きたい','「設定 → ショートカット」の「ショートカットを作る」で、スマホのホーム画面、パソコンのデスクトップやお気に入りに追加する方法を、使っている端末に合わせて表示します。','settings',null,'#sgShortcut'],
   ['特記事項のボタンを増やしたい・消したい','「設定 → 使う機能 → 量・回数の記録 → 特記事項」で、ボタンの追加・削除・名前・答えの候補・色・カレンダーの印を編集できます。ボタンで書いた回数は、グラフの「数値」→「特記事項の回数」で見られます。','settings',null,'#featNote'],
   ['仕事の日用・休みの日用など設定を切り替えたい','設定タブ一番上の「セーブスロット」で、設定一式を最大10個まで保存・切り替えできます。記録データはどのスロットでも共通です。','settings',null,'#slotTop'],
@@ -3078,6 +3087,23 @@ $('#scSheet').addEventListener('click',async e=>{if(e.target.id==='scSheet'){clo
   if(k==='mac')return saveTextFile(name+'.webloc','<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict><key>URL</key><string>'+esc(url)+'</string></dict></plist>\n','application/octet-stream');
   if(k==='copy'){const ok=()=>toast('アドレスをコピーしました');if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(ok,()=>toast('コピーできませんでした。アドレスを長押しして選んでください'));else toast('アドレスを長押しして選んでコピーしてください');return}
   if(k==='share'){try{await navigator.share({title:S.settings.appName||'My note',url})}catch(_){}}});
+/* ようこそ画面のトピックス：このページの操作の流れと困ったときの案内 */
+const WC_TOPICS=[
+  ['はじめに：記録までの流れ','上から順に「セーブデータ」→「何から記録するか」→「いつの記録か」を選び、「記録をはじめる」を押すと入力画面が開きます。何も選ばずにそのまま押しても大丈夫です（今日の、まだ記録していない項目から始まります）。','#wcGo'],
+  ['セーブデータって？','使う機能（記録画面に出る項目）や見た目の設定のまとまりです。「仕事の日」「ダイエット中」など目的ごとに作っておくと、ここで切り替えられます。記録そのものはすべてのセーブデータで共通なので、切り替えても記録は消えません。初めてならそのままで大丈夫です。','#wcSlotStep'],
+  ['「何から記録しますか？」','押した項目の欄が最初に開きます。「未記録の項目から」は、その日にまだ記録していない最初の項目から始めます。並ぶ項目は「設定 → 使う機能」で増やしたり減らしたりできます（自分で項目を追加することもできます）。','#wcPages'],
+  ['「いつの記録ですか？」','今日・昨日・日付を選ぶ、から選びます。すぐ下に、その日に記録があるかどうかが出ます。記録済みの日を選ぶと、続きから書き足せます。','#wcWhen'],
+  ['間違えて操作したとき','画面右下に出る「↶ 戻る」で、セーブデータの切り替え・記録・画面の移動などを1つずつ戻せます。戻しすぎたら「↷ 進む」でやり直せます。パソコンでは Ctrl＋Z／Ctrl＋Y（Macは ⌘）でも操作できます。',null],
+  ['この画面にもう一度来るには','記録画面のいちばん上にあるアプリ名を押すと、いつでもこの画面を開けます。「次回から表示しない」にチェックすると、開いたときに出なくなります（設定の「使う機能」→「起動時のようこそ画面」で戻せます）。','.wcnext'],
+  ['別の端末から引き継ぐ・バックアップ','「データの引き継ぎ」を開き、元の端末で「引き継ぎ用の文字をコピー」（または「ファイルに保存」）→ 新しい端末で「貼り付けた文字から復元」（または「ファイルから復元」）を押します。ときどきバックアップしておくと安心です。','#wcData'],
+  ['ホーム画面・デスクトップから開きたい','下の「ショートカットを作る」を押すと、使っている端末（iPhone・Android・パソコン）に合わせた追加の手順が出ます。','.wclinks [data-wv=shortcut]'],
+  ['もっと詳しく知りたい','下の「使い方」を押すと、カレンダー・グラフ・設定など、アプリ全体の使い方ガイドが開きます。','.wclinks [data-wv=help]']];
+function renderWcTopics(){$('#wcTopicList').innerHTML='<div class="wtflow" aria-label="記録までの流れ"><span>① セーブデータ</span>→<span>② 何から</span>→<span>③ いつの</span>→<span>④ 記録をはじめる</span></div>'+
+  WC_TOPICS.map(([t,d,sel],i)=>'<details class="htopic"'+(i===0?' open':'')+'><summary>'+esc(t)+'</summary><div><span>'+esc(d)+'</span>'+(sel?'<button type="button" class="btn ghost sm go" data-wt="'+i+'">この場所を見る</button>':'')+'</div></details>').join('')}
+renderWcTopics();
+$('#wcTopicList').addEventListener('click',e=>{const b=e.target.closest('[data-wt]');if(!b)return;const sel0=WC_TOPICS[+b.dataset.wt][2];if(sel0==='#wcData')$('#wcData').open=true;spotlight(sel0)});
+$('#wcHelpBtn').onclick=()=>{const d=$('#wcTopics');d.open=!d.open;if(d.open)d.scrollIntoView({block:'start',behavior:'smooth'})};
+if(!Object.keys(S.days).length)$('#wcTopics').open=true; /* はじめての人には開いた状態で見せる */
 /* ようこそ画面の「データの引き継ぎ」：設定の引き継ぎ欄をそのまま移して使う（ボタン・復元の流れは共通） */
 const dataBody=document.querySelector('#sgData .sgbody');
 function dataToSettings(){const home=document.getElementById('sgData');if(dataBody&&dataBody.parentElement!==home)home.appendChild(dataBody)}
