@@ -505,7 +505,7 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .wtlist .htopic .go{justify-self:start}
 .wtflow{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:.8rem;font-weight:700;color:var(--accent);margin:0 0 4px}
 .wtflow span{padding:3px 8px;border-radius:999px;background:color-mix(in srgb,var(--accent) 12%,transparent)}
-.dtab1{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.dtab1{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .dtab1 button{display:grid;gap:2px;justify-items:center;padding:10px 4px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--ink);cursor:pointer;min-width:0}
 .dtab1 button b{font-size:.92rem}.dtab1 button small{font-size:.7rem;color:var(--muted);text-align:center}
 .dtab1 button[aria-selected="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface-solid));box-shadow:0 0 0 1px var(--accent)}
@@ -515,9 +515,12 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .dpanel{display:grid;gap:8px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface-solid)}
 .dsteps{margin:0;padding-left:1.3em;display:grid;gap:3px;font-size:.84rem}
 .qrout{display:grid;gap:8px;justify-items:center}
-.qrbox{background:#fff;padding:10px;border-radius:12px;width:min(100%,320px);line-height:0}
+.qrbox{background:#fff;padding:8px;border-radius:12px;width:min(100%,420px);line-height:0}
 .qrbox svg,.qrbox img{width:100%;height:auto;display:block}
 .qrnav{display:flex;align-items:center;gap:10px}
+.qrfull{position:fixed;inset:0;width:100vw;z-index:90;background:#fff;color:#333;display:grid;place-items:center;align-content:center;gap:10px;padding:16px;font-size:.85rem}
+.qrfull[hidden]{display:none}
+.qrfbox{width:min(90vw,80vh);line-height:0}.qrfbox svg{width:100%;height:auto;display:block}
 .qrcam{display:grid;gap:8px;justify-items:center}
 .qrcam video{width:min(100%,360px);border-radius:12px;background:#000}
 .qrprog{display:flex;flex-wrap:wrap;gap:4px;font-size:.8rem}
@@ -1133,7 +1136,6 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
     <details class="sgroup" id="sgData"><summary><span class="sgt">データの引き継ぎ<small>PCとスマホで同じ記録を見る・バックアップと復元</small></span></summary><div class="sgbody">
       <div class="syncnote" id="syncNote"></div>
       <div class="dtab1" role="tablist" aria-label="引き継ぎの方法">
-        <button type="button" role="tab" data-dm="text"><b>文字列</b><small>コピペで</small></button>
         <button type="button" role="tab" data-dm="qr"><b>QRコード</b><small>カメラで</small></button>
         <button type="button" role="tab" data-dm="file"><b>ファイル</b><small>保存して</small></button>
       </div>
@@ -1141,27 +1143,17 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
         <button type="button" role="tab" data-dd="send"><b>① 送る</b><small>元の端末で</small></button>
         <button type="button" role="tab" data-dd="recv"><b>② 受け取る</b><small>新しい端末で</small></button>
       </div>
-      <div class="dpanel" data-dpanel="text-send">
-        <ol class="dsteps"><li>「引き継ぎ用の文字をコピー」を押します</li><li>メール・LINE・メモなどに貼り付けて、新しい端末に送ります</li><li>新しい端末で「② 受け取る」を開きます</li></ol>
-        <div class="setrow"><button class="btn" id="bkCopy">引き継ぎ用の文字をコピー</button></div>
-      </div>
-      <div class="dpanel" data-dpanel="text-recv">
-        <ol class="dsteps"><li>送られてきた引き継ぎ用の文字を全部コピーします</li><li>下の欄に貼り付けて「貼り付けた文字から復元」を押します</li></ol>
-        <textarea id="bkPaste" rows="3" placeholder="コピーした引き継ぎ用の文字をここに貼り付け" aria-label="引き継ぎ用の文字"></textarea>
-        <div class="setrow"><button class="btn" id="bkFromText">貼り付けた文字から復元</button></div>
-      </div>
       <div class="dpanel" data-dpanel="qr-send">
-        <ol class="dsteps"><li>「QRコードを表示」を押します</li><li>新しい端末で「② 受け取る」→「カメラで読み取る」を開き、この画面のQRコードを映します</li><li>QRコードが何枚かあるときは、自動で切り替わる画面を映し続けると全部読み取れます</li></ol>
+        <ol class="dsteps"><li>「QRコードを表示」を押します（1枚だけ出ます）</li><li>「大きく表示」を押すと読み取りやすくなります</li><li>新しい端末で「② 受け取る」→「カメラで読み取る」でこのQRコードを映すか、写真に撮って「写真から読み取る」で選びます</li></ol>
         <div class="setrow"><button class="btn" id="qrMake">QRコードを表示</button></div>
         <div class="qrout" id="qrOut" hidden>
           <div class="qrbox" id="qrBox"></div>
-          <div class="qrnav"><button type="button" class="btn ghost sm" id="qrPrev" aria-label="前のQRコード">‹ 前</button><b id="qrNo"></b><button type="button" class="btn ghost sm" id="qrNext" aria-label="次のQRコード">次 ›</button></div>
-          <label class="setrow"><input type="checkbox" id="qrAuto" checked> 自動で切り替える（カメラで続けて読み取るとき）</label>
+          <div class="qrnav"><button type="button" class="btn ghost sm" id="qrBig">大きく表示</button></div>
           <span class="hint" id="qrInfo"></span>
         </div>
       </div>
       <div class="dpanel" data-dpanel="qr-recv">
-        <ol class="dsteps"><li>「カメラで読み取る」を押し、元の端末に表示したQRコードを映します</li><li>カメラが使えないときは「写真から読み取る」で、QRコードを1枚ずつ撮影するか、スクリーンショットを選びます</li><li>全部そろうと、復元の確認が出ます</li></ol>
+        <ol class="dsteps"><li>「カメラで読み取る」を押し、元の端末に表示したQRコードを映します</li><li>カメラが使えないときは「写真から読み取る」で、QRコードを撮影するか、スクリーンショットを選びます</li><li>読み取れると、復元の確認が出ます</li></ol>
         <div class="setrow"><button class="btn" id="qrCam">カメラで読み取る</button><label class="btn ghost" style="display:inline-flex;align-items:center">写真から読み取る<input type="file" id="qrPhoto" accept="image/*" capture="environment" hidden></label></div>
         <div class="qrcam" id="qrCamBox" hidden><video id="qrVideo" playsinline muted></video><button type="button" class="btn ghost sm" id="qrCamStop">読み取りをやめる</button></div>
         <div class="qrprog" id="qrProg" hidden></div>
@@ -1250,6 +1242,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
   </div>
 </div>
 
+<div class="qrfull" id="qrFull" hidden role="dialog" aria-label="QRコード（大きく表示）"><div class="qrfbox" id="qrFullBox"></div><span>画面のどこかを押すと閉じます</span></div>
 <div id="toast" hidden><span id="toastMsg"></span><button id="toastBtn" hidden></button></div>
 <div class="sheet" id="scSheet" hidden>
   <div class="panel" role="dialog" aria-label="ショートカットを作る">
@@ -2513,26 +2506,21 @@ function renderSyncNote(){$('#syncNote').innerHTML=store?
   '<b>いまは自動で同期されています。</b><br>このページ（Claudeのリンク）は、同じClaudeアカウントでログインしていれば、PCでもスマホでも同じ記録・設定が表示されます。ID・パスワードを別に作る必要はありません。':
   '<b>この画面では、記録はこの端末のブラウザの中だけに保存されています。</b><br>別の端末に移すには、下で方法を選び、元の端末で「① 送る」、新しい端末で「② 受け取る」を進めます。ときどき「ファイル」で保存しておくと安心です。'}
 function backupObj(){const o={app:'seikatsu-kiroku',v:1,at:new Date().toISOString(),days:S.days,settings:S.settings,slots:S.slots||null,hist:S.hist||[]};if($('#bkImg').checked&&S.bgImage)o.bgImage=S.bgImage;return o}
-$('#bkCopy').onclick=()=>{const t=JSON.stringify(backupObj());
-  const ok=()=>toast('引き継ぎ用の文字をコピーしました（'+Math.round(t.length/1024)+'KB）。メモやメールで別の端末に送って貼り付けてください');
-  const fb=()=>{const ta=$('#bkPaste');ta.value=t;ta.focus();ta.select();let r=false;try{r=document.execCommand('copy')}catch(e){}r?ok():toast('自動でコピーできませんでした。下の欄の文字を全部選んでコピーしてください')};
-  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok,fb);else fb()};
 $('#bkFile').onclick=async()=>{const t=JSON.stringify(backupObj(),null,1),name=(S.settings.appName||'My note')+'_バックアップ_'+ymd(new Date())+'.json';
   let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
-  if(dl){try{await dl.save({filename:name,data:new Blob([t],{type:'application/json'})});toast('バックアップを保存しました')}catch(e){toast(e&&e.code==='declined'?'保存をやめました':'保存できませんでした。「引き継ぎ用の文字をコピー」をお使いください')}return}
-  if(window.claude){toast('この画面ではファイルを保存できません。「引き継ぎ用の文字をコピー」をお使いください');return}
+  if(dl){try{await dl.save({filename:name,data:new Blob([t],{type:'application/json'})});toast('バックアップを保存しました')}catch(e){toast(e&&e.code==='declined'?'保存をやめました':'保存できませんでした。「QRコード」で引き継いでください')}return}
+  if(window.claude){toast('この画面ではファイルを保存できません。「QRコード」で引き継いでください');return}
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'application/json'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast('バックアップを保存しました')};
 let bkPending=null;
-function restoreFrom(text){let o;try{o=JSON.parse(text)}catch(e){showBk('読み込めませんでした。コピーした文字を最初から最後まで全部貼り付けてください。');return}
+function restoreFrom(text){let o;try{o=JSON.parse(text)}catch(e){showBk('読み込めませんでした。正しいバックアップのファイルか確かめてください。');return}
   if(!o||o.app!=='seikatsu-kiroku'||typeof o.days!=='object'){showBk('このアプリのバックアップではないようです。');return}
   const n=Object.keys(o.days).length;
-  if(bkPending!==text){bkPending=text;showBk('バックアップ（'+(o.at||'').slice(0,10)+'・記録'+n+'日分）を読み込みます。いまのこの端末の記録・設定は置き換わります。',()=>restoreFrom(text));return}
+  if(bkPending!==text){bkPending=text;showBk(o.part?'QRコードの内容（新しい'+n+'日分の記録と設定）を読み込みます。設定は置き換わり、同じ日の記録は上書きされます。それより前の日の、この端末の記録はそのまま残ります。':'バックアップ（'+(o.at||'').slice(0,10)+'・記録'+n+'日分）を読み込みます。いまのこの端末の記録・設定は置き換わります。',()=>restoreFrom(text));return}
   bkPending=null;$('#bkWarn').hidden=true;
-  const before=Object.keys(S.days);S.days=clone(o.days);if(o.settings)S.settings=merge(o.settings);if(o.slots)S.slots=clone(o.slots);if(Array.isArray(o.hist))S.hist=clone(o.hist);if(o.bgImage)S.bgImage=o.bgImage;
+  const before=o.part?[]:Object.keys(S.days);S.days=o.part?{...S.days,...clone(o.days)}:clone(o.days); /* 一部だけのQRは、日ごとに上書き（ほかの日は残す） */if(o.settings)S.settings=merge(o.settings);if(o.slots)S.slots=clone(o.slots);if(Array.isArray(o.hist))S.hist=clone(o.hist);if(o.bgImage)S.bgImage=o.bgImage;
   if(store){before.forEach(k=>{if(!S.days[k])put('d-'+k,null)});Object.keys(S.days).forEach(saveDay);put('settings',S.settings);if(S.slots)put('slots',S.slots);put('hist',{list:S.hist||[]});if(o.bgImage)saveBg()}else lsSave();
   lastSettings=JSON.stringify(S.settings);applyLook();render(true);renderSettings();renderFeatSettings();renderFavSettings();toast('復元しました（記録'+n+'日分）')}
 function showBk(m,go){const w=$('#bkWarn');w.textContent=m;if(go){const b=document.createElement('button');b.type='button';b.className='btn bkgo';b.textContent='この内容で復元する';b.onclick=go;w.appendChild(document.createElement('br'));w.appendChild(b)}w.hidden=false;w.scrollIntoView({block:'nearest',behavior:'smooth'})}
-$('#bkFromText').onclick=()=>{const t=$('#bkPaste').value.trim();if(!t){toast('引き継ぎ用の文字を貼り付けてください');return}restoreFrom(t)};
 $('#bkFileIn').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{bkPending=null;restoreFrom(String(rd.result))};rd.readAsText(f)});
 function renderFeatSettings(){renderCustomSettings();if($('#welcomeOn'))$('#welcomeOn').checked=S.settings.welcome!==false;renderSyncNote();renderTextSettings();renderSlots();$('#nmTitle').value=S.settings.appName||'My note';$('#nmSub').value=S.settings.appSub??'';renderSubMode();renderTagSettings();renderLook();renderHobbySettings();$('#featHobby').hidden=!S.settings.features.hobby;const st=S.settings,f=st.features;
   document.querySelectorAll('[data-feat]').forEach(c=>c.checked=!!f[c.dataset.feat]);
@@ -3201,8 +3189,8 @@ $('#scSheet').addEventListener('click',async e=>{if(e.target.id==='scSheet'){clo
   if(k==='mac')return saveTextFile(name+'.webloc','<?xml version="1.0" encoding="UTF-8"?>\n<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n<plist version="1.0"><dict><key>URL</key><string>'+esc(url)+'</string></dict></plist>\n','application/octet-stream');
   if(k==='copy'){const ok=()=>toast('アドレスをコピーしました');if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(url).then(ok,()=>toast('コピーできませんでした。アドレスを長押しして選んでください'));else toast('アドレスを長押しして選んでコピーしてください');return}
   if(k==='share'){try{await navigator.share({title:S.settings.appName||'My note',url})}catch(_){}}});
-/* ---------- 引き継ぎ：方法（文字列／QR／ファイル）と向き（送る／受け取る）のタブ ---------- */
-let dt={m:'text',d:'send'};try{const o=JSON.parse(localStorage.getItem('nemuri-dtab')||'null');if(o&&o.m)dt={...dt,...o}}catch(e){}
+/* ---------- 引き継ぎ：方法（QR／ファイル）と向き（送る／受け取る）のタブ ---------- */
+let dt={m:'qr',d:'send'};try{const o=JSON.parse(localStorage.getItem('nemuri-dtab')||'null');if(o&&o.m)dt={...dt,...o}}catch(e){}if(dt.m!=='qr'&&dt.m!=='file')dt.m='qr';
 function renderDTabs(){document.querySelectorAll('[data-dm]').forEach(b=>b.setAttribute('aria-selected',b.dataset.dm===dt.m));
   document.querySelectorAll('[data-dd]').forEach(b=>b.setAttribute('aria-selected',b.dataset.dd===dt.d));
   document.querySelectorAll('[data-dpanel]').forEach(p=>p.hidden=p.dataset.dpanel!==dt.m+'-'+dt.d);
@@ -3216,22 +3204,31 @@ const libCache={};function loadLib(url){return libCache[url]||(libCache[url]=new
 const b64u=bytes=>{let s='';for(let i=0;i<bytes.length;i+=0x8000)s+=String.fromCharCode.apply(null,bytes.subarray(i,i+0x8000));return btoa(s).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'')};
 const unb64u=t=>{const s=atob(t.replace(/-/g,'+').replace(/_/g,'/')+'==='.slice((t.length+3)%4));const u=new Uint8Array(s.length);for(let i=0;i<s.length;i++)u[i]=s.charCodeAt(i);return u};
 async function zip(bytes,dir){const CS=dir==='c'?window.CompressionStream:window.DecompressionStream;const st=new Blob([bytes]).stream().pipeThrough(new CS('deflate-raw'));return new Uint8Array(await new Response(st).arrayBuffer())}
-async function qrPayload(){const o={app:'seikatsu-kiroku',v:1,at:new Date().toISOString(),days:S.days,settings:S.settings,slots:S.slots||null};
-  const raw=new TextEncoder().encode(JSON.stringify(o));if(window.CompressionStream){try{return'z'+b64u(await zip(raw,'c'))}catch(e){}}return'j'+b64u(raw)}
-let qrParts=[],qrIdx=0,qrTimer=null;
-function qrAutoStop(){clearInterval(qrTimer);qrTimer=null}
-function qrShow(){const n=qrParts.length;if(!n)return;qrIdx=(qrIdx+n)%n;
-  const q=qrcode(0,'L');q.addData(qrParts[qrIdx],'Byte');q.make();$('#qrBox').innerHTML=q.createSvgTag({cellSize:4,margin:2,scalable:true});
-  $('#qrNo').textContent=(qrIdx+1)+' / '+n+'枚';$('#qrPrev').disabled=$('#qrNext').disabled=n<2;$('#qrAuto').closest('label').hidden=n<2}
-function qrAutoSet(){qrAutoStop();if(qrParts.length>1&&$('#qrAuto').checked)qrTimer=setInterval(()=>{qrIdx++;qrShow()},1600)}
+/* 1枚のQRコードに収める（スマホのカメラで確実に読める大きさとして 約1,600文字まで）。入りきらないときは、設定と新しい日の記録から入るだけ入れる */
+const QR_MAX=1300;
+/* 設定は初期値と違う項目だけ入れて小さくする（受け取る側で初期値と合わせて元に戻る） */
+const settingsDiff=()=>{const d=merge({}),o={};Object.keys(S.settings).forEach(k=>{if(JSON.stringify(S.settings[k])!==JSON.stringify(d[k]))o[k]=S.settings[k]});return o};
+async function qrEncode(o){const raw=new TextEncoder().encode(JSON.stringify(o));if(window.CompressionStream){try{return'z'+b64u(await zip(raw,'c'))}catch(e){}}return'j'+b64u(raw)}
+async function qrPayload(){const keys=Object.keys(S.days).sort().reverse(),all=keys.length,sd=settingsDiff();
+  const build=async(n,withSlots)=>{const d={};keys.slice(0,n).forEach(k=>d[k]=S.days[k]);
+    return qrEncode({app:'seikatsu-kiroku',v:1,at:new Date().toISOString().slice(0,10),days:d,settings:sd,slots:withSlots?S.slots||null:null,part:n<all?{n,all,from:keys[n-1]||null}:null})};
+  let withSlots=true,full=await build(all,true);if(full.length<=QR_MAX)return{body:full,n:all,all};
+  withSlots=false;full=await build(all,false);if(full.length<=QR_MAX)return{body:full,n:all,all,noSlots:true};
+  let lo=0,hi=all,best=await build(0,withSlots); /* 何日分まで入るかを二分探索 */
+  while(lo<hi){const mid=Math.ceil((lo+hi)/2),b=await build(mid,withSlots);if(b.length<=QR_MAX){lo=mid;best=b}else hi=mid-1}
+  return{body:best,n:lo,all,noSlots:!withSlots}}
+let qrText='';
+function qrSvg(t,cell){const q=qrcode(0,'L');q.addData(t,'Byte');q.make();const c=cell||4;return q.createSvgTag({cellSize:c,margin:c*4,scalable:true})} /* 余白は4マス分（読み取りに必要） */
 $('#qrMake').onclick=async()=>{const b=$('#qrMake');b.disabled=true;b.textContent='準備中…';
-  try{await loadLib(QR_LIB);const body=await qrPayload(),id=Math.random().toString(36).slice(2,6),n=Math.ceil(body.length/QR_CH);
-    qrParts=[...Array(n)].map((_,i)=>'MN1|'+id+'|'+(i+1)+'|'+n+'|'+body.slice(i*QR_CH,(i+1)*QR_CH));qrIdx=0;qrShow();$('#qrOut').hidden=false;qrAutoSet();
-    $('#qrInfo').textContent='記録'+Object.keys(S.days).length+'日分と設定を'+n+'枚のQRコードにしました（背景画像と変更履歴は含みません）。'+(n>12?'枚数が多いので、「ファイル」か「文字列」のほうが早く引き継げます。':'')+'読み取りが終わるまで、この画面を開いたままにしてください。';
+  try{await loadLib(QR_LIB);const r=await qrPayload();qrText='MN1|'+Math.random().toString(36).slice(2,6)+'|1|1|'+r.body;
+    $('#qrBox').innerHTML=qrSvg(qrText);$('#qrOut').hidden=false;
+    $('#qrInfo').textContent=(r.n>=r.all?'記録'+r.all+'日分すべてと設定を、1枚のQRコードにしました。':'記録が多く1枚に入りきらないため、新しい'+r.n+'日分（全'+r.all+'日分のうち）と設定を1枚にしました。全部を移したいときは「ファイル」を使ってください。')+(r.noSlots?'（セーブデータは、いま使っている設定だけ入れています）':'')+'背景画像と変更履歴は含みません。';
     b.textContent='QRコードを作り直す'}
-  catch(e){toast('QRコードの部品を読み込めませんでした。通信を確認するか、「文字列」「ファイル」を使ってください');b.textContent='QRコードを表示'}
+  catch(e){toast('QRコードを作れませんでした。通信を確認するか、「ファイル」を使ってください');b.textContent='QRコードを表示'}
   b.disabled=false};
-$('#qrPrev').onclick=()=>{qrIdx--;qrShow();qrAutoSet()};$('#qrNext').onclick=()=>{qrIdx++;qrShow();qrAutoSet()};$('#qrAuto').onchange=qrAutoSet;
+$('#qrBig').onclick=()=>{if(!qrText)return;$('#qrFullBox').innerHTML=qrSvg(qrText,8);$('#qrFull').hidden=false};
+$('#qrFull').onclick=()=>{$('#qrFull').hidden=true};
+function qrAutoStop(){}
 /* 読み取り */
 let qrRecv=null,qrStream=null,qrRaf=0;
 function qrRenderProg(){const p=$('#qrProg');if(!qrRecv){p.hidden=true;return}p.hidden=false;const got=Object.keys(qrRecv.parts).length;
@@ -3266,7 +3263,7 @@ const WC_TOPICS=[
   ['「いつの記録ですか？」','今日・昨日・日付を選ぶ、から選びます。すぐ下に、その日に記録があるかどうかが出ます。記録済みの日を選ぶと、続きから書き足せます。','#wcWhen'],
   ['間違えて操作したとき','右上の「↶」（戻る）で、セーブデータの切り替え・記録・画面の移動などを1つずつ戻せます。戻しすぎたら「↷」（進む）でやり直せます。パソコンでは Ctrl＋Z／Ctrl＋Y（Macは ⌘）でも操作できます。',null],
   ['この画面にもう一度来るには','記録画面のいちばん上にあるアプリ名を押すと、いつでもこの画面を開けます。「次回から表示しない」にチェックすると、開いたときに出なくなります（設定の「使う機能」→「起動時のようこそ画面」で戻せます）。','.wcnext'],
-  ['別の端末から引き継ぐ・バックアップ','「データの引き継ぎ」を開き、まず方法を「文字列」「QRコード」「ファイル」から選びます。次に、元の端末では「① 送る」、新しい端末では「② 受け取る」を選び、表示される手順どおりに進めます。ときどきバックアップしておくと安心です。','#wcData'],
+  ['別の端末から引き継ぐ・バックアップ','「データの引き継ぎ」を開き、まず方法を「QRコード」か「ファイル」から選びます。次に、元の端末では「① 送る」、新しい端末では「② 受け取る」を選び、表示される手順どおりに進めます。ときどきバックアップしておくと安心です。','#wcData'],
   ['ホーム画面・デスクトップから開きたい','下の「ショートカットを作る」を押すと、使っている端末（iPhone・Android・パソコン）に合わせた追加の手順が出ます。','.wclinks [data-wv=shortcut]'],
   ['もっと詳しく知りたい','下の「使い方」を押すと、カレンダー・グラフ・設定など、アプリ全体の使い方ガイドが開きます。','.wclinks [data-wv=help]']];
 function renderWcTopics(){$('#wcTopicList').innerHTML='<div class="wtflow" aria-label="記録までの流れ"><span>① セーブデータ</span>→<span>② 何から</span>→<span>③ いつの</span>→<span>④ 記録をはじめる</span></div>'+
