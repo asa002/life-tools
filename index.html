@@ -399,6 +399,25 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .stab[aria-selected="true"] .sd{border-color:var(--accent-ink)}
 .fbrow{display:flex;gap:6px;align-items:center}
 .fbrow .hint{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:.72rem}
+.slotcard{border:1px solid var(--line);border-radius:12px;background:var(--surface);backdrop-filter:blur(var(--card-blur));-webkit-backdrop-filter:blur(var(--card-blur));padding:12px 14px;display:grid;gap:10px}
+.slothead{display:grid;gap:1px}.slothead b{font-size:.92rem}.slothead small{font-size:.72rem;color:var(--muted)}
+.slotrow{display:grid;grid-template-columns:7em minmax(0,1fr);gap:8px;align-items:center;font-size:.84rem}
+.slotrow>span,.slotsave>span{color:var(--muted);font-size:.8rem}
+.slotnow{font-size:.9rem}
+.slotsave{display:grid;gap:6px}
+.slotsave2{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+#markSlots .markrow{grid-template-columns:1.6em minmax(0,1fr) 44px 40px}
+.mnum{font-family:var(--mono);font-size:.8rem;color:var(--muted);text-align:center}
+.welcome{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:auto}
+.wcard{width:100%;max-width:440px;background:var(--surface-solid);border:1px solid var(--line);border-radius:20px;padding:20px;display:grid;gap:16px;box-shadow:0 20px 50px -20px rgba(0,0,0,.35)}
+.wchead{display:grid;gap:2px}.wchead small{color:var(--muted);font-size:.8rem}.wchead h2{margin:0;font-family:var(--display);font-size:1.6rem}.wchead span{color:var(--muted);font-size:.85rem}
+.wstep{display:grid;gap:8px}.wstep>b{font-size:.88rem}
+.wchips{display:flex;flex-wrap:wrap;gap:8px}
+.wchips button{border:1px solid var(--line);background:var(--surface-2);border-radius:12px;padding:8px 14px;min-height:44px;font-weight:600;color:var(--ink);cursor:pointer}
+.wchips button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.wclinks{display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
+.wclinks button{border:0;background:transparent;color:var(--accent);font-weight:600;padding:8px 10px;cursor:pointer;min-height:40px}
+.wcnext{display:flex;gap:8px;align-items:center;font-size:.76rem;color:var(--muted);justify-content:center}
 .slotbar{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:center;width:100%}
 .slotbar b{font-size:.8rem;color:var(--muted)}
 .slotq{width:auto;max-width:9.5em;min-height:36px;padding:4px 8px;font-size:14px;font-weight:700;background:var(--surface-2)}
@@ -478,7 +497,7 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .exchecks input{width:18px;height:18px;accent-color:var(--accent)}
 #exText{font-family:var(--mono);font-size:.8rem;line-height:1.55;min-height:220px}
 .allsave{display:grid;gap:8px;padding-top:14px;border-top:1px solid var(--line)}
-.btn.big{width:100%;padding:13px 14px;font-size:1rem}
+.btn.big{width:100%;text-align:center;justify-content:center;padding:13px 14px;font-size:1rem}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .qchips{display:flex;flex-wrap:wrap;gap:5px}
 .qchips:empty{display:none}
@@ -744,6 +763,9 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
     <div class="sec" data-sec="home">
       <div class="sechead"><h3>帰宅</h3><span class="secstate" id="st-home"></span></div>
       <div class="homeplan" id="homePlan"></div>
+      <div class="field"><label for="fHomePlanIn">帰宅予定（任意で変更）</label>
+        <div class="inline"><input type="time" id="fHomePlanIn"><button class="btn ghost" id="fHomePlanAuto">自動計算に戻す</button></div>
+        <span class="hint">空欄なら「勤務終了＋帰りの通勤」で自動計算します。寄り道の予定がある日や、勤務がない日の外出などは自分で決められます。</span></div>
       <div class="field"><label for="fHome">実際に帰宅した時刻（予定どおりなら空欄でOK）</label>
         <div class="inline"><input type="time" id="fHome"><button class="btn ghost" id="fHomeNow">今</button><button class="btn ghost" id="fHomePlan">予定どおり</button></div></div>
       <div class="field"><span class="lbl">遅くなった・早くなった理由（任意）</span>
@@ -827,9 +849,8 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
   </div>
   <div id="pageSettings" class="pagewrap setpage" hidden>
     <div class="fhead sethead"><h3>設定</h3><select id="sgJump" class="jumpsel" aria-label="設定の項目へ移動"><option value="">項目へ移動…</option><option value="sgName">アプリの名前</option><option value="sg0">使う機能</option><option value="sg1">画面の見え方</option><option value="sg2">カレンダーの印</option><option value="sg3">グラフの色</option><option value="sg4">背景</option><option value="sgText">文字の色</option><option value="sgTags">特記事項のボタン</option><option value="sg5">入力候補ボタン</option><option value="sgData">データの引き継ぎ</option><option value="sg6">通勤・勤務パターン</option></select><div class="hbtns"><button class="btn ghost" id="undoSettings" disabled>↶ 一つ前に戻す</button></div>
-      <div class="slotbar"><b>セーブスロット</b><select id="slotSel" aria-label="セーブスロット"></select></div>
-      <div class="slotbar" id="slotNameRow"><b>スロット名</b><input type="text" id="slotName" maxlength="16" placeholder="例：平日・夜勤期間・ダイエット中"></div>
-      <span class="hint" style="width:100%">設定はいま選んでいるスロットに自動で保存されます。スロットを切り替えると、そのスロットの設定（使う機能・候補・勤務パターン・見た目など）を読み込みます。記録したデータはどのスロットでも共通で、すべて見られます。</span></div>
+    </div>
+    <section class="slotcard" id="slotTop" aria-label="セーブスロット"></section>
     <details class="sgroup" id="sgName"><summary><span class="sgt">アプリの名前<small>画面上部のタイトルと、その横の小さな説明</small></span></summary><div class="sgbody">
       <label class="field"><span class="lbl">タイトル</span><input type="text" id="nmTitle" maxlength="20" placeholder="My note"></label>
       <div class="field"><span class="lbl">横の小さな説明</span>
@@ -866,6 +887,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
         <button class="btn ghost sm" id="addHobby">＋ 趣味を追加</button>
         <span class="hint">趣味ごとに色と「1週間の目標時間」を決めておくと、記録画面の「趣味・自分の時間」ページで進み具合が見られます。目標なしでも使えます。</span>
       </div>
+      <label class="markrow"><input type="checkbox" id="welcomeOn"><span>起動時のようこそ画面</span><span></span></label>
       <label class="markrow"><input type="checkbox" data-feat="share"><span>日報・テキストで共有</span><span></span></label>
       <div class="feat" id="featShare" hidden><span class="hint">「朝の日報をコピー」ボタンと「テキストでコピー」を表示します。職場や家族に記録を送る人向けです。</span></div>
       <label class="markrow"><input type="checkbox" data-feat="events"><span>定期的な予定・通院日</span><span></span></label>
@@ -886,11 +908,10 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
         <div><button class="btn ghost" id="resetFx">見え方を元に戻す</button></div>
       </div>
     </div></details>
-    <details class="sgroup" id="sg2"><summary><span class="sgt">カレンダーの印<small>どの記録に点を付けるか・点の色</small></span></summary><div class="sgbody">
-      <div id="markList"></div>
-      <div class="marksub">特記事項の項目ごと（ボタンで入れた見出しを見分けます。「できなかった」などは白抜きの点になります）</div>
-      <div id="noteMarkList"></div>
-      <p class="hint">チェックした項目を記録した日に、その色の点が付きます。</p>
+    <details class="sgroup" id="sg2"><summary><span class="sgt">カレンダーの印<small>点を付ける項目を枠ごとに追加・色を選ぶ</small></span></summary><div class="sgbody">
+      <div id="markSlots"></div>
+      <button type="button" class="btn ghost sm" id="addMark">＋ 印を追加</button>
+      <p class="hint">はじめは「特記事項」の印だけです。「＋ 印を追加」で枠を増やし、何を記録した日に点を付けるか（通勤・勤務・帰りが遅くなった日・趣味・特記事項の各ボタンなど）と色を選べます。×で外せます（最大8個）。</p>
     </div></details>
     <details class="sgroup" id="sg3"><summary><span class="sgt">グラフの色<small>睡眠グラフの色</small></span></summary><div class="sgbody">
       <div class="colorrow"><span>睡眠グラフ</span><input type="color" id="colSleep"></div>
@@ -957,6 +978,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
       <div class="setrow"><button class="btn ghost" id="bkFromText">貼り付けた文字から復元</button><label class="btn ghost" style="display:inline-flex;align-items:center">ファイルから復元<input type="file" id="bkFileIn" accept=".json,application/json,text/plain" hidden></label></div>
       <div class="warnbox" id="bkWarn" hidden></div>
     </div></details>
+    <section class="slotcard" id="slotBottom" aria-label="セーブスロット"></section>
   </div>
 </div>
 
@@ -1008,6 +1030,20 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
   </div>
 </div>
 
+<div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wcTitle">
+  <div class="wcard">
+    <div class="wchead"><small id="wcHello"></small><h2 id="wcTitle"></h2><span id="wcDate"></span></div>
+    <div class="wstep" id="wcSlotStep"><b>セーブデータ</b><select id="wcSlot" aria-label="使うセーブデータ"></select></div>
+    <div class="wstep"><b>何を記録しますか？</b><div class="wchips" id="wcPages"></div></div>
+    <div class="wstep"><b>いつの記録ですか？</b>
+      <div class="wchips" id="wcWhen"><button type="button" data-w="today">今日</button><button type="button" data-w="yday">昨日</button><button type="button" data-w="pick">日付を選ぶ</button></div>
+      <input type="date" id="wcDateIn" hidden aria-label="記録する日"><span class="hint" id="wcDayInfo"></span></div>
+    <button class="btn big" id="wcGo">記録をはじめる</button>
+    <div class="wclinks"><button type="button" data-wv="cal">カレンダーを見る</button><button type="button" data-wv="graph">グラフを見る</button><button type="button" data-wv="help">使い方</button></div>
+    <label class="wcnext"><input type="checkbox" id="wcOff"> 次回から表示しない（設定の「使う機能」でいつでも戻せます）</label>
+  </div>
+</div>
+
 <div id="toast" hidden><span id="toastMsg"></span><button id="toastBtn" hidden></button></div>
 
 <script>
@@ -1042,7 +1078,7 @@ function noteItems(note){const out={};if(!note)return out;
   return out;}
 const merge=s=>{s=s||{};if(!s.appName||s.appName==='生活記録')s={...s,appName:'My note'};if(s.appSubMode==null){s={...s,appSubMode:(s.appSub&&s.appSub!=='睡眠・支度・移動')?'custom':'auto'}};const nm={};Object.keys(DEF_NM).forEach(k=>nm[k]={...DEF_NM[k],...((s.noteMarks||{})[k]||{})});Object.entries(s.noteMarks||{}).forEach(([k,v])=>{if(!nm[k])nm[k]={on:false,color:'#5b6fd6',...v}});
   if(s.nmv!==2){nm['入浴'].on=false;nm['気になったこと'].on=true} /* 既定のマークを「気になったこと」に置き換え */
-  return{...clone(DEF),...s,nmv:2,noteMarks:nm,features:{period:false,meds:false,events:false,share:false,body:false,hobby:false,...(s.features||{})},body:{items:['wt','fat'],height:'',goal:'',...(s.body||{})},period:{cycle:28,len:5,ovu:false,...(s.period||{})},meds:Array.isArray(s.meds)?clone(s.meds):[],events:Array.isArray(s.events)?clone(s.events):[],colors:{...DEF.colors,...(s.colors||{})},marks:{...DEF.marks,...(s.marks||{})},bg:{...DEF.bg,...(s.bg||{})},text:{...DEF.text,...(s.text||{})},look:{...DEF.look,...(s.look||{})},hobbies:Array.isArray(s.hobbies)?clone(s.hobbies):[],slots:Array.isArray(s.slots)?clone(s.slots):[]}};
+  return{...clone(DEF),...s,nmv:2,noteMarks:nm,features:{period:false,meds:false,events:false,share:false,body:false,hobby:false,...(s.features||{})},body:{items:['wt','fat'],height:'',goal:'',...(s.body||{})},period:{cycle:28,len:5,ovu:false,...(s.period||{})},meds:Array.isArray(s.meds)?clone(s.meds):[],events:Array.isArray(s.events)?clone(s.events):[],colors:{...DEF.colors,...(s.colors||{})},marks:{...DEF.marks,...(s.marks||{})},bg:{...DEF.bg,...(s.bg||{})},text:{...DEF.text,...(s.text||{})},look:{...DEF.look,...(s.look||{})},hobbies:Array.isArray(s.hobbies)?clone(s.hobbies):[],markSlots:Array.isArray(s.markSlots)?clone(s.markSlots):[{src:'note',color:'#d9822b'}],slots:Array.isArray(s.slots)?clone(s.slots):[]}};
 let S={days:{},settings:merge(),bgImage:null,slots:null};
 let view='month', sel=ymd(new Date()), dirty=false, store=null;
 
@@ -1229,12 +1265,16 @@ function occurs(ev,k){const ru=ev.rule||{},d=parse(k);
   if(ru.type==='weekly')return(ru.wd||[]).includes(d.getDay());
   return false}
 const eventsOn=k=>FEAT().events?S.settings.events.filter(ev=>ev.name&&occurs(ev,k)):[];
+/* カレンダーの印：枠（スロット）ごとに「何を記録した日に点を付けるか」と色 */
+function markSources(){return MARKS.map(([k,n])=>({src:k,name:n+(k==='late'?'':'の記録あり')})).concat(noteTags().filter(x=>x.t).map(x=>({src:'tag:'+x.t,name:'特記事項「'+(x.name||x.t)+'」'})))}
+function markHas(r,src){if(!r)return false;if(src.startsWith('tag:'))return noteItems(r.note)[src.slice(4)]!==undefined;
+  return({note:!!(r.note&&r.note.trim()),prep:r.prep!=null&&r.prep!=='',commute:!!(r.commute&&(r.commute.dep||r.commute.arr)),mood:r.ki!=null||r.tai!=null,work:!!(r.work&&(r.work.start||r.work.end)),late:homeInfo(r).late,hobby:FEAT().hobby&&hobbyTotal(r)>0})[src]}
+const markName=src=>(markSources().find(x=>x.src===src)||{name:src}).name;
 function cellHTML(k,cls){
   const d=parse(k),r=S.days[k]||{},s=sleepOf(k);
   const mk=S.settings.marks,has={note:!!(r.note&&r.note.trim()),prep:r.prep!=null&&r.prep!=='',commute:!!(r.commute&&(r.commute.dep||r.commute.arr)),mood:r.ki!=null||r.tai!=null,work:!!(r.work&&(r.work.start||r.work.end)),late:homeInfo(r).late,hobby:FEAT().hobby&&hobbyTotal(r)>0};
   const ni=noteItems(r.note),nm=S.settings.noteMarks;
-  const dots=MARKS.filter(([k])=>mk[k]&&has[k]).map(([k])=>'<i class="dot '+k+'"></i>').join('')+
-    noteTags().filter(it=>nmOf(it.t).on&&ni[it.t]!==undefined).map(it=>'<i class="dot'+(ni[it.t]?'':' ring')+'" style="background:'+nmOf(it.t).color+';--rc:'+nmOf(it.t).color+'"></i>').join('');
+  const dots=(S.settings.markSlots||[]).filter(m=>markHas(S.days[k],m.src)).map(m=>'<i class="dot" style="background:'+m.color+'"></i>').join('');
   const f=FEAT();let extra='',ms=f.meds?medStatus(r):null;
   if(ms)extra+='<i class="dot '+(ms.took>=ms.need?'med':'medp')+'"></i>';
   const evs=eventsOn(k);
@@ -1261,10 +1301,7 @@ function renderCal(){
     h='<div class="grid">'+ks.map(k=>'<div class="wd">'+WD[parse(k).getDay()]+'</div>').join('')+ks.map(k=>cellHTML(k)).join('')+'</div>';
   }
   $('#cal').innerHTML=h;
-  const on=MARKS.filter(([k])=>S.settings.marks[k]);
-  const onN=noteTags().filter(it=>nmOf(it.t).on);
-  const lg=on.map(([k,n])=>'<span><i class="dot '+k+'"></i>'+n+'あり</span>').concat(onN.map(it=>'<span><i class="dot" style="background:'+nmOf(it.t).color+'"></i>'+esc(it.name)+'</span>'));
-  if(onN.length)lg.push('<span><i class="dot ring" style="--rc:var(--muted)"></i>できなかった等</span>');
+  const lg=(S.settings.markSlots||[]).map(m=>'<span><i class="dot" style="background:'+m.color+'"></i>'+esc(markName(m.src))+'</span>');
   const f=FEAT();
   if(f.period){lg.push('<span><i class="dot" style="background:color-mix(in srgb,var(--c-period) 40%,transparent);border-radius:3px"></i>生理</span>','<span><i class="dot" style="outline:1.5px dashed var(--c-period);background:transparent;border-radius:3px"></i>生理の予測</span>')}
   if(f.meds&&S.settings.meds.length)lg.push('<span><i class="dot med"></i>服薬すべて</span>','<span><i class="dot medp"></i>飲み忘れあり</span>');
@@ -1366,6 +1403,8 @@ let formPage='life';try{formPage=localStorage.getItem('nemuri-page')||'life'}cat
 function pagesAvail(){const f=FEAT(),items=bodyItems(),has=pg=>items.some(b=>purposeOf(b.k)===pg);
   return PAGES.filter(([k])=>k==='life'||(k==='hobby'&&f.hobby)||(k==='women'&&(f.period||has('women')||(f.meds&&medsPage()==='women')))||(k==='diet'&&has('diet'))||(k==='health'&&(has('health')||(f.meds&&medsPage()==='health'))))}
 const bodyItems=()=>bodyItemsAll();
+/* 選んだ項目名から見出しを作る（例：体重・体脂肪率・BMI） */
+function bodyTitle(pg){const it=bodyItemsAll().filter(b=>purposeOf(b.k)===pg).map(b=>b.k==='bp'?'血圧':b.name.replace(/（.*）/,''));if(it.includes('体重')&&(S.settings.body||{}).height)it.splice(it.indexOf('体重')+1,0,'BMI');return it.join('・')}
 const pageBodyItems=()=>bodyItemsAll().filter(b=>purposeOf(b.k)===formPage);
 const bmi=wt=>{const h=+(S.settings.body||{}).height;return h>=100&&wt?wt/((h/100)**2):null};
 const PARAMS={
@@ -1511,6 +1550,7 @@ function renderGraph(){renderGPeriod();const ks=graphDays(),sv=view;view=ks.leng
       $('#chart').innerHTML=timeStats(ks)+timelineHTML(ks)+lateList(ks.filter(k=>!isPad(k)))}
     else{$('#numCtl').hidden=false;
       {const on=FEAT().body||FEAT().period,bk=document.getElementById('bodyKinds');bk.hidden=bk.disabled=!on;if(!on&&!['mood','ki','tai','custom'].includes(chartKind))chartKind='mood'}
+      {const o=document.querySelector('#chartKind option[value=bodyAll]');if(o)o.textContent=(bodyTitle('diet')||'体型')+'をまとめて見る'}
       if(!NUM_KINDS.includes(chartKind))chartKind='mood';$('#chartKind').value=chartKind;renderCustomPick();
       const keys=(chartKind==='custom'?customSel:KINDS[chartKind]).filter(k=>PARAMS[k]&&NUM_UNITS_OK(PARAMS[k].unit));
       $('#chartTitle').textContent=KIND_NAME[chartKind];
@@ -1625,7 +1665,9 @@ const F={bed:$('#fBed'),wake:$('#fWake'),bedDay:$('#fBedDay'),wakeDay:$('#fWakeD
 const LATE_MIN=30;
 const commLen=c=>{if(!c)return null;const a=toMin(c.dep),b=toMin(c.arr);return a!=null&&b!=null?((b-a+1440)%1440):null};
 function workEndAbs(w){if(!w)return null;const a=toMin(w.start),b=toMin(w.end);if(b==null)return null;return a!=null&&b<a?b+1440:b}
-function planOf(r){const we=workEndAbs(r.work);if(we==null)return null;const c=commLen(r.commute);return we+(c||0)}
+function planOf(r){const we=workEndAbs(r.work),mp=toMin(r.home&&r.home.plan);
+  if(mp!=null){let ab=mp;if(we!=null){while(ab<we-360)ab+=1440}else if(mp<360)ab+=1440;return ab} /* 帰宅予定を自分で決めた日はそれを優先 */
+  if(we==null)return null;const c=commLen(r.commute);return we+(c||0)}
 function homeInfo(r){const out={plan:null,actual:null,diff:null,late:false,cat:'',reason:''};if(!r)return out;
   out.plan=planOf(r);const h=r.home||{};out.cat=h.cat||'';out.reason=h.reason||'';
   const t=toMin(h.time);if(t!=null){const we=workEndAbs(r.work);let ab=t;if(we!=null){while(ab<we-360)ab+=1440}else if(t<360)ab+=1440;out.actual=ab}
@@ -1689,7 +1731,7 @@ function fillSec(sec){
   else if(sec==='period'){const pr=r.period||{};perFlow=pr.flow||'';perSym=new Set(pr.sym||[]);renderPeriodForm();renderPerLinks()}
   else if(sec==='body'){bodyVals=clone(r.body||{});renderBodyForm()}
   else if(sec==='meds'){medsState=clone(r.meds||{});renderMedsForm()}
-  else if(sec==='home'){const h=r.home||{};F.home.value=h.time||'';F.homeWhy.value=h.reason||'';homeCat=h.cat||'';renderWhy();homePlanHint()}
+  else if(sec==='home'){const h=r.home||{};F.home.value=h.time||'';$('#fHomePlanIn').value=h.plan||'';F.homeWhy.value=h.reason||'';homeCat=h.cat||'';renderWhy();homePlanHint()}
   else if(sec==='prep')F.prep.value=r.prep??'';
   else{F.note.value=r.note||'';$('#noteOpts').hidden=true;renderNoteChips()}
   dirtySecs.delete(sec);dirty=dirtySecs.size>0;clearWarn(sec);secState(sec);
@@ -1750,7 +1792,7 @@ $('#medRows').addEventListener('click',e=>{const b=e.target.closest('[data-t]');
 $('#medAll').onclick=()=>{S.settings.meds.forEach(m=>{medsState[m.id]={};(m.times||[]).forEach(t=>medsState[m.id][t]=true)});renderMedsForm();markDirty('meds')};
 let bodyVals={};
 function renderBodyForm(){const items=pageBodyItems(),box=$('#bodyFields');
-  $('#secBody h3').textContent={women:'基礎体温など',diet:'体重・体型',health:'バイタル'}[formPage]||'体の記録';
+  $('#secBody h3').textContent=bodyTitle(formPage)||'体の記録';
   box.innerHTML=items.map(b=>b.bp?'<div class="bfield"><label>血圧（上／下）</label><div class="bp"><input type="number" inputmode="numeric" data-b="bpH" min="50" max="250" placeholder="120" value="'+(bodyVals.bpH??'')+'" aria-label="血圧（上）"><span>/</span><input type="number" inputmode="numeric" data-b="bpL" min="30" max="150" placeholder="80" value="'+(bodyVals.bpL??'')+'" aria-label="血圧（下）"></div><span class="sub">mmHg</span></div>':
     '<div class="bfield"><label for="b_'+b.k+'">'+b.name+'</label><div class="inline"><input type="number" id="b_'+b.k+'" inputmode="'+(b.dec?'decimal':'numeric')+'" step="'+b.step+'" min="'+b.min+'" max="'+b.max+'" placeholder="'+b.ph+'" data-b="'+b.k+'" value="'+(bodyVals[b.k]??'')+'"><span>'+b.unit+'</span></div><span class="sub" id="bsub_'+b.k+'"></span></div>').join('');
   updateBodySubs();
@@ -1772,20 +1814,23 @@ function secVisible(sec){const f=FEAT();
   if(sec==='hobby'&&!f.hobby)return false;if(sec==='period'&&!f.period)return false;if(sec==='meds'&&!f.meds)return false;if(sec==='body'&&!pageBodyItems().length)return false;
   return SEC_PAGE(sec)===formPage}
 function renderPageSel(){const av=pagesAvail();if(!av.some(([k])=>k===formPage))formPage='life';
-  $('#pageSel').innerHTML=av.map(([k,n])=>'<option value="'+k+'"'+(k===formPage?' selected':'')+'>'+n+'</option>').join('');$('#pagePick').hidden=av.length<2}
+  $('#pageSel').innerHTML=av.map(([k,n])=>'<option value="'+k+'"'+(k===formPage?' selected':'')+'>'+(k==='diet'&&bodyTitle('diet')?bodyTitle('diet'):n)+'</option>').join('');$('#pagePick').hidden=av.length<2}
 function applyFeatures(){const f=FEAT();renderPageSel();if(typeof renderHobbyCard==='function'&&$('#hobbyCard'))setTimeout(renderHobbyCard,0);
   document.querySelectorAll('#form .sec').forEach(se=>se.hidden=!secVisible(se.dataset.sec));
   $('#patternBar').hidden=formPage!=='life';
   $('#allReq').textContent=formPage==='life'?'睡眠（寝支度と起床）と気力・体力が必須です。通勤・勤務時間・その他の時間・朝支度・特記事項は空欄でも記録できます。':'このページの欄をまとめて記録します。空欄の項目は記録しません。';
   {const sig=formPage+'|'+pageBodyItems().map(b=>b.k).join(',');if(sig!==applyFeatures.sig){applyFeatures.sig=sig;renderBodyForm()}}$('#reportRow').hidden=!f.share;$('#openExport').hidden=!f.share;if($('#formJump'))buildFormJump()}
 const activeSec=sec=>secVisible(sec);
-function formRec(){return{work:{start:F.ws.value,end:F.we.value},commute:{dep:F.dep.value,arr:F.arr.value}}}
+function formRec(){return{work:{start:F.ws.value,end:F.we.value},commute:{dep:F.dep.value,arr:F.arr.value},home:{plan:$('#fHomePlanIn').value}}}
 function homePlanHint(){const r=formRec(),pl=planOf(r),c=commLen(r.commute),el=$('#homePlan');
-  if(pl==null){el.innerHTML='勤務終了を入れると、帰宅予定を自動で計算します。';return}
+  if(pl==null){el.innerHTML='勤務終了を入れると帰宅予定を自動で計算します。下の欄で自分で決めることもできます。';return}
+  const manual=!!$('#fHomePlanIn').value;
   const t=toMin(F.home.value);let extra='';
   if(t!=null){const we=workEndAbs(r.work);let ab=t;while(ab<we-360)ab+=1440;const d=ab-pl;extra='<br>実際 <b>'+hm(ab)+'</b>　'+(d===0?'予定どおり':d>0?'予定より <b style="color:var(--c-late)">'+d+'分遅い</b>':'予定より '+(-d)+'分早い')}
-  el.innerHTML='帰宅予定 <b>'+hm(pl)+'</b>（勤務終了 '+hm(workEndAbs(r.work))+(c?' ＋ 帰りの通勤 '+c+'分':'・通勤の記録なし')+'）'+extra}
+  const we0=workEndAbs(r.work);el.innerHTML='帰宅予定 <b>'+hm(pl)+'</b>'+(manual?'（自分で設定）':we0!=null?'（勤務終了 '+hm(we0)+(c?' ＋ 帰りの通勤 '+c+'分':'・通勤の記録なし')+'）':'')+extra}
 F.home.addEventListener('input',homePlanHint);
+$('#fHomePlanIn').addEventListener('input',()=>{homePlanHint();markDirty('home')});
+$('#fHomePlanAuto').onclick=()=>{$('#fHomePlanIn').value='';homePlanHint();markDirty('home')};
 function renderWhy(){document.querySelectorAll('#whyChips [data-why]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.why===homeCat))}
 $('#whyChips').addEventListener('click',e=>{const b=e.target.closest('[data-why]');if(!b)return;homeCat=homeCat===b.dataset.why?'':b.dataset.why;renderWhy();markDirty('home')});
 $('#fHomeNow').onclick=()=>{F.home.value=nowHM();homePlanHint();markDirty('home')};
@@ -1856,7 +1901,7 @@ function checkSec(sec){
     if(bodyVals.bpH&&bodyVals.bpL&&+bodyVals.bpL>=+bodyVals.bpH)warn.push('血圧の下が上以上になっています。上下が逆かもしれません');}
   if(sec==='home'){const t=toMin(F.home.value),we=toMin(F.we.value)??toMin(((S.days[sel]||{}).work||{}).end);
     if(t!=null&&we!=null){const ab=t<we-360?t+1440:t;if(ab<we)warn.push('帰宅が勤務終了（'+hm(we)+'）より前になっています');else if(ab-we>8*60)warn.push('勤務終了から '+dur(ab-we)+' 後の帰宅になっています');}
-    if(t==null&&!homeCat&&!F.homeWhy.value.trim()&&hasSec(S.days[sel],'home'))warn.push('空なので、この日の帰宅の記録を消します（予定どおりとして扱います）');}
+    if(t==null&&!homeCat&&!F.homeWhy.value.trim()&&!$('#fHomePlanIn').value&&hasSec(S.days[sel],'home'))warn.push('空なので、この日の帰宅の記録を消します（予定どおりとして扱います）');}
   if(sec==='work'){const a=toMin(F.ws.value),b=toMin(F.we.value);
     if((a==null)!==(b==null))warn.push('開始か終了の片方が空です');
     if(a!=null&&b!=null){const m=(b-a+1440)%1440;if(m===0)warn.push('開始と終了が同じ時刻です');else if(m>16*60)warn.push('勤務が '+dur(m)+' になっています（開始と終了が逆かもしれません）');}
@@ -1885,7 +1930,7 @@ function buildPatch(sec){
   if(sec==='hobby'){const m={};Object.entries(hobbyState).forEach(([k,v])=>{if(+v>0)m[k]=Math.round(+v)});const memo=$('#fHobbyMemo').value.trim();const at={};Object.keys(m).forEach(k=>{if(hobbyAt[k])at[k]=hobbyAt[k]});if(Object.keys(m).length||memo)patch.hobby={min:m,at,memo}}
   if(sec==='period'&&(perFlow||perSym.size))patch.period={flow:perFlow,sym:[...perSym]};
   if(sec==='meds'){const o={};Object.entries(medsState).forEach(([id,t])=>{const tt={};Object.entries(t||{}).forEach(([k,v])=>{if(v)tt[k]=true});if(Object.keys(tt).length)o[id]=tt});if(Object.keys(o).length)patch.meds=o}
-  if(sec==='home'){const h={};if(F.home.value)h.time=F.home.value;if(homeCat)h.cat=homeCat;if(F.homeWhy.value.trim())h.reason=F.homeWhy.value.trim();if(Object.keys(h).length)patch.home=h}
+  if(sec==='home'){const h={};if(F.home.value)h.time=F.home.value;if($('#fHomePlanIn').value)h.plan=$('#fHomePlanIn').value;if(homeCat)h.cat=homeCat;if(F.homeWhy.value.trim())h.reason=F.homeWhy.value.trim();if(Object.keys(h).length)patch.home=h}
   if(sec==='prep'&&F.prep.value!=='')patch.prep=Math.round(+F.prep.value);
   if(sec==='note'&&F.note.value.trim())patch.note=F.note.value;
   return patch;
@@ -2107,7 +2152,7 @@ function restoreFrom(text){let o;try{o=JSON.parse(text)}catch(e){showBk('読み�
 function showBk(m){const w=$('#bkWarn');w.textContent=m;w.hidden=false}
 $('#bkFromText').onclick=()=>{const t=$('#bkPaste').value.trim();if(!t){toast('引き継ぎ用の文字を貼り付けてください');return}restoreFrom(t)};
 $('#bkFileIn').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{bkPending=null;restoreFrom(String(rd.result));if(bkPending)toast('内容を確認して、もう一度「ファイルから復元」で同じファイルを選んでください')};rd.readAsText(f)});
-function renderFeatSettings(){renderSyncNote();renderTextSettings();renderSlots();$('#nmTitle').value=S.settings.appName||'My note';$('#nmSub').value=S.settings.appSub??'';renderSubMode();renderTagSettings();renderLook();renderHobbySettings();$('#featHobby').hidden=!S.settings.features.hobby;const st=S.settings,f=st.features;
+function renderFeatSettings(){if($('#welcomeOn'))$('#welcomeOn').checked=S.settings.welcome!==false;renderSyncNote();renderTextSettings();renderSlots();$('#nmTitle').value=S.settings.appName||'My note';$('#nmSub').value=S.settings.appSub??'';renderSubMode();renderTagSettings();renderLook();renderHobbySettings();$('#featHobby').hidden=!S.settings.features.hobby;const st=S.settings,f=st.features;
   document.querySelectorAll('[data-feat]').forEach(c=>c.checked=!!f[c.dataset.feat]);
   $('#featPeriod').hidden=!f.period;$('#featBody').hidden=!f.body;
   $('#bodyPick').innerHTML=BODY.map(b=>'<div class="bprow"><label><input type="checkbox" data-bp="'+b.k+'"'+((st.body.items||[]).includes(b.k)||(b.k==='bt'&&f.period)?' checked':'')+(b.k==='bt'&&f.period?' disabled':'')+'>'+b.name+'</label><select data-bpp="'+b.k+'" aria-label="'+b.name+'を記録するページ">'+PAGES.filter(([k])=>k!=='life').map(([k,n])=>'<option value="'+k+'"'+(purposeOf(b.k)===k?' selected':'')+'>'+n+'</option>').join('')+'</select></div>').join('');
@@ -2158,8 +2203,9 @@ function renderSettings(){
   document.querySelectorAll('#modeOpts button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===st.mode));
   document.querySelectorAll('#bgOpts button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.bg===st.bg.type));
   $('#colSleep').value=st.colors.sleep;
-  $('#noteMarkList').innerHTML=noteTags().map(it=>{const m=nmOf(it.t);return '<label class="markrow sub"><input type="checkbox" data-nmark="'+esc(it.t)+'"'+(m.on?' checked':'')+'><span>'+esc(it.name)+'</span><input type="color" data-nmcolor="'+esc(it.t)+'" value="'+m.color+'" aria-label="'+esc(it.name)+'のマークの色"></label>'}).join('');
-  $('#markList').innerHTML=MARKS.map(([k,n])=>'<label class="markrow"><input type="checkbox" data-mark="'+k+'"'+(st.marks[k]?' checked':'')+'><span>'+n+'</span><input type="color" data-mcolor="'+k+'" value="'+st.colors[k]+'" aria-label="'+n+'のマークの色"></label>').join('');
+  const ms=st.markSlots||[],srcs=markSources();
+  $('#markSlots').innerHTML=ms.length?ms.map((m,i)=>'<div class="markrow" data-mi="'+i+'"><span class="mnum">'+(i+1)+'</span><select data-mf="src" aria-label="印'+(i+1)+'の項目">'+srcs.map(x=>'<option value="'+esc(x.src)+'"'+(x.src===m.src?' selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select><input type="color" data-mf="color" value="'+m.color+'" aria-label="印'+(i+1)+'の色"><button type="button" class="xbtn" data-mdel aria-label="この印を外す">×</button></div>').join(''):'<p class="hint" style="margin:0">印はありません。</p>';
+  $('#addMark').disabled=ms.length>=8;
   $('#bgColorRow').hidden=st.bg.type!=='color';$('#bgImageRow').hidden=st.bg.type!=='image';$('#bgLookRow').hidden=st.bg.type==='none';
   $('#cardAlpha').value=st.bg.alpha;$('#cardAlphaOut').textContent=st.bg.alpha+'%';$('#cardBlur').value=st.bg.blur;$('#cardBlurOut').textContent=st.bg.blur;$('#bgColor').value=st.bg.color;
   const tl=(f,v,l)=>'<label>'+l+'<input type="time" data-f="'+f+'" value="'+(v||'')+'"></label>';
@@ -2173,10 +2219,12 @@ $('#modeOpts').onclick=e=>{const b=e.target.closest('[data-mode]');if(!b)return;
   applyLook();renderSettings();renderTextSettings();saveSettings()};
 let colorTimer;
 [['#colSleep','sleep']].forEach(([id,k])=>$(id).addEventListener('input',e=>{S.settings.colors[k]=e.target.value;applyLook();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)}));
-$('#noteMarkList').addEventListener('change',e=>{const k=e.target.dataset.nmark;if(!k)return;nmOf(k).on=e.target.checked;saveSettings();render(false)});
-$('#noteMarkList').addEventListener('input',e=>{const k=e.target.dataset.nmcolor;if(!k)return;nmOf(k).color=e.target.value;render(false);clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
-$('#markList').addEventListener('change',e=>{const k=e.target.dataset.mark;if(!k)return;S.settings.marks[k]=e.target.checked;saveSettings();render(false)});
-$('#markList').addEventListener('input',e=>{const k=e.target.dataset.mcolor;if(!k)return;S.settings.colors[k]=e.target.value;applyLook();render(false);clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
+const MARK_COLORS=['#d9822b','#2b8fd6','#2f8f80','#8a63c9','#c74f6f','#b8941f','#3f7f9f','#4f9a3a'];
+$('#addMark').onclick=()=>{const ms=S.settings.markSlots=S.settings.markSlots||[];if(ms.length>=8)return;const used=new Set(ms.map(m=>m.src)),src=(markSources().find(x=>!used.has(x.src))||markSources()[0]).src;
+  ms.push({src,color:MARK_COLORS[ms.length%MARK_COLORS.length]});renderSettings();saveSettings();render(false)};
+$('#markSlots').addEventListener('change',e=>{const row=e.target.closest('[data-mi]');if(!row)return;const m=S.settings.markSlots[+row.dataset.mi];if(e.target.dataset.mf==='src'){m.src=e.target.value;saveSettings();render(false)}});
+$('#markSlots').addEventListener('input',e=>{const row=e.target.closest('[data-mi]');if(!row||e.target.dataset.mf!=='color')return;S.settings.markSlots[+row.dataset.mi].color=e.target.value;render(false);clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
+$('#markSlots').addEventListener('click',e=>{const row=e.target.closest('[data-mi]');if(!row||!e.target.closest('[data-mdel]'))return;S.settings.markSlots.splice(+row.dataset.mi,1);renderSettings();saveSettings();render(false)});
 $('#resetColors').onclick=()=>{S.settings.colors=clone(DEF.colors);applyLook();renderSettings();saveSettings();render(false)};
 $('#bgOpts').onclick=e=>{const b=e.target.closest('[data-bg]');if(!b)return;
   if(!readable({...S.settings,bg:{...S.settings.bg,type:b.dataset.bg}})){toast('その背景は文字色と近くて文字が読めなくなるため、選べません。文字色を「自動」にすると選べます');return}
@@ -2414,10 +2462,18 @@ $('#tbCsv').onclick=async()=>{const{head,rows}=tbData();const q=c=>/[",\n]/.test
   if(window.claude){toast('この画面ではファイルを保存できません。「表をコピー」をお使いください');return}
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast('CSVファイルを保存しました')};
 function slotLabel(x,i){return (i+1)+'：'+(x?(x.name||'スロット'+(i+1)):'（空き）')}
-function renderSlots(){const sl=ensureSlots();const opts=sl.list.map((x,i)=>'<option value="'+i+'"'+(i===sl.active?' selected':'')+'>'+esc(slotLabel(x,i))+'</option>').join('');
-  $('#slotSel').innerHTML=opts;$('#slotQuick').innerHTML=sl.list.map((x,i)=>x||i===sl.active?'<option value="'+i+'"'+(i===sl.active?' selected':'')+'>'+esc(x?(x.name||'スロット'+(i+1)):'スロット'+(i+1))+'</option>':'').join('');
-  $('#slotQuick').hidden=sl.list.filter(Boolean).length<2;
-  const cur=sl.list[sl.active];$('#slotName').value=cur?cur.name||'':''}
+function slotCardHTML(){const sl=ensureSlots(),cur=sl.list[sl.active];
+  const opts=(sel_)=>sl.list.map((x,i)=>'<option value="'+i+'"'+(i===sel_?' selected':'')+'>'+esc(slotLabel(x,i))+(i===sl.active?'（使用中）':'')+'</option>').join('');
+  return '<div class="sgt slothead"><b>セーブスロット</b><small>使う機能・候補・勤務パターン・見た目などの設定一式を、最大'+SLOT_N+'個まで保存・切り替え（記録データは共通）</small></div>'+
+    '<div class="slotrow"><span>いま使っている</span><b class="slotnow">'+esc(slotLabel(cur,sl.active))+'</b></div>'+
+    '<label class="slotrow"><span>読み込む</span><select data-sl="load" aria-label="読み込むスロット">'+opts(sl.active)+'</select></label>'+
+    '<div class="slotsave"><span>名前を付けて保存</span><input type="text" data-sl="name" maxlength="16" placeholder="例：平日・夜勤期間・ダイエット中" value="'+esc(cur?cur.name||'':'')+'" aria-label="スロット名">'+
+    '<div class="slotsave2"><select data-sl="to" aria-label="保存先のスロット">'+sl.list.map((x,i)=>'<option value="'+i+'"'+(i===sl.active?' selected':'')+'>保存先：'+esc(slotLabel(x,i))+'</option>').join('')+'</select><button type="button" class="btn" data-sl="save">保存</button></div></div>'+
+    '<span class="hint">設定を変えると、いま使っているスロットに自動で保存されます。別のスロットに残したいときは「保存先」を選んで保存してください。</span>'}
+function renderSlots(){const sl=ensureSlots();
+  ['#slotTop','#slotBottom'].forEach(id=>{const el=$(id);if(el)el.innerHTML=slotCardHTML()});
+  $('#slotQuick').innerHTML=sl.list.map((x,i)=>x||i===sl.active?'<option value="'+i+'"'+(i===sl.active?' selected':'')+'>'+esc(x?(x.name||'スロット'+(i+1)):'スロット'+(i+1))+'</option>':'').join('');
+  $('#slotQuick').hidden=sl.list.filter(Boolean).length<2}
 function switchSlot(i){const sl=ensureSlots();if(i===sl.active)return;
   slotAutoSave();const target=sl.list[i];
   if(target&&target.settings){S.settings=merge(target.settings);toast('「'+(target.name||'スロット'+(i+1))+'」を読み込みました（記録データは共通です）')}
@@ -2425,9 +2481,13 @@ function switchSlot(i){const sl=ensureSlots();if(i===sl.active)return;
   sl.active=i;lastSettings=JSON.stringify(S.settings);settingsUndo.length=0;$('#undoSettings').disabled=true;
   put('settings',S.settings);put('slots',S.slots);
   applyLook();render(true);if(!$('#pageSettings').hidden)openSettingsPage();renderSlots()}
-$('#slotSel').addEventListener('change',e=>switchSlot(+e.target.value));
+let slotArm=null;
+document.querySelectorAll('.slotcard').forEach(card=>{
+  card.addEventListener('change',e=>{if(e.target.dataset.sl==='load')switchSlot(+e.target.value);if(e.target.dataset.sl==='to'){slotArm=null;card.querySelector('[data-sl=save]').textContent='保存'}});
+  card.addEventListener('click',e=>{const b=e.target.closest('[data-sl=save]');if(!b)return;const sl=ensureSlots(),to=+card.querySelector('[data-sl=to]').value,name=card.querySelector('[data-sl=name]').value.trim()||'スロット'+(to+1);
+    const t=sl.list[to];if(t&&to!==sl.active&&slotArm!==to){slotArm=to;b.textContent='上書きする';toast('「'+(t.name||'スロット'+(to+1))+'」に上書きします。よければもう一度押してください');return}
+    slotArm=null;sl.list[to]={name,settings:clone(S.settings),at:Date.now()};sl.active=to;put('slots',S.slots);renderSlots();toast('いまの設定を「'+name+'」（スロット'+(to+1)+'）に保存しました')})});
 $('#slotQuick').addEventListener('change',e=>switchSlot(+e.target.value));
-$('#slotName').addEventListener('change',e=>{const sl=ensureSlots(),cur=sl.list[sl.active];cur.name=e.target.value.trim()||'スロット'+(sl.active+1);put('slots',S.slots);renderSlots();toast('スロット名を「'+cur.name+'」にしました')});
 function renderSubMode(){const m=S.settings.appSubMode||'auto';document.querySelectorAll('#nmSubMode [data-sm]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.sm===m));
   $('#nmSub').hidden=m!=='custom';$('#nmSubHint').textContent=m==='auto'?'いまの表示：'+(appSubText()||'（まだ記録がないので表示なし）')+'。よく記録している項目に合わせて自動で変わります。':m==='custom'?'入れた言葉をそのまま表示します。':'タイトルだけを表示します。'}
 $('#nmSubMode').onclick=e=>{const b=e.target.closest('[data-sm]');if(!b)return;S.settings.appSubMode=b.dataset.sm;renderSubMode();applyLook();saveSettings()};
@@ -2451,7 +2511,7 @@ const HELP=[
  ['自分好みにする',[
   ['名前や見た目を変えたい','「設定 → アプリの名前」でタイトルを変えられます。「画面の見え方」「背景」「文字の色」で明るさ・背景画像・文字色を変えられます。','settings',null,'#sgName'],
   ['特記事項のボタンを増やしたい・消したい','「設定 → 特記事項のボタン」で、ボタンの追加・削除・名前・答えの候補を自由に編集できます。','settings',null,'#sgTags'],
-  ['仕事の日用・休みの日用など設定を切り替えたい','設定タブ一番上の「セーブスロット」で、設定一式を最大10個まで保存・切り替えできます。記録データはどのスロットでも共通です。','settings',null,'#slotSel'],
+  ['仕事の日用・休みの日用など設定を切り替えたい','設定タブ一番上の「セーブスロット」で、設定一式を最大10個まで保存・切り替えできます。記録データはどのスロットでも共通です。','settings',null,'#slotTop'],
   ['PCとスマホで同じ記録を見たい・バックアップしたい','「設定 → データの引き継ぎ」を開くと、いまの同期状態と、引き継ぎ・バックアップの方法が出ます。','settings',null,'#sgData']]]];
 function renderHelp(){$('#helpList').innerHTML=HELP.map(([g,items],gi)=>'<div class="hgrp"><h4>'+g+'</h4>'+items.map(([t,d],i)=>'<details class="htopic"><summary>'+esc(t)+'</summary><div><span>'+esc(d)+'</span><div><button type="button" class="btn ghost sm" data-hgo="'+gi+'-'+i+'">その場所を見る</button></div></div></details>').join('')+'</div>').join('')}
 function spotlight(selector){const el=document.querySelector(selector);if(!el){toast('この場所はいまの設定では表示されていません');return}
@@ -2528,7 +2588,7 @@ $('#addHobby').onclick=()=>{const hs=S.settings.hobbies;hs.push({id:'y'+Date.now
 $('#hobbySet').addEventListener('input',e=>{const c=e.target.closest('[data-hid]');if(!c)return;const h=S.settings.hobbies.find(x=>x.id===c.dataset.hid),f=e.target.dataset.hf;if(!h||!f)return;h[f]=f==='goal'?+e.target.value:e.target.value;featSave()});
 $('#hobbySet').addEventListener('change',e=>{const c=e.target.closest('[data-hid]');if(!c)return;const h=S.settings.hobbies.find(x=>x.id===c.dataset.hid),f=e.target.dataset.hf;if(h&&f==='goal'){h.goal=+e.target.value;featSave()}});
 $('#hobbySet').addEventListener('click',e=>{const c=e.target.closest('[data-hid]');if(!c||!e.target.closest('[data-hdel]'))return;S.settings.hobbies=S.settings.hobbies.filter(x=>x.id!==c.dataset.hid);renderHobbySettings();featSave()});
-function render(withForm){{const sub=appSubText();$('#appSub').textContent=sub;$('#appSub').hidden=!sub}if($('#slotQuick')&&!render.sl){render.sl=1;setTimeout(renderSlots,0)}PM=periodModel();setTimeout(renderSelDay,0);applyFeatures();renderUpcoming();renderHobbyCard();renderQuick();renderCal();renderChart();if(withForm)fillForm();if(page==='status')renderStatus();renderFavs()}
+function render(withForm){if(typeof renderWelcome==='function'&&!$('#welcome').hidden)setTimeout(renderWelcome,0);{const sub=appSubText();$('#appSub').textContent=sub;$('#appSub').hidden=!sub}if($('#slotQuick')&&!render.sl){render.sl=1;setTimeout(renderSlots,0)}PM=periodModel();setTimeout(renderSelDay,0);applyFeatures();renderUpcoming();renderHobbyCard();renderQuick();renderCal();renderChart();if(withForm)fillForm();if(page==='status')renderStatus();renderFavs()}
 
 /* ---------- よく使う値（候補ボタン） ---------- */
 const FAV={
@@ -2628,6 +2688,34 @@ $('#gapList').addEventListener('click',e=>{const b=e.target.closest('[data-go]')
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)renderQuick()});
 applyLook();render(true);
 lastSettings=JSON.stringify(S.settings);
+/* ---------- ようこそ画面（開いたとき・更新したとき） ---------- */
+let wc={page:formPage,when:'today',date:ymd(new Date())};
+function wcDay(){return wc.when==='today'?ymd(new Date()):wc.when==='yday'?ymd(addDays(new Date(),-1)):wc.date}
+function renderWelcome(){const h=new Date().getHours(),sl=ensureSlots();
+  $('#wcHello').textContent=h<5?'こんばんは':h<11?'おはようございます':h<18?'こんにちは':'こんばんは';
+  $('#wcTitle').textContent=S.settings.appName||'My note';const t=new Date();$('#wcDate').textContent=ymdJ(ymd(t))+' '+pad(t.getHours())+':'+pad(t.getMinutes());
+  const used=sl.list.map((x,i)=>[x,i]).filter(([x,i])=>x||i===sl.active);
+  $('#wcSlotStep').hidden=used.length<2;$('#wcSlot').innerHTML=used.map(([x,i])=>'<option value="'+i+'"'+(i===sl.active?' selected':'')+'>'+esc(slotLabel(x,i))+'</option>').join('');
+  const av=pagesAvail();if(!av.some(([k])=>k===wc.page))wc.page='life';
+  $('#wcPages').innerHTML=av.map(([k,n])=>'<button type="button" data-p="'+k+'" aria-pressed="'+(k===wc.page)+'">'+esc(k==='diet'&&bodyTitle('diet')?bodyTitle('diet'):n)+'</button>').join('');
+  document.querySelectorAll('#wcWhen [data-w]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.w===wc.when));
+  $('#wcDateIn').hidden=wc.when!=='pick';$('#wcDateIn').value=wc.date;
+  const k=wcDay(),r=S.days[k];const n=r?Object.keys(SEC).filter(x=>hasSec(r,x)).length:0;
+  $('#wcDayInfo').textContent=md(k)+'：'+(r?'記録あり（'+n+'項目）。続きから入力できます':'まだ記録がありません');}
+function closeWelcome(){$('#welcome').hidden=true;if($('#wcOff').checked){S.settings.welcome=false;saveSettings()}}
+$('#wcSlot').addEventListener('change',e=>{switchSlot(+e.target.value);renderWelcome()});
+$('#wcPages').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;wc.page=b.dataset.p;renderWelcome()});
+$('#wcWhen').addEventListener('click',e=>{const b=e.target.closest('[data-w]');if(!b)return;wc.when=b.dataset.w;renderWelcome();if(wc.when==='pick')$('#wcDateIn').focus()});
+$('#wcDateIn').addEventListener('change',e=>{if(e.target.value){wc.date=e.target.value;renderWelcome()}});
+$('#wcGo').onclick=()=>{closeWelcome();showPage('main');showView('input');
+  if(wc.page!==formPage){const ps=$('#pageSel');formPage=wc.page;try{localStorage.setItem('nemuri-page',formPage)}catch(e){}applyFeatures()}
+  sel=wcDay();dirty=false;render(true);
+  const vis=secList(),first=vis.find(se=>!hasSec(S.days[sel],se.dataset.sec))||vis[0];if(first)goSec(first);else window.scrollTo(0,0)};
+document.querySelector('.wclinks').addEventListener('click',e=>{const b=e.target.closest('[data-wv]');if(!b)return;closeWelcome();showPage('main');
+  if(b.dataset.wv==='help'){$('#openHelp').click();return}sel=wcDay();showView(b.dataset.wv);render(false)});
+$('#welcomeOn').checked=S.settings.welcome!==false;
+$('#welcomeOn').addEventListener('change',e=>{S.settings.welcome=e.target.checked;saveSettings()});
+if(S.settings.welcome!==false){renderWelcome();$('#welcome').hidden=false;const ft=document.getElementById('firstTip');if(ft)ft.hidden=true}
 setTimeout(initStore,0);
 })();
 </script>
