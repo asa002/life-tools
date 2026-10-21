@@ -180,6 +180,8 @@ textarea{min-height:84px;resize:vertical}
 .opts button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .colorrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid var(--line)}
 .colorrow:last-child{border:0}
+.gch{margin:10px 0 2px;font-size:.85rem}.gch:first-child{margin-top:0}
+.colorrow .gsw{display:flex;align-items:center;gap:8px}.colorrow .cdef{font-size:.72rem;color:var(--muted)}
 input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-radius:8px;padding:2px;background:var(--surface-2)}
 .slot{display:grid;grid-template-columns:minmax(0,1fr) 6.2em 6.2em auto;gap:6px;align-items:center;margin-bottom:6px}
 .slot input{padding:6px 7px}
@@ -1079,8 +1081,9 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
       <button type="button" class="btn ghost sm" id="addMark">＋ 印を追加</button>
       <p class="hint">カレンダーに付く点の一覧です（最大12個）。「＋ 印を追加」で、何を記録した日に点を付けるか（通勤・勤務・帰りが遅くなった日・趣味・特記事項の各ボタン・自分で追加した項目など）と色を選べます。<br>特記事項のボタンと自分で追加した項目は、「使う機能」の各項目の色と共通です。どちらで色を変えても両方に反映されます。また、各項目の「カレンダーに印」のチェックでも付け外しできます。</p>
     </div></details>
-    <details class="sgroup" id="sg3"><summary><span class="sgt">グラフの色<small>睡眠グラフの色</small></span></summary><div class="sgbody">
-      <div class="colorrow"><span>睡眠グラフ</span><input type="color" id="colSleep"></div>
+    <details class="sgroup" id="sg3"><summary><span class="sgt">グラフの色<small>時間帯の帯・数値の線の色を項目ごとに選ぶ</small></span></summary><div class="sgbody">
+      <div id="gColors"></div>
+      <p class="hint" style="margin:6px 0 0">趣味・自分で追加した項目・特記事項のボタンの色は、「使う機能」のそれぞれの項目で変えられます（グラフとカレンダーの印に同じ色が使われます）。</p>
       <div style="margin-top:8px"><button class="btn ghost" id="resetColors">色を初期値に戻す</button></div>
     </div></details>
     <details class="sgroup" id="sg4"><summary><span class="sgt">背景<small>色・画像・カードの透け具合</small></span></summary><div class="sgbody">
@@ -1383,7 +1386,7 @@ function appSubText(){const st=S.settings,m=st.appSubMode||'auto';if(m==='none')
 function applyLook(){
   const st=S.settings,root=document.documentElement;
   if(st.mode==='system')delete root.dataset.mode;else root.dataset.mode=st.mode;
-  root.style.setProperty('--c-note',st.colors.note);root.style.setProperty('--c-prep',st.colors.prep);root.style.setProperty('--c-sleep',st.colors.sleep);root.style.setProperty('--c-commute',st.colors.commute);root.style.setProperty('--c-mood',st.colors.mood);root.style.setProperty('--c-work',st.colors.work);root.style.setProperty('--c-late',st.colors.late);root.style.setProperty('--c-hobby',st.colors.hobby);
+  root.style.setProperty('--c-note',st.colors.note);root.style.setProperty('--c-prep',st.colors.prep);root.style.setProperty('--c-sleep',st.colors.sleep);root.style.setProperty('--c-commute',st.colors.commute);root.style.setProperty('--c-mood',st.colors.mood);root.style.setProperty('--c-work',st.colors.work);root.style.setProperty('--c-late',st.colors.late);root.style.setProperty('--c-hobby',st.colors.hobby);['prep','move','work','late'].forEach(k=>{const v=st.colors['g_'+k];if(v)root.style.setProperty('--g-'+k,v);else root.style.removeProperty('--g-'+k)});
   const L=$('#bgLayer');
   root.style.setProperty('--card-a',(st.bg.alpha??84)+'%');root.style.setProperty('--card-blur',(st.bg.blur??0)+'px');
   if(st.bg.type==='color'){L.hidden=false;L.style.backgroundImage='none';L.style.backgroundColor=st.bg.color;root.classList.add('has-bg')}
@@ -1845,7 +1848,7 @@ function dayParts(k){
   return p.sleep==null&&p.prep==null&&p.move==null&&p.work==null&&!p.other?null:p;
 }
 /* ---------- 1日のタイムライン（0時〜24時のどこで何をしていたか） ---------- */
-const TL_KINDS={sleep:['睡眠','var(--c-sleep)'],prep:['朝支度','var(--c-prep)'],move:['移動','var(--dawn)'],work:['勤務','var(--c-work)'],late:['帰りの遅れ','var(--c-late)']};
+const TL_KINDS={sleep:['睡眠','var(--c-sleep)'],prep:['朝支度','var(--g-prep,var(--c-prep))'],move:['移動','var(--g-move,var(--dawn))'],work:['勤務','var(--g-work,var(--c-work))'],late:['帰りの遅れ','var(--g-late,var(--c-late))']};
 function daySegs(k){const out=[],add=(a,b,kind,label,color)=>{if(a==null||b==null)return;a=Math.max(0,a);b=Math.min(1440,b);if(b>a)out.push({a,b,kind,label:label||TL_KINDS[kind]?.[0]||kind,color:color||TL_KINDS[kind]?.[1]})};
   const r=S.days[k]||{},nk=ymd(addDays(parse(k),1)),pk=ymd(addDays(parse(k),-1)),rn=S.days[nk],rp=S.days[pk];
   const sl=x=>{const s=sleepOf(x);return s&&s.ba!=null&&s.wa!=null&&s.wa>s.ba?s:null};
@@ -1888,7 +1891,7 @@ function shareHTML(ks){
   const title=view==='day'?'1日の時間の割合':'1日あたりの時間の割合（記録した'+ps.length+'日の平均）';
   if(!ps.length)return '<div class="share"><h3>'+title+'</h3><p class="empty">睡眠・朝支度・通勤・勤務・その他の時間のどれかを記録すると表示されます。</p></div>';
   const avg=f=>{const v=ps.map(p=>p[f]).filter(x=>x!=null);return v.length?Math.round(v.reduce((x,y)=>x+y,0)/v.length):0};
-  const items=[['sleep','睡眠','var(--c-sleep)'],['prep','朝支度','var(--c-prep)'],['move','移動（往復）','var(--dawn)'],['work','勤務','var(--c-work)']];
+  const items=[['sleep','睡眠','var(--c-sleep)'],['prep','朝支度','var(--g-prep,var(--c-prep))'],['move','移動（往復）','var(--g-move,var(--dawn))'],['work','勤務','var(--g-work,var(--c-work))']];
   const m={};items.forEach(([k])=>m[k]=avg(k));
   // その他の活動：記入した日だけで平均
   const od=ps.filter(p=>p.other),acts={};
@@ -1943,7 +1946,8 @@ const cnUnit=c=>cnMode(c)==='count'?'回':cnMode(c)==='check'?'':(c.unit||'');
 const cnFmt=(c,v)=>cnMode(c)==='check'?'あり':fmtNum(v)+cnUnit(c);
 const CN_MODES=[['value','数値を入れる','体重・支出・ページ数・強さ（0〜10）など、量や大きさを数字で記録'],['count','1日に何回あったか','コーヒーの杯数・トイレ・発作など、「＋」「−」で回数を記録'],['check','あったかどうかだけ','飲酒・頭痛・外出など、チェックを付けるだけ（数字は入れない）']];
 const BASE_NUM_KINDS=NUM_KINDS.slice();
-function syncCustomParams(){
+const PCOL_DEF={};Object.keys(PARAMS).forEach(k=>PCOL_DEF[k]=PARAMS[k].color);
+function syncCustomParams(){const cs=S.settings.colors||{};Object.keys(PCOL_DEF).forEach(k=>{if(PARAMS[k])PARAMS[k].color=cs['p_'+k]||PCOL_DEF[k]}); /* 数値グラフの色は設定で上書きできる */
   Object.keys(PARAMS).filter(k=>k.startsWith('cn_')).forEach(k=>delete PARAMS[k]);
   Object.keys(KINDS).filter(k=>/^cn/.test(k)).forEach(k=>{delete KINDS[k];delete KIND_NAME[k]});
   const items=CN().filter(c=>cnMode(c)!=='check');
@@ -2572,7 +2576,7 @@ function renderSettings(){
   const st=S.settings;
   document.querySelectorAll('#modeOpts button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mode===st.mode));
   document.querySelectorAll('#bgOpts button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.bg===st.bg.type));
-  $('#colSleep').value=st.colors.sleep;
+  renderGraphColors();
   const ms=st.markSlots||[],srcs=markSources();
   $('#markSlots').innerHTML=ms.length?ms.map((m,i)=>'<div class="markrow" data-mi="'+i+'"><span class="mnum">'+(i+1)+'</span><select data-mf="src" aria-label="印'+(i+1)+'の項目">'+srcs.map(x=>'<option value="'+esc(x.src)+'"'+(x.src===m.src?' selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select><input type="color" data-mf="color" value="'+markColorOf(m)+'" aria-label="印'+(i+1)+'の色"><button type="button" class="xbtn" data-mdel aria-label="この印を外す">×</button></div>').join(''):'<p class="hint" style="margin:0">印はありません。</p>';
   $('#addMark').disabled=ms.length>=12;
@@ -2588,14 +2592,24 @@ $('#modeOpts').onclick=e=>{const b=e.target.closest('[data-mode]');if(!b)return;
   if(!readable(S.settings)){S.settings.text={...S.settings.text,mode:'auto'};toast('この表示モードでは文字色が読みにくくなるため、文字色を「自動」に切り替えました')}
   applyLook();renderSettings();renderTextSettings();saveSettings()};
 let colorTimer;
-[['#colSleep','sleep']].forEach(([id,k])=>$(id).addEventListener('input',e=>{S.settings.colors[k]=e.target.value;applyLook();clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)}));
+/* グラフの色：時間帯（睡眠・朝支度・移動・勤務・帰りの遅れ）と数値（気力・体力・体の記録） */
+const GC_HEX={'var(--dawn)':'#d9822b','var(--c-prep)':'#2f8f80','var(--c-work)':'#8a63c9','var(--c-late)':'#c74f6f','var(--c-sleep)':'#5b6fd6'};
+const GC_TIME=[['sleep','睡眠','#5b6fd6'],['g_prep','朝支度','#2f8f80'],['g_move','移動（通勤・帰り）','#d9822b'],['g_work','勤務','#8a63c9'],['g_late','帰りの遅れ','#c74f6f']];
+const GC_NUM=[['ki','気力'],['tai','体力']],GC_BODY=['wt','fat','muscle','bmi','waist','temp','bt','bpH','bpL','pulse','steps','water'];
+function renderGraphColors(){const cs=S.settings.colors||{},hex=v=>/^#/.test(v||'')?v:GC_HEX[v]||'#888888';
+  const row=(key,name,cur,def)=>'<div class="colorrow"><span>'+esc(name)+'</span><span class="gsw">'+(cs[key]&&cs[key]!==def?'<button type="button" class="btn ghost sm" data-gcr="'+key+'" aria-label="'+esc(name)+'の色を初期値に戻す">戻す</button>':'')+'<input type="color" data-gc="'+key+'" value="'+hex(cur)+'" aria-label="'+esc(name)+'の色"></span></div>';
+  const body=(FEAT().body||FEAT().period)?GC_BODY:[];
+  $('#gColors').innerHTML='<b class="gch">時間帯のグラフ（帯の色）</b>'+GC_TIME.map(([k,n,d])=>row(k,n,cs[k]||d,k==='sleep'?DEF.colors.sleep:undefined)).join('')+
+    '<b class="gch">数値のグラフ（線の色）</b>'+GC_NUM.concat(body.map(k=>[k,PARAMS[k].name])).map(([k,n])=>row('p_'+k,n,cs['p_'+k]||PCOL_DEF[k])).join('')}
+$('#gColors').addEventListener('input',e=>{const k=e.target.dataset.gc;if(!k)return;S.settings.colors[k]=e.target.value;applyLook();syncCustomParams();if(mainView==='graph')renderChart();clearTimeout(colorTimer);colorTimer=setTimeout(()=>{saveSettings();renderGraphColors()},600)});
+$('#gColors').addEventListener('click',e=>{const b=e.target.closest('[data-gcr]');if(!b)return;const k=b.dataset.gcr;if(k==='sleep')S.settings.colors.sleep=DEF.colors.sleep;else delete S.settings.colors[k];applyLook();syncCustomParams();saveSettings();renderGraphColors();render(false)});
 const MARK_COLORS=['#d9822b','#2b8fd6','#2f8f80','#8a63c9','#c74f6f','#b8941f','#3f7f9f','#4f9a3a'];
 $('#addMark').onclick=()=>{const ms=S.settings.markSlots=S.settings.markSlots||[];if(ms.length>=12)return;const used=new Set(ms.map(m=>m.src)),src=(markSources().find(x=>!used.has(x.src))||markSources()[0]).src;
   ms.push({src,color:MARK_COLORS[ms.length%MARK_COLORS.length]});renderSettings();renderCustomSettings();renderTagSettings();saveSettings();render(false)};
 $('#markSlots').addEventListener('change',e=>{const row=e.target.closest('[data-mi]');if(!row)return;const m=S.settings.markSlots[+row.dataset.mi];if(e.target.dataset.mf==='src'){m.src=e.target.value;saveSettings();render(false);renderSettings();renderCustomSettings();renderTagSettings()}});
 $('#markSlots').addEventListener('input',e=>{const row=e.target.closest('[data-mi]');if(!row||e.target.dataset.mf!=='color')return;{const m=S.settings.markSlots[+row.dataset.mi];m.color=e.target.value;setSrcColor(m.src,e.target.value)}render(false);if(typeof renderCustomSettings==='function'&&e.type==='input'){clearTimeout(renderSettings.ct);renderSettings.ct=setTimeout(()=>{renderCustomSettings();renderTagSettings()},700)}clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)});
 $('#markSlots').addEventListener('click',e=>{const row=e.target.closest('[data-mi]');if(!row||!e.target.closest('[data-mdel]'))return;S.settings.markSlots.splice(+row.dataset.mi,1);renderSettings();renderCustomSettings();renderTagSettings();saveSettings();render(false)});
-$('#resetColors').onclick=()=>{S.settings.colors=clone(DEF.colors);applyLook();renderSettings();saveSettings();render(false)};
+$('#resetColors').onclick=()=>{S.settings.colors=clone(DEF.colors);applyLook();syncCustomParams();renderSettings();saveSettings();render(false);toast('グラフの色を初期値に戻しました')};
 $('#bgOpts').onclick=e=>{const b=e.target.closest('[data-bg]');if(!b)return;
   if(!readable({...S.settings,bg:{...S.settings.bg,type:b.dataset.bg}})){toast('その背景は文字色と近くて文字が読めなくなるため、選べません。文字色を「自動」にすると選べます');return}
   S.settings.bg.type=b.dataset.bg;applyLook();renderSettings();renderTextSettings();saveSettings();
