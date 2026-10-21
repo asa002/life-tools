@@ -205,7 +205,8 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .shareleg div>i.s-rest{border:1px solid var(--line)}
 .shareleg b{font-family:var(--mono);font-weight:500}
 .shareleg small{color:var(--muted);font-family:var(--mono);font-size:.68rem;grid-column:2/4}
-.hbtns{display:flex;gap:8px}
+.hbtns{display:flex;gap:8px;flex:none}
+@media (max-width:400px){.hbtns{gap:5px}.hbtns .iconbtn{width:36px;height:36px}}
 .cell.per{background:color-mix(in srgb,var(--c-period) 22%,transparent)}
 .cell.pred{outline:1.5px dashed var(--c-period);outline-offset:-3px}
 .cell.ovu .n{text-decoration:underline dotted var(--c-period)}
@@ -397,17 +398,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scrollbar-gutter:stable
 .tcstrip i.on{outline:none}
 .tcaxis{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted)}
 .btn{max-width:100%}.setrow .btn{white-space:normal}
-.uhbar{position:fixed;right:max(10px,env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:65;display:flex;gap:4px;padding:4px;border-radius:999px;background:var(--surface-solid,#fff);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.14)}
-.uhbar button{display:flex;align-items:center;gap:4px;min-height:40px;padding:0 12px;border:0;border-radius:999px;background:transparent;color:var(--ink);font:inherit;font-size:.85rem;font-weight:600;cursor:pointer}
-.uhbar button b{font-size:1.1rem;line-height:1}
-.uhbar button:disabled{opacity:.35;cursor:default}
-.uhbar[hidden]{display:none}
-.wcard{padding-bottom:72px!important}
-.sheet .panel{padding-bottom:calc(72px + env(safe-area-inset-bottom,0px))!important}
-.scsec h4 small{white-space:nowrap;flex:none;margin-left:auto}
-.uhbar button:not(:disabled):hover{background:var(--surface-2)}
-#toast{z-index:70!important;bottom:calc(132px + env(safe-area-inset-bottom,0px))!important}
-.wrap{padding-bottom:56px}
+.uhgrp{display:flex;gap:4px}
+.uhb{font-size:1.25rem;font-weight:700;line-height:1;color:var(--ink);cursor:pointer}
+.uhb:disabled{opacity:.3;cursor:default}
+#toast{z-index:70!important}
 .brand{cursor:pointer}
 .cnt{display:grid;grid-template-columns:48px minmax(0,1fr) auto 48px;gap:8px;align-items:center}
 .cnt button{min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--ink);font-size:1.3rem;font-weight:700;cursor:pointer}
@@ -504,7 +498,7 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .wdata>summary::after{content:"＋";position:absolute;right:0;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700}
 .wdata[open]>summary::after{content:"－"}
 .wdata>summary b{font-size:.92rem}.wdata>summary small{font-size:.78rem;color:var(--muted)}
-.wchead{position:relative;padding-right:48px}.wchelp{position:absolute;top:0;right:0}
+.wctop{display:flex;align-items:center;justify-content:space-between;gap:8px}.wctools{display:flex;gap:6px;flex:none}
 .wtopics{background:color-mix(in srgb,var(--accent) 7%,var(--surface-solid))}
 .wtlist{display:grid;gap:6px;padding:0 0 12px}.wtlist .htopic{margin:0}
 .wtlist .htopic .go{justify-self:start}
@@ -689,7 +683,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
 <div class="wrap">
   <header class="top">
     <h1 class="brand" title="タップでようこそ画面を開く"><span id="appName">My note</span> <small id="appSub" hidden></small></h1>
-    <div class="hbtns"><button class="iconbtn helpbtn" id="openHelp" aria-label="使い方ガイド" title="使い方ガイド">？</button><select id="slotQuick" class="slotq" aria-label="セーブスロットを切り替える"></select><button class="iconbtn" id="openHist" aria-label="変更履歴"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></svg></button>
+    <div class="hbtns"><span class="uhgrp" role="group" aria-label="操作の取り消し"><button type="button" class="iconbtn uhb" data-uh="undo" disabled title="戻る（Ctrl+Z）" aria-label="戻る">↶</button><button type="button" class="iconbtn uhb" data-uh="redo" disabled title="進む（Ctrl+Y）" aria-label="進む">↷</button></span><button class="iconbtn helpbtn" id="openHelp" aria-label="使い方ガイド" title="使い方ガイド">？</button><select id="slotQuick" class="slotq" aria-label="セーブスロットを切り替える"></select><button class="iconbtn" id="openHist" aria-label="変更履歴"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v4h4"/><path d="M12 7v5l3 2"/></svg></button>
 </div>
   </header>
   <nav class="tabs" role="tablist" aria-label="画面">
@@ -1179,7 +1173,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
 
 <div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="wcTitle">
   <div class="wcard">
-    <div class="wchead"><small id="wcHello"></small><h2 id="wcTitle"></h2><span id="wcDate"></span><button type="button" class="iconbtn helpbtn wchelp" id="wcHelpBtn" aria-label="このページの使い方" title="このページの使い方">？</button></div>
+    <div class="wchead"><div class="wctop"><small id="wcHello"></small><div class="wctools"><span class="uhgrp" role="group" aria-label="操作の取り消し"><button type="button" class="iconbtn uhb" data-uh="undo" disabled title="戻る（Ctrl+Z）" aria-label="戻る">↶</button><button type="button" class="iconbtn uhb" data-uh="redo" disabled title="進む（Ctrl+Y）" aria-label="進む">↷</button></span><button type="button" class="iconbtn helpbtn" id="wcHelpBtn" aria-label="このページの使い方" title="このページの使い方">？</button></div></div><h2 id="wcTitle"></h2><span id="wcDate"></span></div>
     <details class="wdata wtopics" id="wcTopics"><summary><b>このページの使い方（トピックス）</b><small>操作の流れと、困ったときの手順を見られます</small></summary>
       <div class="wtlist" id="wcTopicList"></div></details>
     <div class="wstep" id="wcSlotStep"><b>セーブデータ</b><div class="wslot"><select id="wcSlot" aria-label="使うセーブデータ"></select><button type="button" class="btn ghost" id="wcNewBtn">＋ 新しく作る</button></div>
@@ -1199,7 +1193,6 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
 </div>
 
 <div id="toast" hidden><span id="toastMsg"></span><button id="toastBtn" hidden></button></div>
-<div class="uhbar" id="uhBar" role="group" aria-label="操作の取り消し"><button type="button" id="uhUndo" disabled title="戻る（Ctrl+Z）" aria-label="戻る"><b>↶</b>戻る</button><button type="button" id="uhRedo" disabled title="進む（Ctrl+Y）" aria-label="進む"><b>↷</b>進む</button></div>
 <div class="sheet" id="scSheet" hidden>
   <div class="panel" role="dialog" aria-label="ショートカットを作る">
     <div class="fhead"><h3>ショートカットを作る</h3><button class="btn ghost" id="scClose">閉じる</button></div>
@@ -1295,10 +1288,8 @@ function uhApply(e,dir){UH.busy++;try{
   }finally{UH.busy--}}
 function uhUndo(){const e=UH.past.pop();if(!e){toast('これ以上は戻れません');return}uhApply(e,'before');UH.future.push(e);uhBtns();toast('戻しました：'+e.what,UH.future.length?{label:'進む',fn:uhRedo}:null)}
 function uhRedo(){const e=UH.future.pop();if(!e){toast('これ以上は進めません');return}uhApply(e,'after');UH.past.push(e);uhBtns();toast('進めました：'+e.what,{label:'戻る',fn:uhUndo})}
-function uhBtns(){const u=document.getElementById('uhUndo'),r=document.getElementById('uhRedo');if(!u)return;
-  const a=UH.past[UH.past.length-1],b=UH.future[UH.future.length-1];
-  u.disabled=!a;r.disabled=!b;const bar=document.getElementById('uhBar');if(bar)bar.hidden=!a&&!b;u.title=a?'戻る：'+a.what+'（Ctrl+Z）':'戻る（Ctrl+Z）';r.title=b?'進む：'+b.what+'（Ctrl+Y）':'進む（Ctrl+Y）';
-  u.setAttribute('aria-label',u.title);r.setAttribute('aria-label',r.title)}
+function uhBtns(){const a=UH.past[UH.past.length-1],b=UH.future[UH.future.length-1];
+  document.querySelectorAll('[data-uh]').forEach(x=>{const un=x.dataset.uh==='undo',e=un?a:b;x.disabled=!e;x.title=un?(a?'戻る：'+a.what+'（Ctrl+Z）':'戻る（Ctrl+Z）'):(b?'進む：'+b.what+'（Ctrl+Y）':'進む（Ctrl+Y）');x.setAttribute('aria-label',x.title)})}
 /* セーブスロット（10個）：設定一式を目的ごとに保存。記録データは共通 */
 const SLOT_N=10;
 function ensureSlots(){if(!S.slots||!Array.isArray(S.slots.list)){S.slots={active:0,list:[{name:'スロット1',settings:clone(S.settings),at:Date.now()}]}}
@@ -2838,7 +2829,7 @@ const HELP=[
   ['記録の抜けを確認したい','下の「記録状況」タブで、記録を始めた日と、記録が抜けている日・期間が分かります。','status',null,'.tabs [data-page=status]']]],
  ['自分好みにする',[
   ['名前や見た目を変えたい','「設定 → アプリの名前」でタイトルを変えられます。「画面の見え方」「背景」「文字の色」で明るさ・背景画像・文字色を変えられます。','settings',null,'#sgName'],
-  ['間違えて操作した・前の画面に戻りたい','画面右下の「↶ 戻る」で、記録・設定・セーブデータの切り替え・画面の移動を1つずつ戻せます。戻しすぎたら「↷ 進む」でやり直せます（パソコンでは Ctrl＋Z／Ctrl＋Y、Macは ⌘＋Z／⌘＋Y）。ようこそ画面での操作も戻せます。上のアプリ名を押すと、ようこそ画面をもう一度開けます。','main',null,'#uhBar'],
+  ['間違えて操作した・前の画面に戻りたい','画面上の「↶」（戻る）で、記録・設定・セーブデータの切り替え・画面の移動を1つずつ戻せます。戻しすぎたら「↷」（進む）でやり直せます（パソコンでは Ctrl＋Z／Ctrl＋Y、Macは ⌘＋Z／⌘＋Y）。ようこそ画面での操作も戻せます。上のアプリ名を押すと、ようこそ画面をもう一度開けます。','main',null,'.hbtns .uhgrp'],
   ['ようこそ画面の使い方を見たい','ようこそ画面の右上の「？」か「このページの使い方（トピックス）」を押すと、記録までの流れや、セーブデータ・引き継ぎ・戻るボタンの使い方が見られます。ようこそ画面は、記録画面の上のアプリ名を押すといつでも開けます。','main',null,'.brand'],
   ['ホーム画面やデスクトップから開きたい','「設定 → ショートカット」の「ショートカットを作る」で、スマホのホーム画面、パソコンのデスクトップやお気に入りに追加する方法を、使っている端末に合わせて表示します。','settings',null,'#sgShortcut'],
   ['特記事項のボタンを増やしたい・消したい','「設定 → 使う機能 → 量・回数の記録 → 特記事項」で、ボタンの追加・削除・名前・答えの候補・色・カレンダーの印を編集できます。ボタンで書いた回数は、グラフの「数値」→「特記事項の回数」で見られます。','settings',null,'#featNote'],
@@ -3074,7 +3065,7 @@ $('#welcomeOn').checked=S.settings.welcome!==false;
 $('#welcomeOn').addEventListener('change',e=>{S.settings.welcome=e.target.checked;saveSettings()});
 
 /* 戻る・進むのボタンとキーボード（Ctrl+Z／Ctrl+Y、Macは⌘） */
-$('#uhUndo').onclick=uhUndo;$('#uhRedo').onclick=uhRedo;uhBtns();
+document.querySelectorAll('[data-uh]').forEach(x=>x.onclick=()=>x.dataset.uh==='undo'?uhUndo():uhRedo());uhBtns();
 document.addEventListener('keydown',e=>{if(!(e.ctrlKey||e.metaKey)||e.altKey)return;const k=(e.key||'').toLowerCase();if(k!=='z'&&k!=='y')return;
   const t=e.target,typing=t&&(t.tagName==='TEXTAREA'||t.isContentEditable||(t.tagName==='INPUT'&&/^(text|search|email|url|tel|password|number)$/.test(t.type)));if(typing)return;
   e.preventDefault();if(k==='z'&&!e.shiftKey)uhUndo();else uhRedo()});
@@ -3139,7 +3130,7 @@ const WC_TOPICS=[
   ['セーブデータって？','使う機能（記録画面に出る項目）や見た目の設定のまとまりです。「仕事の日」「ダイエット中」など目的ごとに作っておくと、ここで切り替えられます。記録そのものはすべてのセーブデータで共通なので、切り替えても記録は消えません。初めてならそのままで大丈夫です。','#wcSlotStep'],
   ['「何から記録しますか？」','押した項目の欄が最初に開きます。「未記録の項目から」は、その日にまだ記録していない最初の項目から始めます。並ぶ項目は「設定 → 使う機能」で増やしたり減らしたりできます（自分で項目を追加することもできます）。','#wcPages'],
   ['「いつの記録ですか？」','今日・昨日・日付を選ぶ、から選びます。すぐ下に、その日に記録があるかどうかが出ます。記録済みの日を選ぶと、続きから書き足せます。','#wcWhen'],
-  ['間違えて操作したとき','画面右下に出る「↶ 戻る」で、セーブデータの切り替え・記録・画面の移動などを1つずつ戻せます。戻しすぎたら「↷ 進む」でやり直せます。パソコンでは Ctrl＋Z／Ctrl＋Y（Macは ⌘）でも操作できます。',null],
+  ['間違えて操作したとき','右上の「↶」（戻る）で、セーブデータの切り替え・記録・画面の移動などを1つずつ戻せます。戻しすぎたら「↷」（進む）でやり直せます。パソコンでは Ctrl＋Z／Ctrl＋Y（Macは ⌘）でも操作できます。',null],
   ['この画面にもう一度来るには','記録画面のいちばん上にあるアプリ名を押すと、いつでもこの画面を開けます。「次回から表示しない」にチェックすると、開いたときに出なくなります（設定の「使う機能」→「起動時のようこそ画面」で戻せます）。','.wcnext'],
   ['別の端末から引き継ぐ・バックアップ','「データの引き継ぎ」を開き、元の端末で「引き継ぎ用の文字をコピー」（または「ファイルに保存」）→ 新しい端末で「貼り付けた文字から復元」（または「ファイルから復元」）を押します。ときどきバックアップしておくと安心です。','#wcData'],
   ['ホーム画面・デスクトップから開きたい','下の「ショートカットを作る」を押すと、使っている端末（iPhone・Android・パソコン）に合わせた追加の手順が出ます。','.wclinks [data-wv=shortcut]'],
