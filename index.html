@@ -2898,15 +2898,19 @@ function renderHobbyForm(){const hs=S.settings.hobbies;
     '<p class="hint" style="margin:0">何時から何時までを入れます。1日に2回以上あったときは「＋ 時間を追加」で行を増やせます。「今」は、開始が空なら開始に、入っていれば終了に今の時刻を入れます。長さのボタン（30分など）は、開始が入っている行の終わりを自動で入れます（開始が空なら、今を終わりとして逆算します）。</p>':
     '<p class="hint" style="margin:0">設定タブの「使う機能」→「趣味・自分の時間」で、趣味を登録してください（例：読書・ゲーム・ギター・散歩）。</p>'}
 $('#hobbyRows').addEventListener('click',e=>{const row=e.target.closest('[data-hid]');if(!row)return;const id=row.dataset.hid,sr=e.target.closest('[data-si]'),x=sr?hobbySes[+sr.dataset.si]:null;
-  if(e.target.closest('[data-sadd]')){hobbySes.push({id,start:'',end:''});renderHobbyForm();const ins=document.querySelectorAll('#hobbyRows [data-hid="'+id+'"] [data-sf=start]');if(ins.length)ins[ins.length-1].focus();return}
+  if(e.target.closest('[data-sadd]')){hobbySes.push({id,start:'',end:''});renderHobbyForm();return}
   if(x&&e.target.closest('[data-sdel]')){hobbySes.splice(+sr.dataset.si,1);renderHobbyForm();markDirty('hobby');return}
   if(x&&e.target.closest('[data-snow]')){const t=nowHM();if(!x.start)x.start=t;else if(!x.end)x.end=t;else{x.start=t;x.end=''}delete x.legacy;renderHobbyForm();markDirty('hobby');return}
   const st=e.target.closest('[data-hset]');if(st){const m=+st.dataset.hset;let t=[...hobbySes].reverse().find(y=>y.id===id&&y.start&&!y.end)||[...hobbySes].reverse().find(y=>y.id===id&&!y.start&&!y.end);
     if(!t){t={id,start:'',end:''};hobbySes.push(t)}delete t.legacy;
     if(t.start)t.end=hm((toMin(t.start)+m)%1440);else{const n=toMin(nowHM());t.end=nowHM();t.start=hm((n-m+1440)%1440)}
     renderHobbyForm();markDirty('hobby')}});
-$('#hobbyRows').addEventListener('change',e=>{const sr=e.target.closest('[data-si]'),f=e.target.dataset.sf;if(!sr||!f)return;const x=hobbySes[+sr.dataset.si];x[f]=e.target.value;delete x.legacy;renderHobbyForm();markDirty('hobby')});
-$('#hobbyRows').addEventListener('input',e=>{const sr=e.target.closest('[data-si]'),f=e.target.dataset.sf;if(!sr||!f)return;hobbySes[+sr.dataset.si][f]=e.target.value;markDirty('hobby')});
+/* 時刻の入力中は画面を作り直さない（作り直すと入力が途中で止まるため）。合計だけその場で更新する */
+function hobbyTotUpdate(id){const box=document.querySelector('#hobbyRows [data-hid="'+id+'"] .hsinfo b');if(!box)return;
+  box.textContent=durHM(hobbySes.filter(x=>x.id===id).reduce((a,x)=>a+(actLen(x)||(!x.start&&!x.end?x.legacy||0:0)),0))}
+const hobbyTimeIn=e=>{const sr=e.target.closest('[data-si]'),f=e.target.dataset.sf;if(!sr||!f)return;const x=hobbySes[+sr.dataset.si];if(!x)return;x[f]=e.target.value;
+  if(x.legacy){delete x.legacy;const h=sr.nextElementSibling;if(h&&h.classList.contains('hint'))h.remove()}hobbyTotUpdate(x.id);markDirty('hobby')};
+$('#hobbyRows').addEventListener('input',hobbyTimeIn);$('#hobbyRows').addEventListener('change',hobbyTimeIn);
 $('#hobbyClear').onclick=()=>{hobbySes=[];renderHobbyForm();markDirty('hobby')};
 function renderHobbyCard(){const f=FEAT(),card=$('#hobbyCard');card.hidden=!f.hobby||formPage!=='hobby';
   if(card.hidden)return;
