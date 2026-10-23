@@ -329,6 +329,9 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .sw:disabled{cursor:not-allowed;opacity:.35}
 .sw:disabled::before{content:"";position:absolute;left:15%;right:15%;top:50%;height:2px;background:var(--danger);transform:rotate(-45deg)}
 .preview{border-radius:12px;padding:14px;border:1px solid var(--line);background-size:cover;background-position:center}
+.readmeter{font-size:.84rem;padding:8px 10px;border-radius:10px;border:1px solid var(--line)}.readmeter.ok{border-color:color-mix(in srgb,var(--c-prep) 55%,var(--line))}.readmeter.ng{border-color:var(--danger)}
+.readmeter b{font-family:var(--mono)}
+.accrow{display:grid;gap:6px;margin-top:6px}
 .pvcard{display:grid;gap:2px;padding:12px;border-radius:10px;border:1px solid var(--line)}
 .pvcard b{font-size:.95rem}.pvcard span{font-size:.85rem}.pvcard small{font-size:.75rem;opacity:.8}
 .morecolors{border:1px solid var(--line);border-radius:10px}
@@ -993,7 +996,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
     </section>
   </div>
   <div id="pageSettings" class="pagewrap setpage" hidden>
-    <div class="fhead sethead"><h3>設定</h3><select id="sgJump" class="jumpsel" aria-label="設定の項目へ移動"><option value="">項目へ移動…</option><option value="sgName">アプリの名前</option><option value="sg0">使う機能</option><option value="sg1">画面の見え方</option><option value="sg2">カレンダーの印</option><option value="sg3">グラフの色</option><option value="sg4">背景</option><option value="sgText">文字の色</option><option value="sg5">入力候補ボタン</option><option value="sgShortcut">ショートカット</option><option value="sgData">データの引き継ぎ</option><option value="sg6">通勤・勤務パターン</option></select><div class="hbtns"><button class="btn ghost" id="undoSettings" disabled>↶ 一つ前に戻す</button></div>
+    <div class="fhead sethead"><h3>設定</h3><select id="sgJump" class="jumpsel" aria-label="設定の項目へ移動"><option value="">項目へ移動…</option><option value="sgName">アプリの名前</option><option value="sg0">使う機能</option><option value="sg1">画面の見え方</option><option value="sg2">カレンダーの印</option><option value="sg3">グラフの色</option><option value="sg4">背景</option><option value="sgCard">ウィンドウの色</option><option value="sgText">文字の色</option><option value="sg5">入力候補ボタン</option><option value="sgShortcut">ショートカット</option><option value="sgData">データの引き継ぎ</option><option value="sg6">通勤・勤務パターン</option></select><div class="hbtns"><button class="btn ghost" id="undoSettings" disabled>↶ 一つ前に戻す</button></div>
     </div>
     <section class="slotcard" id="slotTop" aria-label="セーブスロット"></section>
     <details class="sgroup" id="sgName"><summary><span class="sgt">アプリの名前<small>画面上部のタイトルと、その横の小さな説明</small></span></summary><div class="sgbody">
@@ -1115,6 +1118,17 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
         <div><button class="btn ghost" id="resetLook">初期値に戻す（濃さ84%・ぼかし0）</button></div>
       </div>
     </div></details>
+    <details class="sgroup" id="sgCard"><summary><span class="sgt">ウィンドウの色<small>記録や設定が並ぶ枠の色・自動で読みやすく</small></span></summary><div class="sgbody">
+      <div class="opts" id="cardOpts"><button data-cm="auto">背景に合わせて自動</button><button data-cm="theme">表示モードどおり</button><button data-cm="custom">好きな色</button></div>
+      <div id="cardCustom" style="display:grid;gap:8px">
+        <b style="font-size:.88rem">好きな色を選ぶ <span class="hint" style="font-weight:400">（押すとその色に切り替わります）</span></b>
+        <div class="swatches" id="cardSwatches" aria-label="ウィンドウの色を選ぶ"></div>
+        <div class="colorrow"><span>端末の色選択を使う</span><input type="color" id="cardColor" aria-label="ウィンドウの色"></div>
+      </div>
+      <label class="setrow"><input type="checkbox" id="cardKeep"> 文字が読みにくいときは、ウィンドウの濃さを自動で上げる（おすすめ）</label>
+      <span class="hint" id="cardHint"></span>
+      <div class="readmeter" data-rm></div>
+    </div></details>
     <details class="sgroup" id="sgText"><summary><span class="sgt">文字の色<small>自動・表示モードどおり・好きな色</small></span></summary><div class="sgbody">
       <div class="preview" id="colorPreview"><div class="pvcard"><b>10月21日(水)の記録</b><span>睡眠 7h30・気力 70%</span><small>見本の文字です</small></div></div>
       <div class="opts" id="txtOpts"><button data-tx="auto">背景に合わせて自動</button><button data-tx="theme">表示モードどおり</button><button data-tx="custom">好きな色</button></div>
@@ -1128,6 +1142,12 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
         </details>
       </div>
       <span class="hint" id="txtHint"></span>
+      <div class="accrow"><b style="font-size:.88rem">見やすさの基準</b>
+        <div class="opts" id="accOpts"><button data-acc="std">標準（コントラスト4.5以上）</button><button data-acc="high">より見やすく（7以上）</button></div>
+        <span class="hint">文字と、その後ろ（ウィンドウ＋透けて見える背景）の明るさの差の目安です（国際的な基準 WCAG の AA／AAA）。「より見やすく」は、弱視の方・お年寄り・屋外で見るときにおすすめです。色の違いではなく明るさの差で読みやすさを確保するので、色覚に特性がある方にも読みやすくなります。</span></div>
+      <div class="readmeter" data-rm></div>
+      <div><button type="button" class="btn" id="autoReadable">おまかせで読みやすくする</button></div>
+      <span class="hint">文字色とウィンドウの色を「自動」にして、背景の色・画像に合わせて読みやすい組み合わせにします。</span>
     </div></details>
     <details class="sgroup" id="sg5"><summary><span class="sgt">入力候補ボタン<small>時刻・気力体力・朝支度・趣味の時間のワンタップ候補</small></span></summary><div class="sgbody">
       <div id="favList"></div>
@@ -1298,7 +1318,7 @@ function noteItems(note){const out={};if(!note)return out;
   return out;}
 const merge=s=>{s=s||{};if(!s.appName||s.appName==='生活記録')s={...s,appName:'My note'};if(s.appSubMode==null){s={...s,appSubMode:(s.appSub&&s.appSub!=='睡眠・支度・移動')?'custom':'auto'}};const nm={};Object.keys(DEF_NM).forEach(k=>nm[k]={...DEF_NM[k],...((s.noteMarks||{})[k]||{})});Object.entries(s.noteMarks||{}).forEach(([k,v])=>{if(!nm[k])nm[k]={on:false,color:'#5b6fd6',...v}});
   if(s.nmv!==2){nm['入浴'].on=false;nm['気になったこと'].on=true} /* 既定のマークを「気になったこと」に置き換え */
-  return{...clone(DEF),...s,nmv:2,noteMarks:nm,features:{show_sleep:true,show_commute:true,show_work:true,show_home:true,show_prep:true,show_other:true,show_mood:true,show_note:true,period:false,meds:false,events:false,share:false,body:false,hobby:false,...(s.features||{})},body:{items:['wt','fat'],height:'',goal:'',...(s.body||{})},period:{cycle:28,len:5,ovu:false,...(s.period||{})},meds:Array.isArray(s.meds)?clone(s.meds):[],events:Array.isArray(s.events)?clone(s.events):[],colors:{...DEF.colors,...(s.colors||{})},marks:{...DEF.marks,...(s.marks||{})},bg:{...DEF.bg,...(s.bg||{})},text:{...DEF.text,...(s.text||{})},look:{...DEF.look,...(s.look||{})},hobbies:Array.isArray(s.hobbies)?clone(s.hobbies):[],customItems:Array.isArray(s.customItems)?clone(s.customItems):[],markSlots:Array.isArray(s.markSlots)?clone(s.markSlots):[{src:'note',color:'#d9822b'}],slots:Array.isArray(s.slots)?clone(s.slots):[]}};
+  return{...clone(DEF),...s,nmv:2,noteMarks:nm,features:{show_sleep:true,show_commute:true,show_work:true,show_home:true,show_prep:true,show_other:true,show_mood:true,show_note:true,period:false,meds:false,events:false,share:false,body:false,hobby:false,...(s.features||{})},body:{items:['wt','fat'],height:'',goal:'',...(s.body||{})},period:{cycle:28,len:5,ovu:false,...(s.period||{})},meds:Array.isArray(s.meds)?clone(s.meds):[],events:Array.isArray(s.events)?clone(s.events):[],colors:{...DEF.colors,...(s.colors||{})},marks:{...DEF.marks,...(s.marks||{})},bg:{...DEF.bg,...(s.bg||{})},text:{...DEF.text,...(s.text||{})},look:{...DEF.look,...(s.look||{})},card:{mode:'auto',color:'#ffffff',keep:true,...(s.card||{})},access:s.access==='high'?'high':'std',hobbies:Array.isArray(s.hobbies)?clone(s.hobbies):[],customItems:Array.isArray(s.customItems)?clone(s.customItems):[],markSlots:Array.isArray(s.markSlots)?clone(s.markSlots):[{src:'note',color:'#d9822b'}],slots:Array.isArray(s.slots)?clone(s.slots):[]}};
 let S={days:{},settings:merge(),bgImage:null,slots:null};
 let view='month', sel=ymd(new Date()), dirty=false, store=null;
 
@@ -1409,32 +1429,59 @@ function applyLook(){
   applyTextColor();
 }
 /* 文字色：自動（背景×カードの濃さから明るさを計算）／表示モードどおり／好きな色 */
+/* 文字色とウィンドウ（カード）の色：背景の色・画像の明るさのむら・カードの濃さ・ぼかしを合わせて、いちばん読みにくい所でも基準を満たす組み合わせを選ぶ */
 const hexLum=h=>{h=(h||'').trim();if(!/^#?[0-9a-f]{6}$/i.test(h))return null;h=h.replace('#','');const c=[0,2,4].map(i=>{const v=parseInt(h.substr(i,2),16)/255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*c[0]+.7152*c[1]+.0722*c[2]};
-let imgLum=null;
-function measureImage(src,cb){const im=new Image();im.onload=()=>{try{const c=document.createElement('canvas');c.width=c.height=24;const x=c.getContext('2d');x.drawImage(im,0,0,24,24);const d=x.getImageData(0,0,24,24).data;let t=0;
-  for(let i=0;i<d.length;i+=4)t+=hexLum('#'+[d[i],d[i+1],d[i+2]].map(v=>v.toString(16).padStart(2,'0')).join(''));cb(t/(d.length/4))}catch(e){cb(null)}};im.onerror=()=>cb(null);im.src=src}
-/* 文字と背景のコントラスト比（WCAGの考え方）。3未満の組み合わせは選べない */
-const MIN_CONTRAST=3,INK_LIGHT='#f3f5fb',INK_DARK='#151b2a';
+let imgLum=null,imgLumSrc=null; /* 背景画像の明るさ：{avg,lo,hi,hex}（暗い所5%・明るい所95%の値も持つ） */
+function measureImage(src,cb){const im=new Image();im.onload=()=>{try{const N=48,c=document.createElement('canvas');c.width=c.height=N;const x=c.getContext('2d');x.drawImage(im,0,0,N,N);const d=x.getImageData(0,0,N,N).data,L=[];let r=0,g=0,b=0;
+  for(let i=0;i<d.length;i+=4){L.push([hexLum('#'+[d[i],d[i+1],d[i+2]].map(v=>v.toString(16).padStart(2,'0')).join('')),[d[i],d[i+1],d[i+2]]]);r+=d[i];g+=d[i+1];b+=d[i+2]}
+  L.sort((p,q)=>p[0]-q[0]);const n=L.length;cb({lo:L[Math.floor(n*.05)][1],hi:L[Math.floor(n*.95)][1],avg:[r/n,g/n,b/n],hex:'#'+[r,g,b].map(v=>Math.round(v/n).toString(16).padStart(2,'0')).join('')})}catch(e){cb(null)}};im.onerror=()=>cb(null);im.src=src}
+const MIN_CONTRAST=4.5,INK_LIGHT='#f3f5fb',INK_DARK='#151b2a';
+const ACC=st=>(st||S.settings).access==='high'?7:4.5; /* 見やすさの基準（WCAG：4.5＝AA、7＝AAA） */
 const contrastOf=(a,b)=>(Math.max(a,b)+.05)/(Math.min(a,b)+.05);
 function isDarkMode(st){if(st.mode==='dark')return true;if(st.mode==='light')return false;const t=document.documentElement.dataset.theme;
   return t?t==='dark':!!(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)}
-const surfLum=st=>hexLum(isDarkMode(st)?'#181c27':'#ffffff');
-function effLumFor(st){const sl=surfLum(st);if(st.bg.type==='none'||(st.bg.type==='image'&&!S.bgImage))return sl;
-  const bl=st.bg.type==='color'?hexLum(st.bg.color):imgLum;if(bl==null)return null;const a=(st.bg.alpha??84)/100;return a*sl+(1-a)*bl}
-function textLumFor(st){const tx=st.text||{};if(tx.mode==='custom'&&tx.color)return hexLum(tx.color);if(tx.mode==='theme')return hexLum(isDarkMode(st)?'#e6e9f2':'#1b2233');return null}
-function contrastFor(st){const t=textLumFor(st),e=effLumFor(st);return t==null||e==null?null:contrastOf(t,e)}
-const readable=st=>{const c=contrastFor(st);return c==null||c>=MIN_CONTRAST};
-let textForced=false;
-function autoInk(eff){const root=document.documentElement,light=contrastOf(hexLum(INK_LIGHT),eff)>=contrastOf(hexLum(INK_DARK),eff);
-  root.style.setProperty('--ink',light?INK_LIGHT:INK_DARK);root.style.setProperty('--muted',light?'#c9cfdd':'#3f4a60')}
-function applyTextColor(){const st=S.settings,root=document.documentElement,tx=st.text||{mode:'auto'};
-  ['--ink','--muted'].forEach(v=>root.style.removeProperty(v));textForced=false;
-  if(st.bg.type==='image'&&S.bgImage&&imgLum==null){measureImage(S.bgImage,v=>{if(v!=null){imgLum=v;applyTextColor();if(typeof renderTextSettings==='function')renderTextSettings()}})}
-  const eff=effLumFor(st);
-  if(tx.mode==='custom'&&tx.color){if(readable(st)){root.style.setProperty('--ink',tx.color);root.style.setProperty('--muted','color-mix(in srgb,'+tx.color+' 72%,transparent)')}else{textForced=true;if(eff!=null)autoInk(eff)}return}
-  if(tx.mode==='theme'){if(!readable(st)){textForced=true;if(eff!=null)autoInk(eff)}return}
-  if(st.bg.type==='none'||eff==null)return;
-  autoInk(eff)}
+const mixHex=(a,b,t)=>{const p=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16));const x=p(a),y=p(b);return'#'+x.map((v,i)=>Math.round(v*(1-t)+y[i]*t).toString(16).padStart(2,'0')).join('')};
+const h2rgb=h=>[1,3,5].map(i=>parseInt(h.substr(i,2),16)),rgb2h=c=>'#'+c.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+/* 背景のいちばん暗い所・明るい所の色（ぼかしが強いほどむらが小さくなる） */
+function bgRange(st){if(st.bg.type==='color'){if(!/^#[0-9a-f]{6}$/i.test(st.bg.color||''))return null;const c=h2rgb(st.bg.color);return{lo:c,hi:c,hex:st.bg.color}}
+  if(st.bg.type==='image'&&S.bgImage&&imgLum&&imgLumSrc===S.bgImage){const k=Math.min(1,(+st.bg.blur||0)/12)*.7,v=imgLum,tw=(x)=>x.map((c,i)=>c+(v.avg[i]-c)*k);return{lo:tw(v.lo),hi:tw(v.hi),hex:v.hex}}
+  return null}
+const themeCard=st=>isDarkMode(st)?'#181c27':'#ffffff';
+/* 半透明のウィンドウは、画面上では sRGB（見た目の色）で混ざる */
+const effRange=(card,a,r)=>{const c=h2rgb(card),L=x=>hexLum(rgb2h(c.map((v,i)=>a*v+(1-a)*x[i])));if(!r){const l=hexLum(card);return{lo:l,hi:l}}const p=L(r.lo),q=L(r.hi);return{lo:Math.min(p,q),hi:Math.max(p,q)}};
+const minC=(tl,e)=>Math.min(contrastOf(tl,e.lo),contrastOf(tl,e.hi));
+const INKS_SOFT=[INK_DARK,INK_LIGHT],INKS_HARD=['#000000','#ffffff'];
+function bestInk(e,T){const pick=L=>L.map(c=>[c,minC(hexLum(c),e)]).sort((p,q)=>q[1]-p[1])[0];const s=pick(INKS_SOFT);if(s[1]>=T)return s;const h=pick(INKS_HARD);return h[1]>s[1]?h:s}
+/* ウィンドウの色：自動なら背景の色味を少し混ぜた「明るい窓」と「暗い窓」のうち、文字がよく読める方 */
+function cardFor(st){const cm=(st.card||{}).mode||'auto';if(cm==='custom'&&/^#[0-9a-f]{6}$/i.test((st.card||{}).color||''))return st.card.color;
+  const r=bgRange(st);if(cm==='theme'||!r||st.bg.type==='none')return themeCard(st);
+  const a=(st.bg.alpha??84)/100,T=ACC(st),light=mixHex(r.hex||'#ffffff','#ffffff',.9),dark=mixHex(r.hex||'#000000','#10131c',.86);
+  const q=c=>bestInk(effRange(c,a,r),T)[1],ql=q(light),qd=q(dark),pref=isDarkMode(st)?dark:light;
+  if(Math.min(ql,qd)>=T)return pref;return ql>=qd?light:dark}
+/* 読みやすさの計算結果：ウィンドウの色・実際の濃さ・文字色・いちばん読みにくい所のコントラスト */
+function lookSolve(st){const T=ACC(st),card=cardFor(st),cl=card,r=st.bg.type==='none'?null:bgRange(st),tx=st.text||{mode:'auto'};
+  const keep=(st.card||{}).keep!==false;let a=r?(st.bg.alpha??84)/100:1,boosted=false;
+  const fixed=tx.mode==='custom'&&tx.color?tx.color:tx.mode==='theme'?(isDarkMode(st)?'#e6e9f2':'#1b2233'):null;
+  const q=a2=>{const e=effRange(cl,a2,r);return fixed?minC(hexLum(fixed),e):bestInk(e,T)[1]};
+  if(r&&keep&&q(a)<T&&(q(1)>=T||!fixed)){for(let a2=Math.ceil(a*20)/20;a2<=1.0001;a2+=.05){if(q(a2)>=T){a=Math.min(1,a2);boosted=true;break}}if(!boosted&&!fixed&&q(1)>q(a)){a=1;boosted=true}} /* 選んだ文字色ではどうしても届かないときは濃さを上げず、文字色のほうを読みやすい色にする */
+  const e=effRange(cl,a,r);let ink=fixed,c=fixed?minC(hexLum(fixed),e):0,forced=false;
+  if(!fixed||c<T){const b=bestInk(e,T);if(fixed&&c<T&&b[1]>c){forced=true;ink=b[0];c=b[1]}else if(!fixed){ink=b[0];c=b[1]}}
+  return{T,card,a,boosted,ink,c,forced,range:e}}
+function contrastFor(st){return lookSolve(st).c}
+const readable=st=>lookSolve(st).c>=ACC(st)-.05;
+let textForced=false,lookNow=null;
+function applyTextColor(){const st=S.settings,root=document.documentElement;
+  if(st.bg.type==='image'&&S.bgImage&&imgLumSrc!==S.bgImage){const src=S.bgImage;imgLumSrc=src;imgLum=null;measureImage(src,v=>{if(S.bgImage!==src)return;imgLum=v;applyTextColor();if(typeof renderTextSettings==='function'){renderTextSettings();renderCardSettings()}})}
+  const s=lookSolve(st);lookNow=s;textForced=s.forced;
+  const cm=(st.card||{}).mode||'auto',plain=st.bg.type==='none'&&cm!=='custom'&&(st.text||{}).mode!=='custom'&&!s.forced&&st.access!=='high';
+  ['--ink','--muted','--surface-solid','--surface-2','--line'].forEach(v=>root.style.removeProperty(v));
+  root.style.setProperty('--card-a',Math.round(s.a*100)+'%');
+  if(plain){try{renderReadMeter()}catch(e){}return} /* 背景なし・標準のままなら、表示モードの色をそのまま使う */
+  if(s.card!==themeCard(st)){root.style.setProperty('--surface-solid',s.card);root.style.setProperty('--surface-2','color-mix(in srgb,'+s.card+' 92%,'+s.ink+')');root.style.setProperty('--line','color-mix(in srgb,'+s.card+' 78%,'+s.ink+')')}
+  root.style.setProperty('--ink',s.ink);
+  /* 補足の文字（薄い色）も基準を満たすときだけ薄くする。満たさないときは本文と同じ色 */
+  const mutedHex=mixHex(s.ink.length===7?s.ink:'#151b2a',s.card,.28),mOK=minC(hexLum(mutedHex),s.range)>=Math.min(s.T,4.5);
+  root.style.setProperty('--muted',mOK&&st.access!=='high'?mutedHex:s.ink);try{renderReadMeter()}catch(e){}}
 
 /* ---------- quick record ---------- */
 function quickTargets(){const n=new Date();return{bed:ymd(n.getHours()>=12?addDays(n,1):n),wake:ymd(n)}}
@@ -2489,7 +2536,7 @@ function renderSwatches(){const st=S.settings;
   $('#txtSwatches').innerHTML=swHTML(TX_SW,st.text.mode==='custom'?st.text.color:'',c=>readable({...st,text:{mode:'custom',color:c}}),'data-txc');
   const pv=$('#colorPreview'),card=pv.querySelector('.pvcard'),cs=getComputedStyle(document.documentElement);
   pv.style.background=st.bg.type==='color'?st.bg.color:st.bg.type==='image'&&S.bgImage?'url("'+S.bgImage+'") center/cover':cs.getPropertyValue('--bg');
-  card.style.background=st.bg.type==='none'?cs.getPropertyValue('--surface-solid'):'color-mix(in srgb,'+cs.getPropertyValue('--surface-solid').trim()+' '+(st.bg.alpha??84)+'%,transparent)';
+  card.style.background=st.bg.type==='none'?cs.getPropertyValue('--surface-solid'):'color-mix(in srgb,'+cs.getPropertyValue('--surface-solid').trim()+' '+Math.round((lookNow?lookNow.a:(st.bg.alpha??84)/100)*100)+'%,transparent)';
   card.style.color=cs.getPropertyValue('--ink');}
 document.querySelectorAll('.morecolors').forEach(d=>d.addEventListener('toggle',()=>{if(d.open)renderSwatches()}));
 const normHex=v=>{v=(v||'').trim().replace(/^＃/,'#');if(!v.startsWith('#'))v='#'+v;if(/^#[0-9a-f]{3}$/i.test(v))v='#'+[...v.slice(1)].map(c=>c+c).join('');return /^#[0-9a-f]{6}$/i.test(v)?v.toLowerCase():null};
@@ -2502,19 +2549,38 @@ $('#bgHexBtn').onclick=()=>{const c=normHex($('#bgHex').value);if(!c){toast('色
 $('#txtHexBtn').onclick=()=>{const c=normHex($('#txtHex').value);if(!c){toast('色のコードは #3366aa のように6桁で入れてください');return}if(tryText({...S.settings.text,mode:'custom',color:c},'その文字色'))saveSettings()};
 function renderTextSettings(){const tx=S.settings.text;document.querySelectorAll('#txtOpts [data-tx]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.tx===tx.mode));
   $('#txtCustom').hidden=false;$('#txtColor').value=tx.color||'#1b2233';renderSwatches();
-  const c=contrastFor(S.settings);$('#txtHint').style.color=textForced?'var(--danger)':'';
-  if(textForced){$('#txtHint').textContent='いまの背景では選んだ文字色が読みにくいため、読みやすい色で表示しています（見やすさ '+(c?c.toFixed(1):'—')+'／必要 '+MIN_CONTRAST+'以上）。';return}
-  $('#txtHint').textContent=(c!=null&&tx.mode!=='auto'?'見やすさ '+c.toFixed(1)+'（'+MIN_CONTRAST+'以上で読みやすい）。':'')+(tx.mode==='auto'?(S.settings.bg.type==='none'?'背景が「標準」のときは表示モードどおりの色になります。背景を色や画像にすると自動で切り替わります。':'背景とカードの濃さから明るさを計算して、読みやすい文字色（白系か黒系）に切り替えます。'):tx.mode==='custom'?'選んだ色で文字を表示します。補足の文字は少し薄くなります。':'ライト・ダークの表示モードの文字色のままにします。')}
+  renderReadMeter();document.querySelectorAll('#accOpts [data-acc]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.acc===(S.settings.access||'std')));
+  const L=lookNow||lookSolve(S.settings);$('#txtHint').style.color=textForced?'var(--danger)':'';
+  $('#txtHint').textContent=textForced?'いまの背景・ウィンドウでは選んだ文字色が基準（'+L.T+'）に届かないため、読みやすい色で表示しています。':tx.mode==='auto'?'背景・ウィンドウの色・濃さ・画像の明るさのむらまで見て、いちばん読みにくい所でも基準を満たす文字色（白系か黒系）を自動で選びます。':tx.mode==='custom'?'選んだ色で表示します。基準に届かない色は選べません（押せない色）。':'表示モードどおりの文字色です。';}
 const tooClose=what=>toast(what+'は背景と近くて文字が読めなくなるため、選べません');
 function tryText(next,what,revert){const cand={...S.settings,text:next};if(!readable(cand)){tooClose(what);if(revert)revert();renderTextSettings();return false}
   S.settings.text=next;applyLook();renderTextSettings();return true}
 $('#txtOpts').onclick=e=>{const b=e.target.closest('[data-tx]');if(!b)return;
   if(b.dataset.tx==='custom'&&!readable({...S.settings,text:{mode:'custom',color:S.settings.text.color}})){
-    const eff=effLumFor(S.settings),best=TX_SW.slice().sort((x,y)=>contrastOf(hexLum(y),eff??1)-contrastOf(hexLum(x),eff??1))[0];
+    const best=TX_SW.slice().sort((x,y)=>contrastFor({...S.settings,text:{mode:'custom',color:y}})-contrastFor({...S.settings,text:{mode:'custom',color:x}}))[0];
     S.settings.text={mode:'custom',color:best};applyLook();renderTextSettings();saveSettings();toast('いまの背景で読みやすい色から始めます。下のパレットで好きな色を選んでください');return}
   if(tryText({...S.settings.text,mode:b.dataset.tx},b.dataset.tx==='custom'?'その文字色':'表示モードの文字色'))saveSettings()};
 $('#txtColor').addEventListener('input',e=>{const prev=S.settings.text.color;
   if(tryText({...S.settings.text,color:e.target.value,mode:'custom'},'その文字色',()=>{e.target.value=prev||'#1b2233'})){clearTimeout(colorTimer);colorTimer=setTimeout(saveSettings,600)}});
+/* ---------- ウィンドウの色・見やすさの基準 ---------- */
+const CARD_SW=['#ffffff','#f7f3ea','#eef3fb','#eef7ef','#fbeff2','#f2eefb','#e4e8f0','#181c27','#1f2636','#1e2e2a','#2d2232','#000000'];
+function renderReadMeter(){const L=lookNow||lookSolve(S.settings),ok=L.c>=L.T-.05;
+  document.querySelectorAll('[data-rm]').forEach(el=>{el.className='readmeter '+(ok?'ok':'ng');el.innerHTML='いまの見やすさ：いちばん読みにくい所で <b>'+L.c.toFixed(1)+'</b>（基準 '+L.T+'）'+(ok?' ✓ 読みやすい':' ✗ 基準に届いていません')+(L.boosted?'<br>読みやすくするため、ウィンドウの濃さを自動で<b>'+Math.round(L.a*100)+'%</b>にしています（設定は'+(S.settings.bg.alpha??84)+'%）。':'')})}
+function renderCardSettings(){const cd=S.settings.card||{mode:'auto'};document.querySelectorAll('#cardOpts [data-cm]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.cm===cd.mode));
+  $('#cardCustom').hidden=cd.mode!=='custom';$('#cardKeep').checked=cd.keep!==false;$('#cardColor').value=/^#[0-9a-f]{6}$/i.test(cd.color||'')?cd.color:'#ffffff';
+  $('#cardSwatches').innerHTML=swHTML(CARD_SW,cd.mode==='custom'?cd.color:'',c=>readable({...S.settings,card:{...cd,mode:'custom',color:c}}),'data-cdc');
+  const L=lookNow||lookSolve(S.settings);
+  $('#cardHint').textContent=cd.mode==='auto'?(S.settings.bg.type==='none'?'背景が「標準」のときは表示モードどおりの色です。背景を色や画像にすると、背景の色味を少し混ぜた明るい窓か暗い窓のうち、文字が読みやすい方を自動で選びます。':'背景の色味を少し混ぜた窓の色（いまは '+L.card+'）を自動で選んでいます。'):cd.mode==='theme'?'表示モード（ライト／ダーク）の標準の色です。':'選んだ色をウィンドウに使います。文字が読めなくなる色は選べません。';renderReadMeter()}
+function setCard(next,save){const cand={...S.settings,card:next};if(next.mode==='custom'&&!readable(cand)){toast('その色では文字が読みにくくなるため、選べません');renderCardSettings();return}
+  S.settings.card=next;applyLook();renderCardSettings();renderTextSettings();if(save!==false)saveSettings()}
+$('#cardOpts').onclick=e=>{const b=e.target.closest('[data-cm]');if(!b)return;const cd=S.settings.card||{};setCard({...cd,mode:b.dataset.cm,color:cd.color||(isDarkMode(S.settings)?'#181c27':'#ffffff')})};
+$('#cardSwatches').addEventListener('click',e=>{const b=e.target.closest('[data-cdc]');if(!b||b.disabled)return;setCard({...S.settings.card,mode:'custom',color:b.dataset.cdc})});
+$('#cardColor').addEventListener('input',e=>{const cand={...S.settings.card,mode:'custom',color:e.target.value};if(!readable({...S.settings,card:cand})){renderReadMeter();return}S.settings.card=cand;applyLook();renderReadMeter();clearTimeout(colorTimer);colorTimer=setTimeout(()=>{saveSettings();renderCardSettings()},600)});
+$('#cardKeep').onchange=e=>setCard({...S.settings.card,keep:e.target.checked});
+$('#accOpts').onclick=e=>{const b=e.target.closest('[data-acc]');if(!b)return;S.settings.access=b.dataset.acc;applyLook();renderTextSettings();renderCardSettings();renderSwatches();saveSettings();
+  toast(b.dataset.acc==='high'?'「より見やすく（7以上）」にしました':'「標準（4.5以上）」にしました')};
+$('#autoReadable').onclick=()=>{S.settings.text={...S.settings.text,mode:'auto'};S.settings.card={...(S.settings.card||{}),mode:'auto',keep:true};applyLook();renderTextSettings();renderCardSettings();renderSwatches();saveSettings();
+  const L=lookNow;toast('読みやすい組み合わせにしました（いちばん読みにくい所で '+L.c.toFixed(1)+'／基準 '+L.T+'）')};
 /* ---------- データの引き継ぎ（バックアップ・復元） ---------- */
 function renderSyncNote(){$('#syncNote').innerHTML=store?
   '<b>いまは自動で同期されています。</b><br>このページ（Claudeのリンク）は、同じClaudeアカウントでログインしていれば、PCでもスマホでも同じ記録・設定が表示されます。ID・パスワードを別に作る必要はありません。':
@@ -2537,7 +2603,7 @@ function restoreFrom(text){let o;try{o=JSON.parse(text)}catch(e){showBk('読み�
   lastSettings=JSON.stringify(S.settings);applyLook();render(true);renderSettings();renderFeatSettings();renderFavSettings();qrStatus('');toast('復元しました（記録'+n+'日分）')}
 function showBk(m,go){const w=$('#bkWarn');w.textContent=m;if(go){const b=document.createElement('button');b.type='button';b.className='btn bkgo';b.textContent='この内容で復元する';b.onclick=go;w.appendChild(document.createElement('br'));w.appendChild(b)}w.hidden=false;w.scrollIntoView({block:'nearest',behavior:'smooth'})}
 $('#bkFileIn').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{bkPending=null;restoreFrom(String(rd.result))};rd.readAsText(f)});
-function renderFeatSettings(){renderCustomSettings();if($('#welcomeOn'))$('#welcomeOn').checked=S.settings.welcome!==false;renderSyncNote();renderTextSettings();renderSlots();$('#nmTitle').value=S.settings.appName||'My note';$('#nmSub').value=S.settings.appSub??'';renderSubMode();renderTagSettings();renderLook();renderHobbySettings();$('#featHobby').hidden=!S.settings.features.hobby;const st=S.settings,f=st.features;
+function renderFeatSettings(){renderCustomSettings();renderCardSettings();if($('#welcomeOn'))$('#welcomeOn').checked=S.settings.welcome!==false;renderSyncNote();renderTextSettings();renderSlots();$('#nmTitle').value=S.settings.appName||'My note';$('#nmSub').value=S.settings.appSub??'';renderSubMode();renderTagSettings();renderLook();renderHobbySettings();$('#featHobby').hidden=!S.settings.features.hobby;const st=S.settings,f=st.features;
   document.querySelectorAll('[data-feat]').forEach(c=>c.checked=!!f[c.dataset.feat]);
   $('#featPeriod').hidden=!f.period;$('#featNote').hidden=f.show_note===false;$('#featBody').hidden=!f.body;
   $('#bodyPick').innerHTML=BODY.map(b=>'<div class="bprow"><label><input type="checkbox" data-bp="'+b.k+'"'+((st.body.items||[]).includes(b.k)||(b.k==='bt'&&f.period)?' checked':'')+(b.k==='bt'&&f.period?' disabled':'')+'>'+b.name+'</label><select data-bpp="'+b.k+'" aria-label="'+b.name+'を記録するページ">'+PAGES.filter(([k])=>k!=='life').map(([k,n])=>'<option value="'+k+'"'+(purposeOf(b.k)===k?' selected':'')+'>'+n+'</option>').join('')+'</select></div>').join('');
@@ -2681,9 +2747,9 @@ $('#cropOk').onclick=()=>{
     for(const q of [0.82,0.7,0.6]){url=cv.toDataURL('image/jpeg',q);if(url.length<230000)break}
     if(url.length<230000)break;W=Math.round(W*0.8);
   }
-  S.bgImage=url;imgLum=null;S.settings.bg.type='image';S.settings.bg.blur=0;closeSheet('#crop');
+  S.bgImage=url;imgLum=null;imgLumSrc=url;S.settings.bg.type='image';S.settings.bg.blur=0;closeSheet('#crop');
   setTimeout(()=>toast('背景を変更しました。文字が読みにくいときは「ぼかし」を入れてみてください'),400);
-  measureImage(url,v=>{imgLum=v;if(!readable(S.settings)){S.settings.text={...S.settings.text,mode:'auto'};saveSettings();toast('画像の明るさが文字色と近いため、文字色を「自動」に切り替えました')}applyLook();renderTextSettings()});applyLook();renderSettings();saveSettings();saveBg();
+  measureImage(url,v=>{imgLum=v;applyLook();if(textForced)toast('この画像では選んだ文字色が読みにくいため、読みやすい色で表示しています');renderTextSettings();renderCardSettings()});applyLook();renderSettings();saveSettings();saveBg();
   toast('背景を変更しました');
 };
 
@@ -3237,7 +3303,7 @@ async function inflateBytes(b){if(window.DecompressionStream){try{return await z
 /* 1枚に入れる上限（文字数）。読み取りの強いZXingで、スマホで撮った写真からも読めることを確かめた大きさ */
 const QR_MAX=2000;
 /* 設定は初期値と違う項目だけ入れて小さくする。見た目（表示モード・色・明るさ・文字色・印）は初期値と同じでも必ず入れる */
-const LOOK_KEYS=['mode','colors','look','text','bg','noteMarks','markSlots'];
+const LOOK_KEYS=['mode','colors','look','text','bg','card','access','noteMarks','markSlots'];
 const settingsDiff=withBg=>{const d=merge({}),o={};Object.keys(S.settings).forEach(k=>{if(k==='bg'&&!withBg)return;if(k==='appUrl')return;if(LOOK_KEYS.includes(k)||JSON.stringify(S.settings[k])!==JSON.stringify(d[k]))o[k]=S.settings[k]});return o};
 function bkImgNote(){const n=$('#bkImgNote');if(!n)return;const img=S.settings.bg&&S.settings.bg.type==='image'&&S.bgImage;
   n.textContent=!$('#bkImg').checked?'外すと、受け取った端末の背景はそのままになります。':dt.m==='qr'?(img?'背景の画像そのものはQRコードに入りきらないため、画像の代わりに画像の平均の色を背景にします。画像そのものを移すときは「ファイル」を使ってください。':'背景の色・透け具合などの設定も引き継ぎます。'):(img?'背景の画像も入れるので、ファイルが大きくなります。':'背景の色・透け具合などの設定も引き継ぎます。')}
