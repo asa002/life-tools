@@ -22,6 +22,7 @@
   --body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
   --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
   --surface:var(--surface-solid);
+  --surface-op:var(--surface-solid); /* 不透明な部分（入力の外枠・シート・下のタブなど）の色。背景と混ざって見えるウィンドウの色に合わせる */
   --r:14px;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
@@ -56,7 +57,7 @@ button{cursor:pointer}
 header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;align-items:center;justify-content:space-between;
   padding-block:12px;margin:0 calc(-1*max(16px,env(safe-area-inset-left,0px)));padding-inline:max(16px,env(safe-area-inset-left,0px));
   background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.has-bg header.top{background:color-mix(in srgb,var(--surface-solid) var(--card-a),transparent)}
+.has-bg header.top{background:color-mix(in srgb,var(--surface-op) 90%,transparent)} /* 上のバーは見えているウィンドウの色でほぼ不透明に（背景の模様で文字が読めなくならないように） */
 .has-bg .card,.has-bg header.top{text-shadow:0 0 6px color-mix(in srgb,var(--surface-solid) calc(100% - var(--card-a)),transparent)}
 .brand{font-family:var(--display);font-size:1.45rem;letter-spacing:.04em;margin:0;display:flex;align-items:baseline;gap:8px}
 .brand small{font-family:var(--body);font-size:.72rem;color:var(--muted);letter-spacing:.08em}
@@ -86,7 +87,7 @@ input.tentative{border-style:dashed;border-color:var(--dawn)}
 /* view switch + nav */
 .seg{display:grid;grid-template-columns:repeat(3,1fr);background:var(--surface-2);border-radius:10px;padding:3px;gap:3px}
 .seg button{border:0;background:transparent;border-radius:8px;padding:7px 0;color:var(--muted);font-weight:500}
-.seg button[aria-pressed="true"]{background:var(--surface-solid);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.seg button[aria-pressed="true"]{background:var(--surface-op);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .nav{display:flex;align-items:center;justify-content:space-between;margin:12px 0 8px}
 .nav b{font-size:1.05rem}
 .nav .arrows{display:flex;gap:6px}
@@ -167,11 +168,11 @@ textarea{min-height:84px;resize:vertical}
 /* sheets */
 .sheet{position:fixed;inset:0;z-index:30;display:flex;align-items:flex-end;justify-content:center;background:rgba(10,12,20,.45)}
 /* シート上部のボタンはスクロールしても追従 */
-.sheet .panel>.fhead:first-child{position:sticky;top:-16px;z-index:3;margin:-16px calc(-1*max(16px,env(safe-area-inset-right,0px))) 0;padding:14px max(16px,env(safe-area-inset-right,0px)) 10px;background:var(--surface-solid);border-bottom:1px solid var(--line);box-shadow:0 6px 12px -10px rgba(0,0,0,.35);border-radius:18px 18px 0 0}
+.sheet .panel>.fhead:first-child{position:sticky;top:-16px;z-index:3;margin:-16px calc(-1*max(16px,env(safe-area-inset-right,0px))) 0;padding:14px max(16px,env(safe-area-inset-right,0px)) 10px;background:var(--surface-op);border-bottom:1px solid var(--line);box-shadow:0 6px 12px -10px rgba(0,0,0,.35);border-radius:18px 18px 0 0}
 .sheet .panel>.fhead .hbtns{flex-wrap:wrap;justify-content:flex-end}
-.sheet .panel .stickyfoot{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));z-index:3;margin:0 calc(-1*max(16px,env(safe-area-inset-right,0px)));padding:10px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px));background:var(--surface-solid);border-top:1px solid var(--line)}
+.sheet .panel .stickyfoot{position:sticky;bottom:calc(-20px - env(safe-area-inset-bottom,0px));z-index:3;margin:0 calc(-1*max(16px,env(safe-area-inset-right,0px)));padding:10px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px));background:var(--surface-op);border-top:1px solid var(--line)}
 .btn:disabled{opacity:.4;cursor:default}
-.sheet .panel{background:var(--surface-solid);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;
+.sheet .panel{background:var(--surface-op);width:100%;max-width:560px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;
   padding:16px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:grid;gap:18px}
 .panel h3{margin:0;font-size:1.05rem}
 .panel h4{margin:0 0 8px;font-size:.78rem;letter-spacing:.12em;color:var(--muted)}
@@ -240,9 +241,9 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .patternbar{display:grid;gap:8px;padding:12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 7%,transparent);border:1px solid color-mix(in srgb,var(--accent) 25%,var(--line))}
 .patternbar h3{margin:0;font-size:.9rem}
 .pchips{display:flex;flex-wrap:wrap;gap:6px}
-.pchips button{border:1px solid var(--line);background:var(--surface-solid);border-radius:10px;padding:6px 10px;font-size:.82rem;text-align:left;line-height:1.3}
+.pchips button{border:1px solid var(--line);background:var(--surface-op);border-radius:10px;padding:6px 10px;font-size:.82rem;text-align:left;line-height:1.3}
 .pchips button small{display:block;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
-.pchips button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface-solid))}
+.pchips button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface-op))}
 .pchips button.off{color:var(--muted)}
 .homeplan{background:var(--surface-2);border-radius:10px;padding:8px 12px;font-size:.86rem}
 .homeplan b{font-family:var(--mono);font-weight:500;font-size:1.05rem}
@@ -293,12 +294,12 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .sgroup[open]>summary{border-bottom:1px solid var(--line);margin-bottom:10px}
 .sgbody{padding:0 14px 14px;display:grid;gap:8px}
 .setpage{gap:8px}
-.sethead{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px));z-index:4;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--surface-solid);border:1px solid var(--line);box-shadow:0 6px 12px -10px rgba(0,0,0,.35)}
+.sethead{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px));z-index:4;display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:10px 14px;border-radius:12px;background:var(--surface-op);border:1px solid var(--line);box-shadow:0 6px 12px -10px rgba(0,0,0,.35)}
 .sethead h3{margin:0;font-size:1rem}
 .setpage .sgroup{scroll-margin-top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px) + 70px)}
 .jumpsel{width:auto;flex:1 1 9em;min-width:0;padding:6px 8px;font-size:.85rem;background:var(--surface-2)}
 .formbar{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px));z-index:4;display:flex;gap:6px;align-items:center;margin:0 -14px;padding:8px 14px;background:var(--surface);backdrop-filter:blur(var(--card-blur));-webkit-backdrop-filter:blur(var(--card-blur));border-block:1px solid var(--line)}
-:root:not(.has-bg) .formbar{background:var(--surface-solid)}
+:root:not(.has-bg) .formbar{background:var(--surface-op)}
 .sec,.patternbar,.allsave{scroll-margin-top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px) + 60px)}
 .tbwrap{overflow:auto;max-height:40vh;border:1px solid var(--line);border-radius:10px}
 #tbPreview{border-collapse:collapse;font-size:.74rem;font-family:var(--mono);white-space:nowrap}
@@ -380,6 +381,7 @@ input[type=time],input[type=date],input[type=number],input[type=text],select{min
 input[type=time],input[type=date]{-webkit-appearance:none;appearance:none}
 .sgbody>*,.fgrp>*,.feat>*,.tagcard>*,.tagcard .r1>*,.field>*,.sec>*,.two>*{min-width:0}
 body{overflow-x:hidden}
+#crop{z-index:85}
 /* 横ぶれ対策：画面幅からはみ出した分は切り取り（スクロールさせない）、PCではスクロールバーの出入りで左右にずれないようにする */
 html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scrollbar-gutter:stable}
 @supports (overflow:clip){html,body{overflow-x:clip}}
@@ -451,7 +453,7 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .lookrow output{font-family:var(--mono);text-align:right;font-size:.85rem}
 #lookHue{background:linear-gradient(90deg,#d94a4a,#d9c24a,#4ad96a,#4ab8d9,#6a4ad9,#d94ab8,#d94a4a);border-radius:8px;height:10px;appearance:none;-webkit-appearance:none}
 .offview{display:none!important}
-.viewseg{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px));z-index:6;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:14px;background:color-mix(in srgb,var(--surface-solid) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);box-shadow:0 6px 14px -12px rgba(0,0,0,.4)}
+.viewseg{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hdr,64px));z-index:6;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:14px;background:color-mix(in srgb,var(--surface-op) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid var(--line);box-shadow:0 6px 14px -12px rgba(0,0,0,.4)}
 .seg:not(:has(button:not(.offview))){display:none}
 .viewseg button{border:0;background:transparent;border-radius:10px;min-height:42px;font-weight:700;color:var(--muted)}
 .viewseg button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
@@ -492,7 +494,7 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 #markSlots .markrow{grid-template-columns:1.6em minmax(0,1fr) 44px 40px}
 .mnum{font-family:var(--mono);font-size:.8rem;color:var(--muted);text-align:center}
 .welcome{position:fixed;inset:0;z-index:60;display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));background:color-mix(in srgb,var(--bg) 70%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);overflow:auto}
-.wcard{width:100%;max-width:440px;background:var(--surface-solid);border:1px solid var(--line);border-radius:20px;padding:20px;display:grid;gap:16px;box-shadow:0 20px 50px -20px rgba(0,0,0,.35)}
+.wcard{width:100%;max-width:440px;background:var(--surface-op);border:1px solid var(--line);border-radius:20px;padding:20px;display:grid;gap:16px;box-shadow:0 20px 50px -20px rgba(0,0,0,.35)}
 .wchead{display:grid;gap:2px}.wchead small{color:var(--muted);font-size:.8rem}.wchead h2{margin:0;font-family:var(--display);font-size:1.6rem}.wchead span{color:var(--muted);font-size:.85rem}
 .wstep{display:grid;gap:8px}.wstep>b{font-size:.88rem}
 .wchips{display:flex;flex-wrap:wrap;gap:8px}
@@ -505,7 +507,7 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .wdata[open]>summary::after{content:"－"}
 .wdata>summary b{font-size:.92rem}.wdata>summary small{font-size:.78rem;color:var(--muted)}
 .wctop{display:flex;align-items:center;justify-content:space-between;gap:8px}.wctools{display:flex;gap:6px;flex:none}
-.wtopics{background:color-mix(in srgb,var(--accent) 7%,var(--surface-solid))}
+.wtopics{background:color-mix(in srgb,var(--accent) 7%,var(--surface-op))}
 .wtlist{display:grid;gap:6px;padding:0 0 12px}.wtlist .htopic{margin:0}
 .wtlist .htopic .go{justify-self:start}
 .wtflow{display:flex;flex-wrap:wrap;gap:4px;align-items:center;font-size:.8rem;font-weight:700;color:var(--accent);margin:0 0 4px}
@@ -513,11 +515,11 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .dtab1{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
 .dtab1 button{display:grid;gap:2px;justify-items:center;padding:10px 4px;border:1px solid var(--line);border-radius:12px;background:var(--surface-2);color:var(--ink);cursor:pointer;min-width:0}
 .dtab1 button b{font-size:.92rem}.dtab1 button small{font-size:.7rem;color:var(--muted);text-align:center}
-.dtab1 button[aria-selected="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface-solid));box-shadow:0 0 0 1px var(--accent)}
+.dtab1 button[aria-selected="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface-op));box-shadow:0 0 0 1px var(--accent)}
 .dtab1 button[aria-selected="true"] small{color:var(--accent)}
 .dtab2 button{display:grid;gap:0;justify-items:center;font-size:.85rem;padding:6px 2px;min-width:0}.dtab2 button small{font-size:.7rem;color:var(--muted)}
-.dtab2 button[aria-selected="true"]{background:var(--surface-solid);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.dpanel{display:grid;gap:8px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface-solid)}
+.dtab2 button[aria-selected="true"]{background:var(--surface-op);color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.dpanel{display:grid;gap:8px;border:1px solid var(--line);border-radius:12px;padding:12px;background:var(--surface-op)}
 .dsteps{margin:0;padding-left:1.3em;display:grid;gap:3px;font-size:.84rem}
 .qrout{display:grid;gap:8px;justify-items:center}
 .qrbox{background:#fff;padding:8px;border-radius:12px;width:min(100%,420px);line-height:0}
@@ -563,7 +565,7 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .helpbtn{font-weight:700;font-size:1.05rem;color:var(--accent)}
 .hgrp{margin-top:6px}
 .hgrp>h4{margin:8px 0 6px;font-size:.78rem;letter-spacing:.12em;color:var(--muted)}
-.htopic{border:1px solid var(--line);border-radius:12px;margin-bottom:6px;background:var(--surface-solid)}
+.htopic{border:1px solid var(--line);border-radius:12px;margin-bottom:6px;background:var(--surface-op)}
 .htopic>summary{list-style:none;cursor:pointer;padding:11px 12px;font-weight:700;font-size:.92rem;display:flex;gap:8px;align-items:center}
 .htopic>summary::-webkit-details-marker{display:none}
 .htopic>summary::before{content:"？";display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:color-mix(in srgb,var(--accent) 14%,transparent);color:var(--accent);font-size:.75rem;flex:none}
@@ -571,7 +573,7 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .spot{outline:3px solid var(--dawn)!important;outline-offset:3px;border-radius:12px;animation:spot 1.2s ease-in-out 3}
 @keyframes spot{50%{outline-color:transparent}}
 @media (prefers-reduced-motion: reduce){.spot{animation:none}}
-.firsttip{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 10%,var(--surface-solid));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));font-size:.86rem}
+.firsttip{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;padding:10px 12px;border-radius:12px;background:color-mix(in srgb,var(--accent) 10%,var(--surface-op));border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));font-size:.86rem}
 .gperiod{display:grid;gap:8px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--line)}
 .gnav{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:6px;align-items:center}
 .gpick{display:grid;gap:2px;justify-items:center}
@@ -646,7 +648,7 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .favadd{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px}
 .chips button{border:1px solid var(--line);background:var(--surface-2);border-radius:16px;padding:6px 12px;min-height:36px;font-size:.8rem}
 .opts2{padding:8px;border-radius:10px;background:color-mix(in srgb,var(--accent) 8%,transparent)}
-.opts2 button{background:var(--surface-solid)}
+.opts2 button{background:var(--surface-op)}
 .opts2 span{font-size:.75rem;color:var(--muted);align-self:center;margin-right:2px}
 .chips button:active{background:color-mix(in srgb,var(--accent) 15%,transparent)}
 #fNote{min-height:150px}
@@ -654,7 +656,7 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 /* 画面下のタブ（親指で届く位置） */
 .tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;display:grid;grid-template-columns:repeat(3,1fr);
   padding:6px max(8px,env(safe-area-inset-right,0px)) calc(6px + env(safe-area-inset-bottom,0px)) max(8px,env(safe-area-inset-left,0px));
-  background:color-mix(in srgb,var(--surface-solid) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
+  background:color-mix(in srgb,var(--surface-op) 92%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line)}
 .tabs button{border:0;background:transparent;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0;min-height:52px;color:var(--muted);font-size:.72rem;font-weight:500;border-radius:12px;max-width:180px;width:100%;justify-self:center}
 .tabs svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .tabs button[aria-selected="true"]{color:var(--accent);font-weight:700;background:color-mix(in srgb,var(--accent) 10%,transparent)}
@@ -1459,13 +1461,17 @@ function cardFor(st){const cm=(st.card||{}).mode||'auto';if(cm==='custom'&&/^#[0
   const r=bgRange(st);if(cm==='theme'||!r||st.bg.type==='none')return themeCard(st);
   const a=(st.bg.alpha??84)/100,T=ACC(st),light=mixHex(r.hex||'#ffffff','#ffffff',.9),dark=mixHex(r.hex||'#000000','#10131c',.86);
   const q=c=>bestInk(effRange(c,a,r),T)[1],ql=q(light),qd=q(dark),pref=isDarkMode(st)?dark:light;
-  if(Math.min(ql,qd)>=T)return pref;return ql>=qd?light:dark}
+  if(Math.min(ql,qd)>=T)return pref;
+  /* 表示モードに合う色の窓を優先：濃さを自動で上げれば読めるなら、そちらを使う（ダーク表示なら暗い窓のまま） */
+  if((st.card||{}).keep!==false&&bestInk(effRange(pref,1,r),T)[1]>=T+.7)return pref;
+  return ql>=qd?light:dark}
 /* 読みやすさの計算結果：ウィンドウの色・実際の濃さ・文字色・いちばん読みにくい所のコントラスト */
 function lookSolve(st){const T=ACC(st),card=cardFor(st),cl=card,r=st.bg.type==='none'?null:bgRange(st),tx=st.text||{mode:'auto'};
   const keep=(st.card||{}).keep!==false;let a=r?(st.bg.alpha??84)/100:1,boosted=false;
   const fixed=tx.mode==='custom'&&tx.color?tx.color:tx.mode==='theme'?(isDarkMode(st)?'#e6e9f2':'#1b2233'):null;
   const q=a2=>{const e=effRange(cl,a2,r);return fixed?minC(hexLum(fixed),e):bestInk(e,T)[1]};
-  if(r&&keep&&q(a)<T&&(q(1)>=T||!fixed)){for(let a2=Math.ceil(a*20)/20;a2<=1.0001;a2+=.05){if(q(a2)>=T){a=Math.min(1,a2);boosted=true;break}}if(!boosted&&!fixed&&q(1)>q(a)){a=1;boosted=true}} /* 選んだ文字色ではどうしても届かないときは濃さを上げず、文字色のほうを読みやすい色にする */
+  const Tb=T+.7; /* 強調色（ボタン・リンク）も読めるよう、少し余裕をもたせる */
+  if(r&&keep&&q(a)<Tb&&(q(1)>=T||!fixed)){for(let a2=Math.ceil(a*20)/20;a2<=1.0001;a2+=.05){if(q(a2)>=Tb||a2>=.999&&q(a2)>=T){a=Math.min(1,a2);boosted=a2>(st.bg.alpha??84)/100+.001;break}}if(!boosted&&!fixed&&q(1)>q(a)){a=1;boosted=true}} /* 選んだ文字色ではどうしても届かないときは濃さを上げず、文字色のほうを読みやすい色にする */
   const e=effRange(cl,a,r);let ink=fixed,c=fixed?minC(hexLum(fixed),e):0,forced=false;
   if(!fixed||c<T){const b=bestInk(e,T);if(fixed&&c<T&&b[1]>c){forced=true;ink=b[0];c=b[1]}else if(!fixed){ink=b[0];c=b[1]}}
   return{T,card,a,boosted,ink,c,forced,range:e}}
@@ -1476,14 +1482,26 @@ function applyTextColor(){const st=S.settings,root=document.documentElement;
   if(st.bg.type==='image'&&S.bgImage&&imgLumSrc!==S.bgImage){const src=S.bgImage;imgLumSrc=src;imgLum=null;measureImage(src,v=>{if(S.bgImage!==src)return;imgLum=v;applyTextColor();if(typeof renderTextSettings==='function'){renderTextSettings();renderCardSettings()}})}
   const s=lookSolve(st);lookNow=s;textForced=s.forced;
   const cm=(st.card||{}).mode||'auto',plain=st.bg.type==='none'&&cm!=='custom'&&(st.text||{}).mode!=='custom'&&!s.forced&&st.access!=='high';
-  ['--ink','--muted','--surface-solid','--surface-2','--line'].forEach(v=>root.style.removeProperty(v));
+  ['--ink','--muted','--surface-solid','--surface-op','--surface-2','--line','--bg','--accent','--accent-ink','--danger','--dawn'].forEach(v=>root.style.removeProperty(v));root.style.colorScheme='';
   root.style.setProperty('--card-a',Math.round(s.a*100)+'%');
   if(plain){try{renderReadMeter()}catch(e){}return} /* 背景なし・標準のままなら、表示モードの色をそのまま使う */
-  if(s.card!==themeCard(st)){root.style.setProperty('--surface-solid',s.card);root.style.setProperty('--surface-2','color-mix(in srgb,'+s.card+' 92%,'+s.ink+')');root.style.setProperty('--line','color-mix(in srgb,'+s.card+' 78%,'+s.ink+')')}
+  if(s.card!==themeCard(st))root.style.setProperty('--surface-solid',s.card);
+  /* 入力欄・ボタンなど不透明な部分は、実際に見えているウィンドウの色（背景と混ざった色）をもとに作る（暗い窓が透けて明るく見えるときに、入力欄だけ暗くならないように） */
+  {const r=st.bg.type==='none'?null:bgRange(st),E=r&&r.hex?mixHex(r.hex,s.card,s.a):s.card;
+   const away=hexLum(s.ink)>.4?'#000000':'#ffffff';let s2=mixHex(E,s.ink,.07);if(contrastOf(hexLum(s.ink),hexLum(s2))<s.T+.3)s2=mixHex(E,away,.12); /* 入力欄は文字と反対方向に少しずらして、文字とのコントラストを保つ */
+   root.style.setProperty('--surface-op',E);root.style.setProperty('--surface-2',s2);root.style.setProperty('--line',mixHex(E,s.ink,.3));
+   if(!r)root.style.setProperty('--bg',mixHex(E,s.ink,.06))} /* 背景なしのときは、ページの地の色もウィンドウに合わせる */
   root.style.setProperty('--ink',s.ink);
   /* 補足の文字（薄い色）も基準を満たすときだけ薄くする。満たさないときは本文と同じ色 */
   const mutedHex=mixHex(s.ink.length===7?s.ink:'#151b2a',s.card,.28),mOK=minC(hexLum(mutedHex),s.range)>=Math.min(s.T,4.5);
-  root.style.setProperty('--muted',mOK&&st.access!=='high'?mutedHex:s.ink);try{renderReadMeter()}catch(e){}}
+  root.style.setProperty('--muted',mOK&&st.access!=='high'?mutedHex:s.ink);
+  /* ボタンや強調の色も、実際のウィンドウの明るさに合わせて選び、基準を満たすまで明るさを調整する（ライト表示でも暗いウィンドウなら暗い用の色に） */
+  const lightInk=hexLum(s.ink)>.4,need=Math.min(s.T,4.5)+.4,tk=lightInk?{accent:'#8f9cf2',danger:'#ff8f85',dawn:'#f0a85a'}:{accent:'#3d4fa8',danger:'#b8423a',dawn:'#b8661a'};
+  const fit=h=>{for(let i=0;i<14&&minC(hexLum(h),s.range)<need;i++)h=mixHex(h,lightInk?'#ffffff':'#000000',.14);return h};
+  const acc=fit(tk.accent),accInk=contrastOf(hexLum(acc),hexLum('#ffffff'))>=contrastOf(hexLum(acc),hexLum('#11142a'))?'#ffffff':'#11142a';
+  root.style.setProperty('--accent',acc);root.style.setProperty('--accent-ink',accInk);root.style.setProperty('--danger',fit(tk.danger));root.style.setProperty('--dawn',fit(tk.dawn));
+  root.style.colorScheme=lightInk?'dark':'light';
+  try{renderReadMeter()}catch(e){}}
 
 /* ---------- quick record ---------- */
 function quickTargets(){const n=new Date();return{bed:ymd(n.getHours()>=12?addDays(n,1):n),wake:ymd(n)}}
@@ -2602,8 +2620,9 @@ function restoreFrom(text){let o;try{o=JSON.parse(text)}catch(e){showBk('読み�
   if(o.v>=3)Object.values(o.days).forEach(unQrDay);const before=o.part?[]:Object.keys(S.days);S.days=o.part?{...S.days,...clone(o.days)}:clone(o.days); /* 一部だけのQRは、日ごとに上書き（ほかの日は残す） */const myBg=clone(S.settings.bg),myUrl=S.settings.appUrl;if(o.settings){S.settings=merge(o.sdiff?applyDiff(merge({}),o.settings):o.settings); /* 初期値＋違い で送った端末と同じ設定に */if(!S.settings.appUrl&&myUrl)S.settings.appUrl=myUrl;if(o.nobg||(!o.sdiff&&!o.settings.bg))S.settings.bg=myBg; /* 背景を引き継がないときは、この端末の背景のまま */else if(S.settings.bg.type==='image'&&!o.bgImage){if(o.bgAvg)S.settings.bg={...S.settings.bg,type:'color',color:o.bgAvg};else if(!S.bgImage)S.settings.bg={...S.settings.bg,type:'none'}}if(!readable(S.settings))S.settings.text={...S.settings.text,mode:'auto'}} /* 背景画像が届かないときは平均色の背景にし、文字が読みにくければ自動の文字色に */if(o.slots)S.slots=clone(o.slots);if(Array.isArray(o.hist))S.hist=clone(o.hist);if(o.bgImage&&!o.nobg)S.bgImage=o.bgImage;
   if(store){before.forEach(k=>{if(!S.days[k])put('d-'+k,null)});Object.keys(S.days).forEach(saveDay);put('settings',S.settings);if(S.slots)put('slots',S.slots);put('hist',{list:S.hist||[]});if(o.bgImage)saveBg()}else if(!lsSave()){showBk('復元した内容を、この端末に保存できませんでした（端末の保存容量が足りない可能性）。「背景も引き継ぐ」のチェックを外すか、いらない記録を減らしてからもう一度試してください。')}
   if(!o.slots)slotAutoSave(); /* いま使っているセーブデータにも復元した設定を入れる（切り替えたときに戻らないように） */
-  lastSettings=JSON.stringify(S.settings);applyLook();render(true);renderSettings();renderFeatSettings();renderFavSettings();qrStatus('');toast('復元しました（記録'+n+'日分）')}
-function showBk(m,go){const w=$('#bkWarn');w.textContent=m;if(go){const b=document.createElement('button');b.type='button';b.className='btn bkgo';b.textContent='この内容で復元する';b.onclick=go;w.appendChild(document.createElement('br'));w.appendChild(b)}w.hidden=false;w.scrollIntoView({block:'nearest',behavior:'smooth'})}
+  lastSettings=JSON.stringify(S.settings);applyLook();render(true);renderSettings();renderFeatSettings();renderFavSettings();qrStatus('');if(o.bgAvg&&!o.bgImage&&!o.nobg&&!S.bgImage){setTimeout(()=>showBk('復元しました。背景は画像でしたが、画像そのものはQRコードに入らないため、いまは画像の平均の色にしています。同じ画像をこの端末の写真から選ぶと、背景を画像に戻せます（濃さ・ぼかしなどの設定は引き継いだままです）。',pickBgImage,'背景の画像を選ぶ'),300)}else if(o.bgAvg&&!o.bgImage&&!o.nobg&&S.bgImage){S.settings.bg={...S.settings.bg,type:'image'};applyLook();saveSettings()}
+  toast('復元しました（記録'+n+'日分）')}
+function showBk(m,go,label){const w=$('#bkWarn');w.textContent=m;if(go){const b=document.createElement('button');b.type='button';b.className='btn bkgo';b.textContent=label||'この内容で復元する';b.onclick=go;w.appendChild(document.createElement('br'));w.appendChild(b)}w.hidden=false;w.scrollIntoView({block:'nearest',behavior:'smooth'})}
 $('#bkFileIn').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;const rd=new FileReader();rd.onload=()=>{bkPending=null;restoreFrom(String(rd.result))};rd.readAsText(f)});
 function renderFeatSettings(){renderCustomSettings();renderCardSettings();if($('#welcomeOn'))$('#welcomeOn').checked=S.settings.welcome!==false;renderSyncNote();renderTextSettings();renderSlots();$('#nmTitle').value=S.settings.appName||'My note';$('#nmSub').value=S.settings.appSub??'';renderSubMode();renderTagSettings();renderLook();renderHobbySettings();$('#featHobby').hidden=!S.settings.features.hobby;const st=S.settings,f=st.features;
   document.querySelectorAll('[data-feat]').forEach(c=>c.checked=!!f[c.dataset.feat]);
@@ -2717,7 +2736,13 @@ $('#slotList').addEventListener('click',e=>{const pl=e.target.closest('.place');
 
 /* ---------- background crop ---------- */
 const CB=$('#cropBox'),CI=$('#cropImg');let cs=null;
-$('#bgFile').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+/* 引き継いだあと、同じ背景画像をこの端末の写真から選び直す（濃さ・ぼかしなどの設定はそのまま） */
+let bgKeepBlur=false;
+function pickBgImage(){bgKeepBlur=true;try{if(!$('#welcome').hidden)closeWelcome()}catch(e){}
+  const inp=document.createElement('input');inp.type='file';inp.accept='image/*';inp.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';document.body.appendChild(inp);
+  inp.addEventListener('change',()=>{const f=inp.files[0];inp.remove();if(!f){bgKeepBlur=false;return}loadBgFile(f)});inp.click()}
+function loadBgFile(f){const rd=new FileReader();rd.onload=()=>{CI.onload=startCrop;CI.src=rd.result};rd.onerror=()=>toast('画像を読み込めませんでした');rd.readAsDataURL(f)}
+$('#bgFile').addEventListener('change',e=>{const f=e.target.files[0];e.target.value='';if(!f)return;bgKeepBlur=false;
   const rd=new FileReader();rd.onload=()=>{CI.onload=startCrop;CI.src=rd.result};rd.onerror=()=>toast('画像を読み込めませんでした');rd.readAsDataURL(f)});
 function startCrop(){
   openSheet('#crop');
@@ -2749,7 +2774,7 @@ $('#cropOk').onclick=()=>{
     for(const q of [0.82,0.7,0.6]){url=cv.toDataURL('image/jpeg',q);if(url.length<230000)break}
     if(url.length<230000)break;W=Math.round(W*0.8);
   }
-  S.bgImage=url;imgLum=null;imgLumSrc=url;S.settings.bg.type='image';S.settings.bg.blur=0;closeSheet('#crop');
+  S.bgImage=url;imgLum=null;imgLumSrc=url;S.settings.bg.type='image';if(!bgKeepBlur)S.settings.bg.blur=0;bgKeepBlur=false;closeSheet('#crop');
   setTimeout(()=>toast('背景を変更しました。文字が読みにくいときは「ぼかし」を入れてみてください'),400);
   measureImage(url,v=>{imgLum=v;applyLook();if(textForced)toast('この画像では選んだ文字色が読みにくいため、読みやすい色で表示しています');renderTextSettings();renderCardSettings()});applyLook();renderSettings();saveSettings();saveBg();
   toast('背景を変更しました');
@@ -3295,7 +3320,7 @@ document.querySelector('.dtab2').addEventListener('click',e=>{const b=e.target.c
 /* QRコード：記録と設定を圧縮して1枚に入れる。読み取りは強い順に BarcodeDetector → ZXing(wasm) → jsQR を試す */
 const QR_LIB='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js',QR_READ_LIB='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
   ZX_LIB='https://cdn.jsdelivr.net/npm/zxing-wasm@3.1.4/dist/iife/reader/index.js',ZX_WASM='https://cdn.jsdelivr.net/npm/zxing-wasm@3.1.4/dist/reader/zxing_reader.wasm',PAKO_LIB='https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js';
-const APP_VER='2026.10.23c';
+const APP_VER='2026.10.23d';
 /* 部品（QRの作成・読み取り）は初回にネットから読み込み、端末に保存しておく（ホーム画面のアプリやオフラインでも使えるように） */
 const LIB_CACHE='mynote-lib-v1';
 async function libCacheOpen(){try{return window.caches?await caches.open(LIB_CACHE):null}catch(e){return null}}
