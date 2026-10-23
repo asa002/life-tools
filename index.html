@@ -522,6 +522,11 @@ html{filter:var(--fx)} /* ルート要素のフィルターは固定表示（下
 .qrnav{display:flex;align-items:center;gap:10px}
 .qrfull{position:fixed;inset:0;width:100vw;z-index:90;background:#fff;color:#333;display:grid;place-items:center;align-content:center;gap:10px;padding:16px;font-size:.85rem}
 .qrfull[hidden]{display:none}
+.qrsaveview{overflow:auto;text-align:center;align-content:start;padding-top:max(16px,env(safe-area-inset-top,0px))}
+.qrsaveview img{width:min(88vw,70vh);height:auto;-webkit-touch-callout:default;user-select:auto;border:1px solid #ddd}
+.qrsaveview b{font-size:.95rem;max-width:30em}.qrsaveview span{color:#555;max-width:30em}
+.qrsvbtns{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.qrsaveview .btn.ghost{color:#222!important;background:#fff!important;border-color:#999!important}.qrsaveview .btn:not(.ghost){color:#fff!important;background:#3d4fa8!important}
 .qrfbox{width:min(90vw,80vh);line-height:0}.qrfbox svg{width:100%;height:auto;display:block}
 .qrcam{display:grid;gap:8px;justify-items:center}
 .qrcam video{width:min(100%,360px);border-radius:12px;background:#000}
@@ -1149,11 +1154,12 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
         <button type="button" role="tab" data-dd="recv"><b>② 受け取る</b><small>新しい端末で</small></button>
       </div>
       <div class="dpanel" data-dpanel="qr-send">
-        <ol class="dsteps"><li>「QRコードを表示」を押します（1枚にまとまります）</li><li>新しい端末で読み取ります。いちばん確実なのは「画像として保存・送る」でQRコードの画像を新しい端末に送り、新しい端末の「② 受け取る」→「画像・写真から読み取る」で選ぶ方法です</li><li>画面を直接読むときは「大きく表示」にして、新しい端末の「カメラで読み取る」で映します。下の「読み取ったら開くページ」が入っていれば、iPhoneの標準カメラで読み取ってもそのまま取り込めます</li></ol>
+        <ol class="dsteps"><li>「QRコードを表示」を押します（1枚にまとまります）</li><li>新しい端末で読み取ります。いちばん確実なのは「QRコードを保存」で写真に保存し、その画像を新しい端末に送って（同じ端末で開き直すならそのまま）、「② 受け取る」→「画像・写真から読み取る」で選ぶ方法です</li><li>画面を直接読むときは「大きく表示」にして、新しい端末の「カメラで読み取る」で映します。下の「読み取ったら開くページ」が入っていれば、iPhoneの標準カメラで読み取ってもそのまま取り込めます</li></ol>
         <div class="setrow"><button class="btn" id="qrMake">QRコードを表示</button></div>
         <div class="qrout" id="qrOut" hidden>
           <div class="qrbox" id="qrBox"></div>
-          <div class="qrnav"><button type="button" class="btn ghost sm" id="qrBig">大きく表示</button><button type="button" class="btn ghost sm" id="qrSave">画像として保存・送る</button></div>
+          <div class="qrnav"><button type="button" class="btn" id="qrSave">QRコードを保存</button><button type="button" class="btn ghost sm" id="qrBig">大きく表示</button></div>
+          <span class="hint">「QRコードを保存」→ iPhoneは「画像を保存」を選ぶと写真（フォトライブラリ）に入ります。新しい端末で「画像・写真から読み取る」でその写真を選べば引き継げます。AirDropやメッセージで送ることもできます。</span>
           <span class="hint" id="qrInfo"></span>
         </div>
         <details class="qrurl"><summary>読み取ったら開くページ（任意）</summary><input type="url" id="qrUrl" inputmode="url" placeholder="https://〜.github.io/〜/" aria-label="読み取ったら開くページのアドレス"><span class="hint">GitHubなどで公開しているこのアプリのアドレスを入れると、QRコードをiPhoneの標準カメラで読み取ったときに、そのページが開いてそのまま取り込めます。GitHubのページで開いているときは自動で入ります。</span></details>
@@ -1248,6 +1254,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
   </div>
 </div>
 
+<div class="qrfull qrsaveview" id="qrSaveView" hidden role="dialog" aria-label="QRコードの保存"><img id="qrSaveImg" alt="引き継ぎ用のQRコード"><b>画像を長押しして「"写真"に追加」（または「画像を保存」）を選ぶと、フォトライブラリに保存できます</b><span>パソコンでは右クリック →「名前を付けて画像を保存」、または下のボタン</span><div class="qrsvbtns"><button type="button" class="btn" id="qrSaveDl">ファイルとして保存</button><button type="button" class="btn ghost" id="qrSaveClose">閉じる</button></div></div>
 <div class="qrfull" id="qrFull" hidden role="dialog" aria-label="QRコード（大きく表示）"><div class="qrfbox" id="qrFullBox"></div><span>画面のどこかを押すと閉じます</span></div>
 <div id="toast" hidden><span id="toastMsg"></span><button id="toastBtn" hidden></button></div>
 <div class="sheet" id="scSheet" hidden>
@@ -3265,12 +3272,19 @@ $('#qrMake').onclick=async()=>{const b=$('#qrMake');b.disabled=true;b.textConten
 $('#qrBig').onclick=()=>{if(!qrText)return;$('#qrFullBox').innerHTML=qrSvg(qrText,8);$('#qrFull').hidden=false};
 $('#qrFull').onclick=()=>{$('#qrFull').hidden=true};
 /* QRコードを画像で渡す（AirDrop・メッセージなどで送って、受け取る端末で「画像・写真から読み取る」） */
-$('#qrSave').onclick=async()=>{if(!qrText)return;const blob=await new Promise(ok=>qrCanvas(qrText,8).toBlob(ok,'image/png'));if(!blob){toast('画像を作れませんでした');return}
-  const name=(S.settings.appName||'My note').replace(/[\\/:*?"<>|]/g,'')+'_引き継ぎQR.png';
-  try{const f=new File([blob],name,{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:name});return}}catch(e){if(e&&e.name==='AbortError')return}
-  let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
-  if(dl){try{await dl.save({filename:name,data:blob});toast('QRコードの画像を保存しました')}catch(e){toast(e&&e.code==='declined'?'保存をやめました':'保存できませんでした。画面のスクリーンショットでも読み取れます')}return}
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1000);toast('QRコードの画像を保存しました')};
+/* QRコードを保存：共有シート（iPhoneは「画像を保存」で写真に入る）→ 使えないときは画像を大きく出して長押しで保存してもらう */
+const qrPngName=()=>(S.settings.appName||'My note').replace(/[\\/:*?"<>|]/g,'')+'_引き継ぎQR_'+ymd(new Date())+'.png';
+async function qrPngBlob(){return new Promise(ok=>qrCanvas(qrText,10).toBlob(ok,'image/png'))}
+async function qrDownload(blob,name){let dl=null;try{dl=window.claude&&window.claude.use?await window.claude.use('downloads'):null}catch(e){}
+  if(dl){try{await dl.save({filename:name,data:blob});toast('QRコードの画像を保存しました')}catch(e){toast(e&&e.code==='declined'?'保存をやめました':'保存できませんでした。画像を長押しして保存してください')}return}
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500);toast('QRコードの画像を保存しました')}
+$('#qrSave').onclick=async()=>{if(!qrText){toast('先に「QRコードを表示」を押してください');return}
+  const blob=await qrPngBlob();if(!blob){toast('画像を作れませんでした');return}const name=qrPngName();
+  try{const f=new File([blob],name,{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}catch(e){if(e&&e.name==='AbortError')return}
+  /* 共有シートが使えない画面：画像を表示して長押しで写真に保存（スマホ）、パソコンはファイルで保存 */
+  const url=qrCanvas(qrText,10).toDataURL('image/png');$('#qrSaveImg').src=url;$('#qrSaveView').hidden=false;$('#qrSaveDl').onclick=()=>qrDownload(blob,name)};
+$('#qrSaveClose').onclick=()=>{$('#qrSaveView').hidden=true};
+$('#qrSaveView').addEventListener('click',e=>{if(e.target.id==='qrSaveView')$('#qrSaveView').hidden=true});
 function qrAutoStop(){}
 /* ---------- 読み取り ---------- */
 let qrStream=null,qrLoopT=0,qrBusy=false,zxReady=null,qrLastText='';
@@ -3303,7 +3317,7 @@ async function fileToCanvas(f){let bmp=null;try{bmp=await createImageBitmap(f,{i
 $('#qrPhoto').addEventListener('change',async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
   qrStatus('読み取っています…');let cv;try{cv=await fileToCanvas(f)}catch(_){qrStatus('');toast('画像を開けませんでした（別の形式の画像で試してください）');return}
   const t=await qrDecode(cv,false);
-  if(!t){qrStatus('');toast('QRコードが見つかりませんでした。QRコード全体が写った、ピントの合った画像を選んでください（元の端末で「画像として保存・送る」を使うと確実です）');return}
+  if(!t){qrStatus('');toast('QRコードが見つかりませんでした。QRコード全体が写った、ピントの合った画像を選んでください（元の端末で「QRコードを保存」した画像を使うと確実です）');return}
   await qrApply(t)});
 /* カメラで：中央を大きめに切り出して、短い間隔でくり返し読む */
 function qrCamStop(){clearTimeout(qrLoopT);if(qrStream){qrStream.getTracks().forEach(t=>t.stop());qrStream=null}const b=$('#qrCamBox');if(b)b.hidden=true}
