@@ -100,6 +100,7 @@ input.tentative{border-style:dashed;border-color:var(--dawn)}
 .cell{border:1px solid transparent;background:transparent;border-radius:9px;min-height:54px;padding:4px 2px 3px;display:flex;flex-direction:column;align-items:center;gap:2px}
 .cell .n{font-size:.88rem;line-height:1.2;font-variant-numeric:tabular-nums}
 .cell.out .n{opacity:.35}
+.cell.offday{background:color-mix(in srgb,var(--muted) 13%,transparent)}
 .cell.today .n{background:var(--dawn);color:#fff;border-radius:50%;width:1.6em;height:1.6em;display:grid;place-items:center}
 .cell.sel{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent)}
 .cell .hrs{font-size:.62rem;color:var(--muted);font-family:var(--mono)}
@@ -245,6 +246,17 @@ input[type=color]{width:44px;height:32px;border:1px solid var(--line);border-rad
 .pchips button small{display:block;font-family:var(--mono);font-size:.68rem;color:var(--muted)}
 .pchips button[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--surface-op))}
 .pchips button.off{color:var(--muted)}
+.pchips button.off[aria-pressed="true"]{color:var(--ink)}
+.offlab{display:block;font-size:.56rem;line-height:1.25;padding:0 3px;border-radius:4px;border:1px solid currentColor;color:var(--accent);font-weight:700;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.offlab.abs{color:var(--danger)}
+.offbox{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.offbox .offhead{font-size:.8rem;color:var(--muted);margin-bottom:6px}
+.offchips button{font-size:.8rem;padding:6px 10px}
+.offchips button.abs{color:var(--danger)}
+.offchips button.abs[aria-pressed="true"]{border-color:var(--danger);background:color-mix(in srgb,var(--danger) 14%,var(--surface-op))}
+.offbox input[type=text]{margin-top:8px}
+.offbox .offcancel{margin-top:8px}
+.prow{margin-top:10px}
 .homeplan{background:var(--surface-2);border-radius:10px;padding:8px 12px;font-size:.86rem}
 .homeplan b{font-family:var(--mono);font-weight:500;font-size:1.05rem}
 .whychips button[aria-pressed="true"]{background:var(--c-late);color:#fff;border-color:var(--c-late)}
@@ -870,6 +882,7 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
     <div class="patternbar" id="patternBar">
       <h3>勤務パターンでまとめて入力</h3>
       <div class="pchips" id="pChips"></div>
+      <div class="prow" id="pOffRow" hidden><div class="hint" style="margin:0 0 6px">お休みの種類（くわしく選べます）</div><div class="pchips offchips" id="pOffChips"></div></div>
       <div class="hint" id="pHint">設定タブの「通勤先と勤務パターン」で一度登録しておくと、ここを押すだけで通勤と勤務の時間が入ります。</div>
       <div class="secfoot" id="pSaveRow" hidden><button class="btn" id="pSave">通勤・勤務・帰宅をまとめて記録</button></div>
     </div>
@@ -883,6 +896,12 @@ input::placeholder,textarea::placeholder{color:var(--muted);opacity:1}
         <div class="field"><label for="fArr">到着</label><input type="time" id="fArr"></div>
       </div>
       <div class="hint" id="commuteHint"></div>
+      <div class="offbox" id="offBox">
+        <div class="offhead" id="offLbl"></div>
+        <div class="pchips offchips" id="offChips"></div>
+        <input type="text" id="fOffMemo" placeholder="メモ（任意・例：通院のため、私用など）" aria-label="お休みのメモ" hidden>
+        <button type="button" class="btn ghost sm offcancel" id="offCancel" hidden>お休みをやめて、通勤を入力する</button>
+      </div>
       <div class="warnbox" id="w-commute" hidden></div>
       <div class="secfoot"><button class="btn" data-save="commute">通勤を記録</button></div>
     </div>
@@ -1310,6 +1329,12 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 const md=k=>{const d=parse(k);return (d.getMonth()+1)+'/'+d.getDate()+'('+WD[d.getDay()]+')'};
 
 const DEF={mode:'system',colors:{note:'#d9822b',prep:'#2f8f80',commute:'#a3519a',mood:'#b8941f',work:'#8a63c9',late:'#c74f6f',hobby:'#2e9e6a',sleep:'#5b6fd6'},marks:{note:true,prep:false,commute:false,mood:false,work:false,late:true,hobby:true},slots:[],bg:{type:'none',color:'#c9d3e6',alpha:84,blur:0},appName:'My note',appSub:'',look:{bright:100,sat:100,hue:0},text:{mode:'auto',color:'#1b2233'}};
+/* お休みの種類：[キー, 名前, カレンダーに出す短い名前]。欠勤・病欠は赤で表示 */
+const OFF_TYPES=[['kokyu','公休・休日','休日'],['yotei','予定休','予定休'],['yukyu','有給休暇','有給'],['daikyu','代休・振休','代休'],['kekkin','欠勤','欠勤'],['byoketsu','病欠','病欠'],['other','その他の休み','休み']];
+const OFF_ABSENT=new Set(['kekkin','byoketsu']);
+const offInfo=t=>OFF_TYPES.find(x=>x[0]===t)||['other','お休み','休み'];
+const offName=o=>o?offInfo(o.type)[1]+(o.memo?'（'+o.memo+'）':''):'';
+let offType='',multiKey='';
 const MARKS=[['note','特記事項'],['prep','朝支度の時間'],['commute','通勤'],['mood','気力・体力'],['work','勤務'],['late','帰りが遅くなった日'],['hobby','趣味の時間']];
 /* 特記事項の見出し（例「入浴：」）ごとのマーク */
 const DEF_TAGS=[...document.querySelectorAll('#noteChips [data-t]')].map(b=>({t:b.dataset.t.replace(/：$/,''),name:b.textContent,o:b.dataset.o?b.dataset.o.split('|'):[]}));
@@ -1603,9 +1628,10 @@ function cellHTML(k,cls){
   if(ms)extra+='<i class="dot '+(ms.took>=ms.need?'med':'medp')+'"></i>';
   const evs=eventsOn(k);
   const pc=f.period&&PM?(isPer(k)?'per':PM.pred.has(k)?'pred':'')+(PM.ovu.has(k)?' ovu':''):'';
-  const c=['cell',cls||'',k===ymd(new Date())?'today':'',k===sel?'sel':'',pc].join(' ');
+  const c=['cell',cls||'',k===ymd(new Date())?'today':'',k===sel?'sel':'',pc,r.off?'offday':''].join(' ');
+  const ol=r.off?'<span class="offlab'+(OFF_ABSENT.has(r.off.type)?' abs':'')+'">'+esc(offInfo(r.off.type)[2])+'</span>':'';
   const lab=evs.length?'<span class="evlab" style="background:'+(evs[0].color||'#5b6fd6')+'">'+esc(evs[0].name)+(evs.length>1?'+'+(evs.length-1):'')+'</span>':'';
-  return '<button class="'+c+'" data-k="'+k+'" aria-label="'+md(k)+(evs.length?' '+esc(evs.map(e=>e.name).join('、')):'')+'"><span class="n">'+d.getDate()+'</span><span class="dots">'+dots+extra+'</span>'+(lab||'<span class="hrs">'+(s&&s.len!=null?dur(s.len):'')+'</span>')+'</button>';
+  return '<button class="'+c+'" data-k="'+k+'" aria-label="'+md(k)+(r.off?' '+esc(offInfo(r.off.type)[1]):'')+(evs.length?' '+esc(evs.map(e=>e.name).join('、')):'')+'"><span class="n">'+d.getDate()+'</span><span class="dots">'+dots+extra+'</span>'+ol+(lab||(ol?'':'<span class="hrs">'+(s&&s.len!=null?dur(s.len):'')+'</span>'))+'</button>';
 }
 function renderCal(){
   const d=parse(sel);let h='';
@@ -1629,6 +1655,7 @@ function renderCal(){
   const f=FEAT();
   if(f.period){lg.push('<span><i class="dot" style="background:color-mix(in srgb,var(--c-period) 40%,transparent);border-radius:3px"></i>生理</span>','<span><i class="dot" style="outline:1.5px dashed var(--c-period);background:transparent;border-radius:3px"></i>生理の予測</span>')}
   if(f.meds&&S.settings.meds.length)lg.push('<span><i class="dot med"></i>服薬すべて</span>','<span><i class="dot medp"></i>飲み忘れあり</span>');
+  if(Object.values(S.days).some(x=>x&&x.off))lg.push('<span><i class="dot" style="background:color-mix(in srgb,var(--muted) 35%,transparent);border-radius:3px"></i>お休み（予定休・欠勤など）</span>');
   if(f.events&&S.settings.events.length)lg.push('<span>色つきの文字＝予定・通院日</span>');
   $('#legend').innerHTML=lg.length?lg.join(''):'<span>マークは非表示です（設定で選べます）</span>';
 }
@@ -1649,7 +1676,7 @@ $('#viewSeg').addEventListener('click',e=>{const b=e.target.closest('[data-v]');
 $('#dPrev').onclick=()=>selectDate(ymd(addDays(parse(sel),-1)));
 $('#dNext').onclick=()=>selectDate(ymd(addDays(parse(sel),1)));
 function renderSelDay(){const r=S.days[sel],box=$('#selDay');if(!box)return;
-  const bits=r?['sleep','mood','work','home','hobby','note'].filter(x=>hasSec(r,x)).map(x=>SEC_NAME[x]+' '+secSummary(x,r)).slice(0,4):[];
+  const bits=r?['sleep','mood','work','home','hobby','note'].filter(x=>hasSec(r,x)).map(x=>SEC_NAME[x]+' '+secSummary(x,r)).slice(0,4):[];if(r&&r.off)bits.unshift('お休み（'+offName(r.off)+'）');
   box.innerHTML='<div><b>'+ymdJ(sel)+'</b><small>'+(bits.length?esc(bits.join('／')):'まだ記録がありません')+'</small></div><button type="button" class="btn" id="goInput">'+(r?'記録を見る':'この日を記録')+'</button>';
   $('#goInput').onclick=()=>showView('input')}
 function selectDate(k){if(dirty&&k!==sel)toast('保存していない変更は破棄しました');sel=k;dirty=false;render(true)}
@@ -2106,13 +2133,14 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 /* 各項目は独立して記録する：sleep / mood / commute / prep / note */
 const SEC={sleep:[F.bed,F.bedDay,F.wake,F.wakeDay],mood:[F.ki,F.tai],commute:[F.slot,F.slotName,F.dep,F.arr],work:[F.ws,F.we],home:[F.home,F.homeWhy],hobby:[$('#fHobbyMemo')],period:[],meds:[],body:[],other:[F.omemo],cx:[],cn:[],prep:[F.prep],note:[F.note]};
 const SEC_NAME={sleep:'睡眠',mood:'気力・体力',commute:'通勤',work:'勤務時間',home:'帰宅',hobby:'趣味の時間',period:'月経',meds:'お薬',body:'体の記録',other:'その他の時間',cx:'自分で追加した時間',cn:'自分で追加した数値・回数',prep:'朝支度',note:'特記事項'};
-const SEC_KEYS={sleep:['bed','bedDay','wake','wakeDay'],mood:['ki','tai'],commute:['commute'],work:['work'],home:['home'],hobby:['hobby'],period:['period'],meds:['meds'],body:['body'],other:['other'],cx:['cx'],cn:['cn'],prep:['prep'],note:['note']};
+const SEC_KEYS={sleep:['bed','bedDay','wake','wakeDay'],mood:['ki','tai'],commute:['commute','off'],work:['work'],home:['home'],hobby:['hobby'],period:['period'],meds:['meds'],body:['body'],other:['other'],cx:['cx'],cn:['cn'],prep:['prep'],note:['note']};
 const dirtySecs=new Set(),warnKeys={};
 let bedDayTouched=false;
-const hasSec=(r,sec)=>{if(!r)return false;if(sec==='cx')return!!(r.cx&&Object.keys(r.cx).length);if(sec==='cn')return!!(r.cn&&Object.keys(r.cn).length);return sec==='sleep'?!!(r.bed||r.wake):sec==='mood'?(r.ki!=null||r.tai!=null):sec==='commute'?!!r.commute:sec==='work'?!!r.work:sec==='home'?!!r.home:sec==='hobby'?!!r.hobby:sec==='period'?!!r.period:sec==='body'?!!(r.body&&Object.keys(r.body).length):sec==='meds'?!!(r.meds&&Object.values(r.meds).some(o=>Object.values(o).some(Boolean))):sec==='other'?!!r.other:sec==='prep'?r.prep!=null:!!r.note};
+const hasSec=(r,sec)=>{if(!r)return false;if(sec==='cx')return!!(r.cx&&Object.keys(r.cx).length);if(sec==='cn')return!!(r.cn&&Object.keys(r.cn).length);return sec==='sleep'?!!(r.bed||r.wake):sec==='mood'?(r.ki!=null||r.tai!=null):sec==='commute'?!!(r.commute||r.off):sec==='work'?!!r.work:sec==='home'?!!r.home:sec==='hobby'?!!r.hobby:sec==='period'?!!r.period:sec==='body'?!!(r.body&&Object.keys(r.body).length):sec==='meds'?!!(r.meds&&Object.values(r.meds).some(o=>Object.values(o).some(Boolean))):sec==='other'?!!r.other:sec==='prep'?r.prep!=null:!!r.note};
 function secSummary(sec,r){if(!r)return'';try{
   if(sec==='sleep'){const x=sleepOf(sel);return (r.bed||'—')+'→'+(r.wake||'—')+(x&&x.len!=null?'（'+dur(x.len)+'）':'')}
   if(sec==='mood')return '気力'+(r.ki??'—')+'%・体力'+(r.tai??'—')+'%';
+  if(sec==='commute'&&r.off)return 'お休み（'+offInfo(r.off.type)[1]+'）';
   if(sec==='commute'){const c=r.commute||{},sl=S.settings.slots.find(x=>x.id===c.slot);return (sl?sl.name+' ':'')+(c.dep||'—')+'→'+(c.arr||'—')}
   if(sec==='work')return (r.work.pattern?r.work.pattern+' ':'')+(r.work.start||'—')+'〜'+(r.work.end||'—');
   if(sec==='home'){const i=homeInfo(r);return i.actual!=null?hm(i.actual)+(i.diff>0?'（+'+i.diff+'分）':''):i.plan!=null?hm(i.plan)+'（予定）':''}
@@ -2129,7 +2157,7 @@ function secSummary(sec,r){if(!r)return'';try{
 function secState(sec){const el=$('#st-'+sec),r=S.days[sel];clearTimeout(secState.t);secState.t=setTimeout(renderSecTabs,0);
   if(!dirtySecs.has(sec)&&hasSec(r,sec)){el.className='secstate saved';el.textContent=secSummary(sec,r)||'記録済み';return}
   el.className='secstate'+(dirtySecs.has(sec)?' dirty':hasSec(r,sec)?' saved':'');
-  el.textContent=dirtySecs.has(sec)?'未記録の変更あり':hasSec(r,sec)?'記録済み':sec==='note'?'なし（空欄でOK）':sec==='period'?'なし':sec==='home'?(planOf(r||{})!=null?'予定どおりとして扱います':'未記録'):'未記録';}
+  el.textContent=dirtySecs.has(sec)?'未記録の変更あり':hasSec(r,sec)?'記録済み':(sec==='work'||sec==='home')&&r&&r.off?'お休みの日（空欄でOK）':sec==='note'?'なし（空欄でOK）':sec==='period'?'なし':sec==='home'?(planOf(r||{})!=null?'予定どおりとして扱います':'未記録'):'未記録';}
 function headState(){$('#fState').textContent=S.days[sel]?'記録あり':'未記録'}
 function clearWarn(sec){if(warnKeys[sec]){warnKeys[sec]='';$('[data-save="'+sec+'"]').textContent=SEC_NAME[sec]+'を記録'}$('#w-'+sec).hidden=true}
 function markDirty(sec){dirtySecs.add(sec);dirty=true;clearWarn(sec);secState(sec)}
@@ -2146,6 +2174,7 @@ function fillSec(sec){
     const c=r.commute||{};fillSlots(c.slot||'');F.slotName.hidden=true;F.slotName.value='';
     F.dep.value=c.dep||'';F.arr.value=c.arr||'';F.dep.classList.remove('tentative');F.arr.classList.remove('tentative');
     $('#commuteTimes').hidden=!c.slot&&!c.dep;commuteHint();
+    offType=(r.off&&r.off.type)||'';$('#fOffMemo').value=(r.off&&r.off.memo)||'';renderOff();
   }else if(sec==='other'){const o=r.other||{};renderActRows(o.items||[]);F.omemo.value=o.memo||''}
   else if(sec==='work'){const w=r.work||{};F.ws.value=w.start||'';F.we.value=w.end||'';F.ws.dataset.pattern=w.pattern||'';workHint()}
   else if(sec==='hobby'){const h=r.hobby||{};hobbySes=hobbySesOf(h);hobbyMemo=clone(h.memos||{});$('#fHobbyMemo').value=h.memo||'';$('#fHobbyMemo').hidden=!h.memo;renderHobbyForm()} /* 以前の「全体のメモ」は書いてある日だけ表示 */
@@ -2166,7 +2195,7 @@ function fillForm(){
   openFirstTodo();
 }
 function openFirstTodo(){const r=S.days[sel],vis=[...document.querySelectorAll('#form .sec')].filter(x=>!x.hidden);
-  const first=vis.find(x=>!hasSec(r,x.dataset.sec)&&x.dataset.sec!=='note'&&x.dataset.sec!=='home')||vis[0];vis.forEach(x=>setClosed(x,x!==first))}
+  const first=vis.find(x=>!hasSec(r,x.dataset.sec)&&x.dataset.sec!=='note'&&x.dataset.sec!=='home'&&!(r&&r.off&&x.dataset.sec==='work'))||vis[0];vis.forEach(x=>setClosed(x,x!==first))}
 function refreshClean(){Object.keys(SEC).forEach(s=>{if(!dirtySecs.has(s))fillSec(s);else secState(s)});headState()}
 Object.entries(SEC).forEach(([sec,els])=>els.forEach(el=>{el.addEventListener('input',()=>markDirty(sec));el.addEventListener('change',()=>markDirty(sec))}));
 
@@ -2282,15 +2311,28 @@ function renderPChips(){const ps=allPatterns(),box=$('#pChips');
   const curSlot=F.slot.value;
   box.innerHTML=ps.map((x,i)=>{const on=curSlot===x.slot&&F.dep.value===(x.dep||'')&&F.arr.value===(x.arr||'')&&(!x.ws||(F.ws.value===x.ws&&F.we.value===x.we));
     return '<button type="button" data-p="'+i+'" aria-pressed="'+on+'">'+esc(x.place)+(x.name?'・'+esc(x.name):'')+'<small>'+(x.ws?x.ws+'〜'+x.we+' / ':'')+'通勤 '+(x.dep||'—')+'→'+(x.arr||'—')+'</small></button>'}).join('')+
-    '<button type="button" class="off" data-p="off">休み<small>通勤・勤務なし</small></button>';
+    [['kokyu','休日（公休）'],['yotei','予定休'],['kekkin','欠勤']].map(([k,n])=>'<button type="button" class="off" data-p="off:'+k+'" aria-pressed="'+(offType===k)+'">'+n+'<small>通勤・勤務なし</small></button>').join('');
   $('#pHint').hidden=ps.length>0;}
 $('#pChips').addEventListener('click',e=>{const b=e.target.closest('[data-p]');if(!b)return;
-  if(b.dataset.p==='off'){fillSlots('');F.dep.value='';F.arr.value='';$('#commuteTimes').hidden=true;F.ws.value='';F.we.value='';F.ws.dataset.pattern='';F.home.value='';}
-  else{const x=allPatterns()[+b.dataset.p];fillSlots(x.slot);F.slotName.hidden=true;$('#commuteTimes').hidden=false;
+  if(b.dataset.p.startsWith('off')){fillSlots('');F.dep.value='';F.arr.value='';$('#commuteTimes').hidden=true;F.ws.value='';F.we.value='';F.ws.dataset.pattern='';F.home.value='';offType=b.dataset.p.split(':')[1]||'kokyu';renderOff()}
+  else{offType='';renderOff();const x=allPatterns()[+b.dataset.p];fillSlots(x.slot);F.slotName.hidden=true;$('#commuteTimes').hidden=false;
     F.dep.value=x.dep||'';F.arr.value=x.arr||'';[F.dep,F.arr].forEach(el=>el.classList.remove('tentative'));
     if(x.ws){F.ws.value=x.ws;F.we.value=x.we;F.ws.dataset.pattern=x.place+(x.name?'・'+x.name:'')}}
   commuteHint();workHint();homePlanHint();markDirty('commute');markDirty('work');renderPChips();$('#pSaveRow').hidden=false;});
-$('#pSave').onclick=()=>saveMulti(['commute','work','home'],'通勤・勤務・帰宅を記録');
+$('#pSave').onclick=()=>saveMulti(['commute','work','home'],offType?'お休みを記録':'通勤・勤務・帰宅を記録');
+/* お休み（予定休・欠勤など）：選ぶと通勤の入力を隠し、通勤は記録しない */
+function renderOff(){const on=!!offType,html=OFF_TYPES.map(([k,n])=>'<button type="button" data-off="'+k+'" class="'+(OFF_ABSENT.has(k)?'abs':'')+'" aria-pressed="'+(offType===k)+'">'+n+'</button>').join('');
+  $('#offChips').innerHTML=html;$('#pOffChips').innerHTML=html;$('#pOffRow').hidden=!on;
+  F.slot.hidden=on;if(on){F.slotName.hidden=true;$('#commuteTimes').hidden=true}else{F.slotName.hidden=F.slot.value!=='__new';$('#commuteTimes').hidden=!F.slot.value&&!F.dep.value}
+  $('#commuteHint').hidden=on;$('#fOffMemo').hidden=!on;$('#offCancel').hidden=!on;
+  $('#offLbl').innerHTML=on?'<b>お休み：'+esc(offInfo(offType)[1])+'</b>（通勤は記録しません。種類はここで変えられます）':'お休みの日は、種類を選んでください（通勤は記録しません）';
+  if(!multiKey)$('#pSave').textContent=on?'お休みとして記録':'通勤・勤務・帰宅をまとめて記録'}
+function setOff(t){offType=t;if(t){fillSlots('');F.dep.value='';F.arr.value='';[F.dep,F.arr].forEach(el=>el.classList.remove('tentative'))}renderOff();commuteHint();homePlanHint();markDirty('commute');renderPChips()}
+['#offChips','#pOffChips'].forEach(cid=>$(cid).addEventListener('click',e=>{const b=e.target.closest('[data-off]');if(!b)return;const k=b.dataset.off;
+  if(cid==='#pOffChips'){if(k===offType)return;offType=k;renderOff();renderPChips();markDirty('commute');return}
+  setOff(offType===k?'':k)}));
+$('#offCancel').onclick=()=>setOff('');
+$('#fOffMemo').addEventListener('input',()=>markDirty('commute'));
 function workHint(){const a=toMin(F.ws.value),b=toMin(F.we.value),el=$('#workHint');
   el.textContent=(a!=null&&b!=null)?'勤務時間 '+dur((b-a+1440)%1440)+((b<a)?'（日をまたぐ勤務として計算）':''):'終了が開始より前の時刻なら、日をまたいだ勤務として計算します。休みの日は空欄で大丈夫です。'}
 [F.ws,F.we].forEach(el=>el.addEventListener('input',()=>{F.ws.dataset.pattern='';workHint();homePlanHint();renderPChips()}));
@@ -2323,7 +2365,8 @@ function checkSec(sec){
     if(F.wake.value&&abs(F.wakeDay,F.wake.value)>now+5*60000)warn.push('起床の日時が未来になっています');
     if(!F.bed.value&&!F.wake.value&&hasSec(S.days[sel],'sleep'))warn.push('寝支度と起床が空なので、この日の睡眠の記録を消します');}
   if(sec==='mood'&&!kiSet&&!taiSet&&hasSec(S.days[sel],'mood'))warn.push('未入力なので、この日の気力・体力の記録を消します');
-  if(sec==='commute'){const a=toMin(F.dep.value),b=toMin(F.arr.value);
+  if(sec==='commute'&&offType){if(F.ws.value||F.we.value)warn.push('お休みにしますが、勤務時間の欄に時刻が入っています（半日だけ働いた日などは、そのままで大丈夫です）')}
+  else if(sec==='commute'){const a=toMin(F.dep.value),b=toMin(F.arr.value);
     if(F.slot.value==='__new'&&!F.slotName.value.trim())err.push('行き先の名前を入れてください');
     if((a==null)!==(b==null))warn.push('出発か到着の片方が空です');
     if(a!=null&&b!=null){const m=(b-a+1440)%1440;if(m===0)warn.push('出発と到着が同じ時刻です');else if(m>240)warn.push('片道 '+dur(m)+' になっています（出発と到着が逆かもしれません）');}
@@ -2366,7 +2409,8 @@ function buildPatch(sec){
   const patch={};
   if(sec==='sleep'){if(F.bed.value){patch.bed=F.bed.value;patch.bedDay=+F.bedDay.value}if(F.wake.value){patch.wake=F.wake.value;patch.wakeDay=+F.wakeDay.value}}
   if(sec==='mood'){if(kiSet)patch.ki=+F.ki.value;if(taiSet)patch.tai=+F.tai.value}
-  if(sec==='commute'){let slot=F.slot.value;
+  if(sec==='commute'&&offType){const o={type:offType},m=$('#fOffMemo').value.trim();if(m)o.memo=m;patch.off=o}
+  else if(sec==='commute'){let slot=F.slot.value;
     if(slot==='__new'){slot='s'+Date.now().toString(36);S.settings.slots.push({id:slot,name:F.slotName.value.trim(),dep:F.dep.value,arr:F.arr.value});saveSettings();}
     if(slot||F.dep.value||F.arr.value){patch.commute={slot:slot||'',dep:F.dep.value,arr:F.arr.value};
       const s=S.settings.slots.find(x=>x.id===slot);if(s&&!s.dep&&!s.arr){s.dep=F.dep.value;s.arr=F.arr.value;saveSettings()}}}
@@ -2406,8 +2450,8 @@ function saveSec(sec){
   SEC_KEYS[sec].forEach(k=>delete next[k]);Object.assign(next,patch);
   if(Object.keys(next).length)S.days[sel]=next;else delete S.days[sel];
   saveDay(sel);
-  const removed=!Object.keys(patch).length;
-  changed(sel,before,SEC_NAME[sec]+(removed?'を消去':'を記録'),md(sel)+'の'+SEC_NAME[sec]+(removed?'を消しました':'を記録しました'));
+  const removed=!Object.keys(patch).length,snm=patch.off?'お休み（'+offInfo(patch.off.type)[1]+'）':SEC_NAME[sec];
+  changed(sel,before,snm+(removed?'を消去':'を記録'),md(sel)+'の'+snm+(removed?'を消しました':'を記録しました'));
   dirtySecs.delete(sec);dirty=dirtySecs.size>0;
   render(false);refreshClean();
   {const se=document.querySelector('#form .sec[data-sec="'+sec+'"]'),vis=[...document.querySelectorAll('#form .sec')].filter(x=>!x.hidden),i=vis.indexOf(se);
@@ -2447,7 +2491,6 @@ $('#noteChips').addEventListener('click',e=>{const b=e.target.closest('[data-t]'
 $('#noteOpts').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;
   const ta=F.note,v=ta.value,sep=/：$/.test(v)?'':'、';ta.value=v+sep+b.dataset.a;markDirty('note');$('#noteOpts').hidden=true});
 document.querySelectorAll('[data-save]').forEach(b=>b.onclick=()=>saveSec(b.dataset.save));
-let multiKey='';
 function saveMulti(secs,label){
   let err=0,warn=[];secs.forEach(sec=>{$('#w-'+sec).hidden=true;const c=checkSec(sec);if(c.err.length){showWarn(sec,c.err,'記録できません');err++}else warn.push(...c.warn.map(x=>SEC_NAME[sec]+'：'+x))});
   if(err){toast('入力を直してください');return}
@@ -2793,7 +2836,7 @@ let tt;function toast(m,act){const t=$('#toast'),b=$('#toastBtn');$('#toastMsg')
 
 /* ---------- 変更履歴と取り消し ---------- */
 const describe=r=>{if(!r)return'記録なし';const a=[];if(r.hobby&&hobbyTotal(r)>0)a.push('趣味'+hobbyTotal(r)+'分');if(r.body&&Object.keys(r.body).length)a.push('体の記録');if(r.period&&r.period.flow)a.push('生理');if(r.meds)a.push('お薬');if(r.home)a.push('帰宅'+(r.home.time?' '+r.home.time:'')+(r.home.cat?'（'+r.home.cat+'）':''));
-  if(r.bed)a.push('寝支度 '+r.bed);if(r.wake)a.push('起床 '+r.wake);if(r.ki!=null)a.push('気力'+r.ki+'%');if(r.tai!=null)a.push('体力'+r.tai+'%');
+  if(r.off)a.push('お休み（'+offInfo(r.off.type)[1]+'）');if(r.bed)a.push('寝支度 '+r.bed);if(r.wake)a.push('起床 '+r.wake);if(r.ki!=null)a.push('気力'+r.ki+'%');if(r.tai!=null)a.push('体力'+r.tai+'%');
   if(r.commute&&(r.commute.dep||r.commute.arr))a.push('通勤 '+(r.commute.dep||'?')+'→'+(r.commute.arr||'?'));if(r.other)a.push('その他'+((r.other.items||[]).length?(r.other.items.length+'件'):'メモ'));if(r.work&&(r.work.start||r.work.end))a.push('勤務 '+(r.work.start||'?')+'〜'+(r.work.end||'?'));if(r.prep!=null)a.push('支度'+r.prep+'分');if(r.note)a.push('メモあり');
   return a.join('・')||'記録なし'};
 function logChange(k,before,what){
@@ -2833,6 +2876,7 @@ function dayText(k){
   if(it.mood&&(r.ki!=null||r.tai!=null))L.push('気力：'+(r.ki??'—')+'% ／ 体力：'+(r.tai??'—')+'%');
   if(it.commute&&r.commute&&(r.commute.dep||r.commute.arr)){const c=r.commute,sl=S.settings.slots.find(x=>x.id===c.slot),a=toMin(c.dep),b=toMin(c.arr);
     L.push('通勤：'+(sl?sl.name+' ':'')+(c.dep||'?')+' → '+(c.arr||'?')+(a!=null&&b!=null?'（片道'+((b-a+1440)%1440)+'分）':''))}
+  if(it.commute&&r.off)L.push('お休み：'+offName(r.off));
   if(it.work&&r.work&&(r.work.start||r.work.end)){const w=workLen(r);L.push('勤務：'+(r.work.pattern?r.work.pattern+' ':'')+(r.work.start||'?')+' 〜 '+(r.work.end||'?')+(w!=null?'（'+dur(w)+'）':''))}
   if(it.home!==false){const i=homeInfo(r);if(i.actual!=null||i.plan!=null){L.push('帰宅：'+(i.actual!=null?hm(i.actual):hm(i.plan)+'（予定どおり）')+(i.diff?'（予定'+hm(i.plan)+'より'+(i.diff>0?i.diff+'分遅い':(-i.diff)+'分早い')+'）':''));
     if(i.cat||i.reason)L.push('帰宅の理由：'+[i.cat,i.reason].filter(Boolean).join(' ／ '))}}
@@ -2888,6 +2932,7 @@ function reportText(){
     if(s&&s.len!=null)L.push('睡眠時間　：'+durJ(s.len));}
   if(r.ki!=null||r.tai!=null){sec('今日のコンディション');L.push('気力：'+(r.ki??'—')+'%　体力：'+(r.tai??'—')+'%')}
   if(r.prep!=null){sec('朝支度');L.push(r.prep+'分')}
+  if(r.off){sec('お休み');L.push(offName(r.off))}
   if(r.commute&&(r.commute.dep||r.commute.arr)){const c=r.commute,sl=S.settings.slots.find(x=>x.id===c.slot),a=toMin(c.dep),b=toMin(c.arr);
     sec('通勤');L.push((sl?sl.name+'　':'')+'出発 '+(c.dep||'—')+' → 到着 '+(c.arr||'—')+(a!=null&&b!=null?'（片道'+((b-a+1440)%1440)+'分）':''))}
   if(r.work&&(r.work.start||r.work.end)){const w=workLen(r),i=homeInfo(r);sec('勤務');L.push((r.work.pattern?r.work.pattern+'　':'')+(r.work.start||'—')+' 〜 '+(r.work.end||'—')+(w!=null?'（'+durJ(w)+'）':''));
@@ -2919,6 +2964,7 @@ const TB_COLS=[['date','日付',k=>k],['wd','曜日',k=>WD[parse(k).getDay()]],
   ['bed','寝支度',(k,r)=>r.bed?dayTime(k,bedOff(r),r.bed).replace(/\(.\)/,''):''],['wake','起床',(k,r)=>r.wake||''],
   ['sleepH','睡眠時間(時間)',k=>{const x=sleepOf(k);return x&&x.len!=null?(x.len/60).toFixed(2):''}],
   ['ki','気力(%)',(k,r)=>r.ki??''],['tai','体力(%)',(k,r)=>r.tai??''],
+  ['off','お休み',(k,r)=>r.off?offInfo(r.off.type)[1]:''],['offMemo','お休みのメモ',(k,r)=>(r.off||{}).memo||''],
   ['place','通勤先',(k,r)=>{const c=r.commute;const sl=c&&S.settings.slots.find(x=>x.id===c.slot);return sl?sl.name:''}],
   ['dep','出発',(k,r)=>(r.commute||{}).dep||''],['arr','到着',(k,r)=>(r.commute||{}).arr||''],['comm','通勤片道(分)',(k,r)=>commLen(r.commute)??''],
   ['pattern','勤務パターン',(k,r)=>(r.work||{}).pattern||''],['ws','勤務開始',(k,r)=>(r.work||{}).start||''],['we','勤務終了',(k,r)=>(r.work||{}).end||''],
@@ -3004,6 +3050,7 @@ const HELP=[
   ['入力する項目を切り替えたい','日付の下のプルダウン（例：「1. 睡眠（未記録）」）で項目を選びます。‹ › で前後の項目に順に進めます。どこまで記録したかは「記録済み ○/○」で分かります。','main','input','#secTabs'],
   ['よく使う時刻や数値をワンタップで入れたい','入力欄の下に並ぶ「23:00」「50%」などのボタンを押すと、その値が入ります。候補は「設定 → 入力候補ボタン」で変えられます。','main','input','#form .qchips'],
   ['まとめて保存したい・間違えたので戻したい','「まとめて記録」で表示中の項目をまとめて保存します。「↶ 戻す」で直前の変更を取り消せます。右上の時計ボタンでは過去の変更履歴から戻せます。','main','input','#barSaveAll'],
+  ['休みの日（予定休・欠勤など）を記録したい','「勤務パターンでまとめて入力」の「休日（公休）」「予定休」「欠勤」を押すか、「通勤」の欄の下にあるお休みの種類（有給休暇・代休・病欠なども選べます）を押します。通勤は記録されず、カレンダーに「予定休」「欠勤」などと表示されます。','main','input','#patternBar'],
   ['通勤と勤務時間をいっぺんに入れたい','「勤務パターンでまとめて入力」のボタンを押すと、通勤と勤務の時刻が一度に入ります。パターンは「設定 → 通勤・勤務パターン」で登録します。','main','input','#patternBar'],
   ['ダイエット・月経・趣味などを記録したい','「設定 → 使う機能」でオンにすると、記録画面に「体の記録」「月経」「お薬」「趣味」などの欄が増えます。記録のページは1つで、オフにすると欄が消えます（記録は残ります）。','settings',null,'#sg0']]],
  ['見る・振り返る',[
@@ -3326,7 +3373,7 @@ document.querySelector('.dtab2').addEventListener('click',e=>{const b=e.target.c
 /* QRコード：記録と設定を圧縮して1枚に入れる。読み取りは強い順に BarcodeDetector → ZXing(wasm) → jsQR を試す */
 const QR_LIB='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js',QR_READ_LIB='https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js',
   ZX_LIB='https://cdn.jsdelivr.net/npm/zxing-wasm@3.1.4/dist/iife/reader/index.js',ZX_WASM='https://cdn.jsdelivr.net/npm/zxing-wasm@3.1.4/dist/reader/zxing_reader.wasm',PAKO_LIB='https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js';
-const APP_VER='2026.10.23e';
+const APP_VER='2026.10.28a';
 /* 部品（QRの作成・読み取り）は初回にネットから読み込み、端末に保存しておく（ホーム画面のアプリやオフラインでも使えるように） */
 const LIB_CACHE='mynote-lib-v1';
 async function libCacheOpen(){try{return window.caches?await caches.open(LIB_CACHE):null}catch(e){return null}}
